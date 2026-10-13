@@ -61,3 +61,19 @@
 .engraving-upload .engraving-preview{max-height:160px}
 @media(max-width:800px){#custom-cart-lines .order-cart-line>img{width:66px;height:66px;flex-basis:66px}.cart-art{width:calc(50% - 8px)}#request-order{padding:16px 0}}
 @media(prefers-reduced-motion:reduce){.enhanced-zoom .zoom-stage img{will-change:auto}}
+
+/* Mobile cart: tactile quantity controls, shipping and totals */
+#custom-cart-lines .cart-qty-wrap{margin:12px 0;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:13px;font-weight:700}
+#custom-cart-lines .cart-qty{display:inline-flex;align-items:center;overflow:hidden;border:1px solid #ddc9aa;border-radius:13px;background:#fffdf8}
+#custom-cart-lines .cart-qty button{width:46px;height:46px;min-width:46px;border:0;background:#f1e4cf;color:#4b351d;font-size:23px;font-weight:600;cursor:pointer}
+#custom-cart-lines .cart-qty button:disabled{opacity:.35;cursor:not-allowed}
+#custom-cart-lines .cart-qty output{min-width:42px;text-align:center;font-size:16px;font-variant-numeric:tabular-nums}
+#custom-cart-lines .cart-qty button:focus-visible{outline:3px solid #a67a39;outline-offset:-3px}
+#request-order .cart-shipping{border:1px solid #e4d2b6;border-radius:16px;padding:16px;margin:20px 0;background:#fffaf1}
+#request-order .cart-shipping legend{font-size:16px;font-weight:800;padding:0 8px;color:#5a3f22}
+#request-order .cart-shipping label{display:block;margin:12px 0}
+#request-order .cart-shipping input{display:block;width:100%;box-sizing:border-box}
+#request-order .cart-section-heading{margin:22px 0 12px;font-size:17px}
+.order-total .cart-summary-line{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0}
+.order-total .cart-summary-line b{white-space:nowrap}
+@media(max-width:800px){#custom-cart-lines .order-cart-line{padding:18px 0}#request-order .cart-shipping{padding:13px}}
