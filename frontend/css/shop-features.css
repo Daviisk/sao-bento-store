@@ -122,3 +122,5 @@
 #veil .drawer .detailLayout h2{font-size:clamp(22px,5.4vw,30px);line-height:1.2}
 @media(max-width:800px){#veil .drawer>.x{position:sticky;top:0;z-index:15}#veil .drawer .product-sheet-heading{top:0}#veil .drawer .detailLayout{padding-bottom:20px}}
 @media(prefers-reduced-motion:no-preference){#veil:not([hidden]) .drawer{animation:sheet-enter .18s ease-out}@keyframes sheet-enter{from{opacity:.9;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}}
+
+#veil .drawer .purchase-actions{display:grid;gap:9px;position:sticky;bottom:0;z-index:8;padding:10px 0 max(12px,env(safe-area-inset-bottom));background:#fffaf2;border-top:1px solid #e7d7be}#veil .drawer .purchase-actions .primary{position:static!important;margin:0!important;box-shadow:none!important}#veil .drawer .buy-now{min-height:48px;width:100%;border:1px solid #9a723f;border-radius:12px;background:transparent;color:#614421;font:inherit;font-weight:700;cursor:pointer}
