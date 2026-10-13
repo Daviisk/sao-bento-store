@@ -132,3 +132,34 @@
 #veil .drawer.sheet-closing{animation:sheet-dismiss .2s ease-in forwards!important;pointer-events:none}
 @keyframes sheet-dismiss{from{transform:translateY(0);opacity:1}to{transform:translateY(105%);opacity:.8}}
 @media(prefers-reduced-motion:reduce){#veil .drawer.sheet-closing{animation:none!important}}
+
+/* Mobile-first visual refinement: warm neutrals and accessible product sheets */
+#veil .drawer{--sheet-ink:#39291b;--sheet-muted:#786653;--sheet-line:#e8dac5;color:var(--sheet-ink);background:#fdf9f1;box-sizing:border-box}
+#veil .drawer h2,#veil .drawer .sheet-title{font-size:clamp(23px,5.8vw,30px);line-height:1.18;letter-spacing:-.025em;font-weight:750;margin:12px 0 16px}
+#veil .drawer h3{font-size:clamp(17px,4.4vw,21px);line-height:1.3;letter-spacing:-.012em}
+#veil .drawer p,#veil .drawer label{line-height:1.55}
+#veil .drawer .notice{color:var(--sheet-muted);font-size:13px}
+#veil .drawer>.x{background:#f2e6d4;border:1px solid #e1d0b7;border-radius:50%;color:#49331e;box-shadow:none}
+#veil .drawer>.x:active{transform:scale(.96)}
+#veil .drawer .favorite-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;min-height:min(58dvh,440px);padding:24px 18px;max-width:440px;margin:0 auto}
+#veil .drawer .favorite-empty-icon{display:grid;place-items:center;width:88px;height:88px;border-radius:50%;background:#f4e9d9;color:#956f3c;border:1px solid #e6d3b8;font-size:56px;line-height:1}
+#veil .drawer .favorite-empty h3{margin:8px 0 0;font-size:22px}
+#veil .drawer .favorite-empty p{max-width:300px;margin:0;color:#77634f;font-size:14px}
+#veil .drawer .favorite-empty .primary{margin-top:12px;min-height:48px;min-width:175px}
+#veil .drawer .detailLayout{gap:20px}
+#veil .drawer .detailGallery,#veil .drawer .detailImg{border-radius:16px;overflow:hidden}
+#veil .drawer .detailImg{object-fit:contain;background:#f6eee2}
+#veil .drawer .price{font-size:clamp(23px,6vw,29px);font-weight:800;letter-spacing:-.02em;color:#46301b}
+#veil .drawer .engraving-uploads{border-radius:16px;border-color:#e3d2b9;background:#fffaf2}
+#veil .drawer .engraving-upload{border-radius:13px;background:#fffdf9}
+#veil .drawer input:not([type=file]):not([type=checkbox]),#veil .drawer select,#veil .drawer textarea{max-width:100%;min-height:46px;box-sizing:border-box;border-radius:11px;font-size:16px}
+#veil .drawer textarea{min-height:104px}
+#veil .drawer :is(input,select,textarea,button):focus-visible{outline:2px solid #ae8245;outline-offset:2px}
+#veil .drawer .row{min-width:0;padding:14px 0;border-color:#e8dac5}
+#veil .drawer .row img{border-radius:12px;background:#f5ecde;object-fit:contain}
+#veil .drawer .row>div{min-width:0}
+#veil .drawer .primary{transition:filter .15s ease,transform .15s ease}
+#veil .drawer .primary:active{filter:brightness(.94);transform:scale(.99)}
+@media(max-width:380px){#veil .drawer{padding-left:14px!important;padding-right:14px!important}#veil .drawer .product-sheet-heading{padding-right:56px;font-size:12px}#veil .drawer .product-steps span{font-size:10px;padding:6px 7px}#veil .drawer .favorite-empty{min-height:52dvh}}
+@media(max-height:540px) and (orientation:landscape){#veil .drawer .favorite-empty{min-height:260px}#veil .drawer .detailImg{height:180px}}
+@media(prefers-reduced-motion:reduce){#veil .drawer .primary,#veil .drawer>.x{transition:none}}
