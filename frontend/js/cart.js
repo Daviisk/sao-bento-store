@@ -10,7 +10,7 @@
  // Preview prices are display-only. Checkout always uses the server catalog.
  // Embedded/HTTPS previews also lack the API: keep display prices in every preview.
  // checkoutConfigured stays false until the backend explicitly enables checkout.
- products=new Map([...cards].map(([id,card])=>[id,{productId:id,name:card.querySelector('h3').textContent,priceCents:card.dataset.priceCents==='consulta'?null:15000,enabled:true,maxQuantity:10}]));
+ products=new Map([...cards].map(([id,card])=>[id,{productId:id,name:card.querySelector('h3').textContent,priceCents:card.dataset.priceCents==='consulta'?null:Number(card.dataset.priceCents||15000),enabled:true,maxQuantity:10}]));
  const cash=n=>Number.isSafeInteger(n)&&n>=0?(n/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'Sob consulta';
  const create=(tag,text,className)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(className)el.className=className;return el;};
  const notice=(text)=>{const box=get('#cart-message');box.textContent=text;box.hidden=!text;};
