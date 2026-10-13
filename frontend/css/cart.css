@@ -218,3 +218,14 @@ button:disabled,.button[aria-disabled=true]{opacity:.5;cursor:not-allowed;transf
  #cart-drawer .cart-line{grid-template-columns:65px minmax(0,1fr)}
  #cart-drawer .cart-line img{width:65px;height:75px}
 }
+
+/* Consistent checkout controls and compact cart hierarchy */
+#cart-drawer .cart-line{border-radius:13px}
+#cart-drawer .cart-line img{object-fit:contain;background:#f5ede0;border-radius:11px}
+#cart-drawer .cart-content :is(input,select,textarea){box-sizing:border-box;max-width:100%;min-height:46px;font-size:16px;border-radius:11px}
+#cart-drawer .cart-content textarea{min-height:96px}
+#cart-drawer .cart-content :is(input,select,textarea):focus-visible{outline:2px solid #ae8245;outline-offset:2px}
+#cart-drawer .cart-heading{color:#39291b}
+#cart-drawer .cart-content label{line-height:1.45}
+#cart-drawer .cart-content button:active{filter:brightness(.95)}
+@media(max-width:380px){#cart-drawer .cart-content{padding-left:13px;padding-right:13px}#cart-drawer .delivery-form{padding:14px 12px}}
