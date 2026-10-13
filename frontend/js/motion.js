@@ -1,2 +1,2 @@
-/* Scroll reveal removed: visible content must not disappear when entering the viewport. */
-
+/* Mobile navigation selection: preserve existing navigation actions. */
+(()=>{'use strict';function init(){const nav=document.querySelector('.bottom');if(!nav)return;const buttons=[...nav.querySelectorAll('button')];function activate(button){buttons.forEach(b=>{const selected=b===button;b.classList.toggle('active',selected);if(selected)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});}activate(buttons[0]);nav.addEventListener('click',e=>{const button=e.target.closest('button');if(button&&nav.contains(button))activate(button);});}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();})();
