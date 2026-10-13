@@ -10,8 +10,8 @@
  // Preview prices are display-only. Checkout always uses the server catalog.
  // Embedded/HTTPS previews also lack the API: keep display prices in every preview.
  // checkoutConfigured stays false until the backend explicitly enables checkout.
- products=new Map([...cards].map(([id,card])=>[id,{productId:id,name:card.querySelector('h3').textContent,priceCents:15000,enabled:true,maxQuantity:10}]));
- const cash=n=>Number.isSafeInteger(n)&&n>=0?(n/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'A definir';
+ products=new Map([...cards].map(([id,card])=>[id,{productId:id,name:card.querySelector('h3').textContent,priceCents:card.dataset.priceCents==='consulta'?null:15000,enabled:true,maxQuantity:10}]));
+ const cash=n=>Number.isSafeInteger(n)&&n>=0?(n/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'Sob consulta';
  const create=(tag,text,className)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(className)el.className=className;return el;};
  const notice=(text)=>{const box=get('#cart-message');box.textContent=text;box.hidden=!text;};
  function toast(text){get('#cart-toast').textContent=text;get('#cart-toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>get('#cart-toast').hidden=true,4500);}
@@ -91,7 +91,7 @@
    controls.append(minus,input,plus);body.append(controls);
    const bottom=create('div',undefined,'cart-line-bottom'),remove=create('button','Remover','cart-remove');remove.dataset.cartFocus=item.productId+'-remove';remove.type='button';remove.disabled=busy;remove.setAttribute('aria-label',`Remover ${card.querySelector('h3').textContent}`);remove.addEventListener('click',()=>{cart.remove(item.productId);changed();});bottom.append(create('strong',cash(subtotal)),remove);body.append(bottom);line.append(body);lines.append(line);
   }
-  get('#cart-total').textContent=ready?cash(total):'A definir';
+  get('#cart-total').textContent=ready?cash(total):'Sob consulta';
   if(selectedQuote&&selectedQuote.expiresAt<=Date.now()){invalidateQuote();get('#shipping-message').textContent='A cotação expirou. Calcule o frete novamente.';}
   get('#shipping-total').textContent=selectedQuote?cash(selectedQuote.priceCents):'A calcular';get('#grand-total').textContent=ready&&selectedQuote?cash(total+selectedQuote.priceCents):'A calcular';
   get('#shipping-calculate').disabled=busy||quoteBusy||!ready;get('#shipping-calculate').textContent=quoteBusy?'Calculando frete…':'Calcular frete pelo CEP';
