@@ -9,7 +9,7 @@ import {createShipping,createShippingProvider} from './services/shipping.js';
 const baseConfig=readConfig(process.env);
 const hasSharedDatabase=Boolean(baseConfig.databaseUrl);
 const config={...baseConfig,trustProxy:'loopback',durableStorage:hasSharedDatabase};
-const store=hasSharedDatabase?createPostgresStore(baseConfig.databaseUrl):openStore('/tmp/dobroes-shop.sqlite');
+const store=hasSharedDatabase?createPostgresStore(baseConfig.databaseUrl,baseConfig.databaseSchema):openStore('/tmp/dobroes-shop.sqlite');
 const gateway=createGateway({...config,accessToken:config.mode==='disabled'?'':config.accessToken});
 const shipping=createShipping(store,createShippingProvider());
 const app=createApp({config,catalog:products,store,gateway,shipping});

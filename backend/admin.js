@@ -1,5 +1,7 @@
 import {createHash,createHmac,timingSafeEqual} from 'node:crypto';
 import {fail} from './validation.js';
+import {validateImage,cleanText,statusLabels} from './commerce.js';
+import {randomUUID} from 'node:crypto';
 
 const fulfillmentStatuses=new Set(['awaiting_payment','paid','preparing','shipped','delivered','hold','cancelled']);
 const fulfillableStatuses=new Set(['preparing','shipped','delivered']);
@@ -20,7 +22,7 @@ function publicAdminOrder(order){
   return {supportRequests:order.supportRequests||[],orderId:order.orderId,orderCode:order.orderCode||String(order.orderId).slice(0,8).toUpperCase(),createdAt:order.createdAt,customer:order.customer||null,items:order.items||[],productsTotal:order.productsTotal,total:order.total,currency:order.currency||'BRL',shipping:order.shipping||null,address:order.address||null,status:order.status,paymentProvider:order.paymentProvider||'mercadopago',paymentId:order.paymentId||order.providerOrderId||null,providerStatusDetail:order.providerStatusDetail||'',providerUpdatedAt:order.providerUpdatedAt||null,fulfillmentStatus:order.fulfillmentStatus||'awaiting_payment',fulfillmentHistory:Array.isArray(order.fulfillmentHistory)?order.fulfillmentHistory:[],trackingCode:order.trackingCode||'',adminNotes:order.adminNotes||'',fulfillmentUpdatedAt:order.fulfillmentUpdatedAt||null};
 }
 
-export function mountAdmin(app,{config,store,limit}){
+export function mountAdmin(app,{config,store,limit,commerce}){
   const loginLimit=limit(8,15*60*1000);
   const requireAdmin=async(req,res,next)=>{if(!await validSession(req,config,store))return res.status(401).json({error:'admin_required',message:'Faça login para acessar o painel.'});next();};
   const adminMutation=(req,res,next)=>{if(req.get('origin')!==config.baseURL)fail(403,'origin_forbidden','Origem não permitida.');next();};
@@ -69,6 +71,18 @@ export function mountAdmin(app,{config,store,limit}){
     if(fulfillableStatuses.has(fulfillmentStatus)&&current.status!=='paid')fail(409,'payment_not_confirmed','Só é possível preparar ou enviar pedidos com pagamento confirmado.');
     const order=await store.updateFulfillment(req.params.orderId,{fulfillmentStatus,trackingCode,adminNotes});res.json(publicAdminOrder(order));
   });
+  if(commerce){
+    app.get('/api/admin/catalog',requireAdmin,async(req,res)=>res.json({products:await commerce.catalog()}));
+    app.post('/api/admin/catalog',requireAdmin,adminMutation,async(req,res)=>res.status(201).json(await commerce.productMutation(req.body)));
+    app.patch('/api/admin/catalog/:id',requireAdmin,adminMutation,async(req,res)=>res.json(await commerce.productMutation(req.body,req.params.id)));
+    app.post('/api/admin/media',requireAdmin,adminMutation,async(req,res)=>{const media=validateImage(req.body);if(!media)fail(400,'invalid_photo','Envie uma imagem.');const id=randomUUID();await commerce.db.put('media',id,media);res.status(201).json({url:'/api/commerce/media/'+id});});
+    app.get('/api/admin/custom-orders',requireAdmin,async(req,res)=>res.json({orders:(await commerce.db.list('orders')).map(({tokenHash,owner,...o})=>o),statusLabels}));
+    app.patch('/api/admin/custom-orders/:id',requireAdmin,adminMutation,async(req,res)=>{const {tokenHash,owner,...o}=await commerce.updateOrder(req.params.id,req.body);res.json(o);});
+    app.get('/api/admin/reviews',requireAdmin,async(req,res)=>res.json({reviews:await commerce.db.list('reviews')}));
+    app.patch('/api/admin/reviews/:id',requireAdmin,adminMutation,async(req,res)=>{if(typeof req.body?.approved!=='boolean')fail(400,'invalid_review','Moderação inválida.');const r=await commerce.db.get('reviews',req.params.id);if(!r)fail(404,'not_found','Avaliação não encontrada.');r.approved=req.body.approved;await commerce.db.put('reviews',r.id,r);res.json({approved:r.approved});});
+    app.get('/api/admin/group-requests',requireAdmin,async(req,res)=>res.json({requests:await commerce.db.list('groups')}));
+    app.patch('/api/admin/group-requests/:id',requireAdmin,adminMutation,async(req,res)=>{if(!['new','contacted','quoted','closed'].includes(req.body?.status))fail(400,'invalid_status','Selecione um status válido.');const r=await commerce.db.get('groups',req.params.id);if(!r)fail(404,'not_found','Solicitação não encontrada.');r.status=req.body.status;await commerce.db.put('groups',r.id,r);res.json({saved:true});});
+  }
   app.get('/api/admin/customers',requireAdmin,async(req,res)=>res.json({customers:await store.listCustomers({q:String(req.query.q||''),limit:Math.min(500,Math.max(1,Number(req.query.limit)||200))})}));
 }
 

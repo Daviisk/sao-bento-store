@@ -63,7 +63,7 @@
  $('#dialog-close').addEventListener('click',()=>$('#order-dialog').close());$('#refresh').addEventListener('click',()=>ordersView.hidden?loadCustomers():loadOrders());
  let timer;$('#search').addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(loadOrders,250);});for(const id of ['payment-filter','fulfillment-filter','date-from','date-to'])$('#'+id).addEventListener('change',loadOrders);$('#customer-search').addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(loadCustomers,250);});
  $('#clear-filters').addEventListener('click',()=>{for(const id of ['search','payment-filter','fulfillment-filter','date-from','date-to'])$('#'+id).value='';loadOrders();});
- document.querySelectorAll('.nav').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n===btn));const customers=btn.dataset.view==='customers';ordersView.hidden=customers;customersView.hidden=!customers;$('#page-title').textContent=customers?'Clientes':'Pedidos';customers?loadCustomers():loadOrders();}));
+ document.querySelectorAll('.nav').forEach(btn=>btn.addEventListener('click',()=>{if(!['orders','customers'].includes(btn.dataset.view))return;document.getElementById('commerce-admin-view').hidden=true;document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n===btn));const customers=btn.dataset.view==='customers';ordersView.hidden=customers;customersView.hidden=!customers;$('#page-title').textContent=customers?'Clientes':'Pedidos';customers?loadCustomers():loadOrders();}));
  session();
 })();
 

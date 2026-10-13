@@ -7,7 +7,7 @@ import {createPostgresStore} from '../backend/postgres-store.js';
 import {createGateway,cardPaymentSnapshot} from '../backend/services/mercadopago.js';
 
 const config=readConfig(process.env);
-const store=config.databaseUrl?createPostgresStore(config.databaseUrl):null;
+const store=config.databaseUrl?createPostgresStore(config.databaseUrl,config.databaseSchema):null;
 const gateway=createGateway({...config,accessToken:config.mode==='disabled'?'':config.accessToken});
 export function createTrackingHandler({config,store,gateway}){
 const checkLimit=createRequestLimiter();

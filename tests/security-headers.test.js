@@ -16,7 +16,7 @@ test('edge security headers apply before static and API routes without intercept
 
 test('CORS permits only the production storefront and never cross-origin credentials',()=>{
  const headers=config.routes[0].headers;
- assert.equal(headers['Access-Control-Allow-Origin'],'https://dobroes-religiosos.vercel.app');
+ assert.equal(headers['Access-Control-Allow-Origin'],undefined); // same-origin APIs; do not publish another shop as an allowed origin
  assert.notEqual(headers['Access-Control-Allow-Origin'],'*');
  assert.equal(headers['Access-Control-Allow-Credentials'],undefined);
 });

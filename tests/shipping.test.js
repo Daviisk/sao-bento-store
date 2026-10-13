@@ -20,7 +20,7 @@ async function fixture(t){
  const quote=async()=>{const r=await post('/api/shipping/quote',{items,cep:address.cep}).expect(200);return r.body.options[0];};
  return {app,agent,post,quote,store,shipping,provider};
 }
-test('five saints cost exactly R$150 each',()=>{assert.equal(products.length,5);assert(products.every(p=>p.priceCents===15000));});
+test('capoeira catalog uses R$150 per coin and R$100 per bag',()=>{assert.equal(products.length,4);assert.deepEqual(products.map(p=>p.priceCents),[15000,15000,10000,10000]);});
 test('server shipping is included in prepared CardForm order and duplicate request reuses order',async t=>{
  const f=await fixture(t),q=await f.quote(),body={items,customer,address,quoteId:q.quoteId},key=randomUUID();
  const a=await f.post('/api/card/prepare',body,key).expect(200);const b=await f.post('/api/card/prepare',body,key).expect(200);

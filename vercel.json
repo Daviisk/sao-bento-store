@@ -75,6 +75,10 @@
       }
     },
     {
+      "src": "/acompanhar/?",
+      "dest": "/frontend/acompanhar.html"
+    },
+    {
       "src": "/",
       "dest": "/frontend/index.html"
     },
