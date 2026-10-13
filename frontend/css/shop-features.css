@@ -277,3 +277,9 @@
 #veil .drawer .engraving-upload .engraving-drop{pointer-events:none}
 #veil .drawer .engraving-upload .engraving-circle{pointer-events:none}
 #veil .drawer .engraving-uploads>.engraving-remove{position:relative;z-index:6;cursor:pointer}
+
+/* Direct purchase is visually distinct from adding to the cart */
+#veil .drawer .detail-purchase-actions{display:grid;gap:10px;margin-top:16px}
+#veil .drawer .detail-purchase-actions .buy-now-direct{display:block;width:100%;min-height:52px;border:1px solid #9d753b;border-radius:14px;background:#fffaf1;color:#553b24;font:inherit;font-weight:700;cursor:pointer}
+#veil .drawer .detail-purchase-actions .buy-now-direct:focus-visible{outline:3px solid #bd934c;outline-offset:2px}
+#veil .drawer .detail-purchase-actions button:disabled{opacity:.55;cursor:not-allowed}
