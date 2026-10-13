@@ -228,3 +228,17 @@
 #veil .drawer>.detailLayout{position:relative;z-index:0;min-width:0}
 #veil .drawer #custom-product>button[type=submit]{position:static!important;margin:18px 0 0!important;box-shadow:none!important}
 @media(max-width:380px){#veil .drawer>.sheet-top{grid-template-columns:minmax(0,1fr) max-content 44px!important;gap:5px!important}#veil .drawer>.sheet-top>.x{width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important}}
+
+/* Video review: prevent scrolled content from bleeding above the toolbar */
+#veil .drawer{overflow-y:auto!important;overflow-x:hidden!important;scroll-padding-top:92px}
+#veil .drawer>.sheet-top{z-index:200!important;isolation:isolate;background:#fdf9f1!important}
+#veil .drawer>.sheet-top::before{inset:-2px -20px -1px!important;background:#fdf9f1!important;z-index:-1!important}
+#veil .drawer .engraving-upload{padding:12px!important;gap:7px!important}
+#veil .drawer .engraving-upload .engraving-drop{min-height:60px!important;padding:10px!important}
+#veil .drawer .engraving-upload .engraving-circle{width:116px!important;max-width:45vw!important;margin:3px auto 5px!important}
+#veil .drawer .engraving-upload .engraving-side{font-size:12px}
+#veil .drawer .engraving-upload small{font-size:11px}
+#veil .drawer .engraving-upload .engraving-circle:has(img[hidden])::after{font-size:11px}
+#veil .drawer .engraving-uploads{gap:10px!important}
+#veil .drawer .engraving-upload .engraving-icon{width:30px;height:30px}
+@media(max-width:390px){#veil .drawer .engraving-upload .engraving-circle{width:102px!important}}
