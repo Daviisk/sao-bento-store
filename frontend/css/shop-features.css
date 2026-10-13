@@ -163,3 +163,23 @@
 @media(max-width:380px){#veil .drawer{padding-left:14px!important;padding-right:14px!important}#veil .drawer .product-sheet-heading{padding-right:56px;font-size:12px}#veil .drawer .product-steps span{font-size:10px;padding:6px 7px}#veil .drawer .favorite-empty{min-height:52dvh}}
 @media(max-height:540px) and (orientation:landscape){#veil .drawer .favorite-empty{min-height:260px}#veil .drawer .detailImg{height:180px}}
 @media(prefers-reduced-motion:reduce){#veil .drawer .primary,#veil .drawer>.x{transition:none}}
+
+/* Refinamento final: legibilidade, ações e espaço útil em telas pequenas */
+#veil .drawer{scrollbar-gutter:stable;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#veil .drawer .sheet-handle{flex-shrink:0}
+#veil .drawer>.x{min-width:44px;min-height:44px;touch-action:manipulation}
+#veil .drawer .product-sheet-heading{min-height:48px;box-sizing:border-box;line-height:1.35}
+#veil .drawer .product-sheet-heading span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#veil .drawer .favorite-empty{box-sizing:border-box}
+#veil .drawer .row{gap:12px;align-items:center}
+#veil .drawer .row .favorite-photo{width:68px;height:68px;flex-shrink:0;object-fit:contain}
+#veil .drawer .row .remove{font-size:12px;text-underline-offset:3px}
+#veil .drawer .row .primary{min-width:92px;min-height:44px;padding:9px 12px;font-size:12px}
+#veil .drawer .engraving-drop{min-height:76px;justify-content:center}
+#veil .drawer .engraving-circle{max-width:150px}
+#veil .drawer .engraving-side{letter-spacing:.015em}
+#veil .drawer .product-steps{margin-block:14px}
+#veil .drawer #custom-product{min-width:0}
+#veil .drawer .purchase-actions{border-radius:0;padding-bottom:max(12px,env(safe-area-inset-bottom))}
+@media(max-width:440px){#veil .drawer .row{display:grid;grid-template-columns:68px minmax(0,1fr);gap:10px}#veil .drawer .row .primary{grid-column:2;justify-self:start;width:auto}#veil .drawer .row .favorite-photo{grid-row:span 2}#veil .drawer .favorite-empty{padding-inline:12px}}
+@media(max-height:560px){#veil .drawer{max-height:calc(100dvh - 12px);height:calc(100dvh - 12px)}#veil .drawer .purchase-actions{position:static}}
