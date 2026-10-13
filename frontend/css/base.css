@@ -34,3 +34,17 @@ html[data-theme=dark]{--blue:#dfba6c;--navy:#15140f;--ink:#f1e5ce;--muted:#c4b8a
 .photoLink img[src*="bolsa-"]{object-fit:contain;object-position:center;height:100%;width:100%}.photoLink img[src$="bolsa-couro-frente.jpg"]{object-position:center 54%}.photoLink img[src$="bolsa-trio-frente.jpg"]{object-position:center 51%}.detailGallery{min-width:0}.photoThumbnails{display:flex;gap:8px;overflow-x:auto;margin-top:12px;padding-bottom:5px}.photoThumbnails button{padding:3px;background:#fffaf1;border:1px solid var(--line);border-radius:9px;flex:0 0 65px;height:65px}.photoThumbnails button[aria-pressed=true]{border:2px solid #aa7824}.drawer .photoThumbnails img{width:100%;height:100%;object-fit:cover;border-radius:6px}.drawer .detailGallery>.detailImg{object-fit:contain;background:#f4efe4}html[data-theme=dark] .photoThumbnails button{background:#211e17}.promos img[src*="bolsa-"]{object-position:center 52%}
 
 .photoLink>img{width:100%;height:100%;object-fit:contain;background:#fffaf1}.heroVisual>img{object-fit:contain}.promos img{object-fit:contain;background:#fffaf1}.drawer .photoThumbnails img{object-fit:contain}
+
+/* Cohesive catalog and mobile navigation refinements */
+#grid .card{display:flex;flex-direction:column;min-width:0;border-radius:17px;overflow:hidden}
+#grid .card .photoLink{display:flex;align-items:center;justify-content:center;aspect-ratio:1/1;background:#f7f0e5}
+#grid .card .photoLink>img{width:100%;height:100%;object-fit:contain}
+#grid .card [data-product-price]{font-weight:800;letter-spacing:-.015em}
+#grid .card .primary{min-height:44px}
+.bottom button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:54px;touch-action:manipulation}
+.bottom button svg{flex-shrink:0}
+.bottom button.active{color:#8c6029}
+.bottom button:focus-visible{outline:2px solid #ae8245;outline-offset:-3px;border-radius:12px}
+@media(max-width:380px){.bottom button{min-width:0;padding:6px 2px;font-size:10px}.bottom button svg{width:21px;height:21px}#grid .card{border-radius:13px}}
+@media(min-width:900px){#grid .card{border-radius:19px}}
+@media(prefers-reduced-motion:reduce){.bottom button{transition:none}}
