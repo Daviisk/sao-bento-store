@@ -75,7 +75,7 @@
   const lines=get('#cart-lines');lines.replaceChildren();let total=0,ready=!empty;
   for(const item of cart.items){
    const product=products.get(item.productId),card=cards.get(item.productId);if(!card)continue;
-   const line=create('article',undefined,'cart-line'),img=create('img');img.src=card.querySelector('img').src;img.alt=card.querySelector('img').alt;line.append(img);
+   const line=create('article',undefined,'cart-line'),img=create('img');img.src=card.querySelector('img').src;img.alt=card.querySelector('img').alt;const photo=card.querySelector('.real-photo-frame');if(photo){const copy=photo.cloneNode(true);copy.classList.add('cart-photo');line.append(copy);}else line.append(img);
    const body=create('div');body.append(create('h3',product?.name||card.querySelector('h3').textContent));
    const max=product?.maxQuantity||10,available=product?.enabled!==false,valid=Number.isSafeInteger(product?.priceCents)&&product.priceCents>0&&available&&item.quantity<=max;
    if(!valid)ready=false;
