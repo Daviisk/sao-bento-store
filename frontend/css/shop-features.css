@@ -106,3 +106,19 @@
  #veil .drawer label.engraving-upload{padding:14px 12px}
  #veil .drawer .engraving-drop{gap:10px}
 }
+
+/* Compact mobile product sheet, accessible controls and round engraving previews */
+#veil .drawer .sheet-handle{position:sticky;top:0;z-index:12;width:48px;height:20px;margin:-16px auto 8px;touch-action:pan-y;cursor:grab}
+#veil .drawer .sheet-handle::after{content:"";display:block;width:42px;height:5px;margin:7px auto;background:#c7b294;border-radius:9px}
+#veil .drawer .product-sheet-heading{position:sticky;top:0;z-index:8;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 -16px 14px;padding:14px 70px 14px 18px;background:#fffaf2;border-bottom:1px solid #e7d7be;color:#49341d;font-size:14px;font-weight:750;box-shadow:0 3px 10px #38220d0a}
+#veil .drawer .product-sheet-heading strong{white-space:nowrap;font-size:14px}
+#veil .drawer .engraving-circle{display:grid;place-items:center;width:min(160px,65%);aspect-ratio:1;margin:4px auto;border:3px solid #b58b4e;border-radius:50%;overflow:hidden;background:#f3e7d3;box-shadow:inset 0 0 0 3px #fff9ed}
+#veil .drawer .engraving-circle img.engraving-preview:not([hidden]){width:100%;height:100%;max-height:none;padding:0;border:0;border-radius:50%;object-fit:contain;background:#fff}
+#veil .drawer .engraving-remove{display:block;align-self:center;min-height:44px;padding:8px 14px;border:1px solid #d8c2a3;border-radius:10px;background:#fff8ed;color:#704f2a;font-size:13px;font-weight:700}
+#veil .drawer .engraving-remove[hidden]{display:none}
+#veil .drawer .product-steps{display:flex;gap:6px;flex-wrap:wrap;margin:18px 0 10px}
+#veil .drawer .product-steps span{padding:7px 9px;border-radius:20px;background:#f0e3cd;color:#6b4b27;font-size:11px;font-weight:750}
+#veil .drawer #custom-product>button[type=submit]{position:sticky;bottom:0;z-index:7;min-height:52px;margin:16px 0 0;box-shadow:0 -8px 18px #fffaf2}
+#veil .drawer .detailLayout h2{font-size:clamp(22px,5.4vw,30px);line-height:1.2}
+@media(max-width:800px){#veil .drawer>.x{position:sticky;top:0;z-index:15}#veil .drawer .product-sheet-heading{top:0}#veil .drawer .detailLayout{padding-bottom:20px}}
+@media(prefers-reduced-motion:no-preference){#veil:not([hidden]) .drawer{animation:sheet-enter .18s ease-out}@keyframes sheet-enter{from{opacity:.9;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}}
