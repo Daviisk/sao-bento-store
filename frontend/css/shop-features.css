@@ -183,3 +183,22 @@
 #veil .drawer .purchase-actions{border-radius:0;padding-bottom:max(12px,env(safe-area-inset-bottom))}
 @media(max-width:440px){#veil .drawer .row{display:grid;grid-template-columns:68px minmax(0,1fr);gap:10px}#veil .drawer .row .primary{grid-column:2;justify-self:start;width:auto}#veil .drawer .row .favorite-photo{grid-row:span 2}#veil .drawer .favorite-empty{padding-inline:12px}}
 @media(max-height:560px){#veil .drawer{max-height:calc(100dvh - 12px);height:calc(100dvh - 12px)}#veil .drawer .purchase-actions{position:static}}
+
+/* Single, stable product toolbar: handle, title, price and close never overlap */
+#veil .drawer>.sheet-top{position:sticky;top:0;z-index:30;display:grid;grid-template-columns:minmax(0,1fr) auto 48px;align-items:center;column-gap:10px;min-height:83px;flex-shrink:0;margin:-18px -16px 16px;padding:24px 16px 8px;background:#fdf9f1;border-bottom:1px solid #e8dac5;box-shadow:0 4px 14px #38220d08;box-sizing:border-box}
+#veil .drawer>.sheet-top .sheet-handle{position:absolute!important;top:7px!important;left:50%;transform:translateX(-50%);width:70px!important;height:18px!important;margin:0!important;min-height:18px!important;z-index:2}
+#veil .drawer>.sheet-top .sheet-handle::after{margin:5px auto!important}
+#veil .drawer>.sheet-top .product-sheet-heading{display:contents}
+#veil .drawer>.sheet-top .product-sheet-heading span{grid-column:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:clamp(14px,3.6vw,17px);font-weight:750}
+#veil .drawer>.sheet-top .product-sheet-heading strong{grid-column:2;white-space:nowrap;font-size:clamp(13px,3.5vw,16px);font-weight:800}
+#veil .drawer>.sheet-top>.x{grid-column:3;position:static!important;float:none!important;margin:0!important;justify-self:end;align-self:center;width:46px;height:46px;min-width:46px;min-height:46px;z-index:1}
+#veil .drawer>.sheet-top:not(:has(.product-sheet-heading)){grid-template-columns:1fr 48px}
+#veil .drawer>.sheet-top:not(:has(.product-sheet-heading))>.x{grid-column:2}
+#veil .drawer .detail-quantity{margin:18px 0;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#veil .drawer .detail-quantity>label{font-weight:750;font-size:15px}
+#veil .drawer .detail-quantity-control{display:inline-grid;grid-template-columns:46px 60px 46px;align-items:center;overflow:hidden;border:1px solid #d7c4a8;border-radius:13px;background:#fffdf9}
+#veil .drawer .detail-quantity-control button{height:46px;border:0;background:#efe2cc;color:#49331e;font-size:25px;cursor:pointer}
+#veil .drawer .detail-quantity-control button:active{background:#e0c8a6}
+#veil .drawer .detail-quantity-control input[type=number]{width:60px;min-width:0;min-height:46px;height:46px;margin:0;padding:0 3px;border:0;border-radius:0;text-align:center;font-size:16px;font-weight:750;appearance:textfield;-moz-appearance:textfield}
+#veil .drawer .detail-quantity-control input::-webkit-inner-spin-button,#veil .drawer .detail-quantity-control input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+@media(max-width:380px){#veil .drawer>.sheet-top{column-gap:6px;grid-template-columns:minmax(0,1fr) auto 44px;padding-inline:12px}#veil .drawer>.sheet-top>.x{width:44px;height:44px;min-width:44px}}
