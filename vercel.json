@@ -1,0 +1,89 @@
+{
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 15,
+      "includeFiles": "frontend/**"
+    },
+    "api/tracking.js": {
+      "maxDuration": 15
+    },
+    "api/cart-bundle.js": {
+      "maxDuration": 15
+    }
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "headers": {
+        "Strict-Transport-Security": "max-age=31536000",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "Referrer-Policy": "no-referrer",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=(), browsing-topics=(), usb=()",
+        "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
+        "Cross-Origin-Resource-Policy": "same-origin",
+        "X-DNS-Prefetch-Control": "off",
+        "X-Permitted-Cross-Domain-Policies": "none",
+        "X-XSS-Protection": "0",
+        "Content-Security-Policy": "default-src 'self'; script-src 'self' https://sdk.mercadopago.com https://*.mlstatic.com 'sha256-/x7W7R75k8Roq0WaVRQX9blP4OufE5xbAdzklGxsgpw=' 'sha256-Gjixrxoab5oXJGBXQlmp9Jl+b0fTsv3ej7b4agtLTcY=' 'sha256-jqkgTeRF431cvXDmWc7G4NUpi1NrRBbyTzlbZrbYHg0='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.mercadopago.com https://*.mercadopago.com.br https://*.mlstatic.com; font-src 'self' data:; connect-src 'self' https://viacep.com.br https://api.mercadopago.com https://*.mercadopago.com https://*.mercadopago.com.br https://*.mlstatic.com; frame-src https:; form-action 'self' https:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; upgrade-insecure-requests"
+      },
+      "continue": true
+    },
+    {
+      "src": "/(?:backend|tests|scripts|supabase|docs|node_modules)(?:/.*)?",
+      "dest": "/frontend/404.html",
+      "status": 404
+    },
+    {
+      "src": "/(?:package(?:-lock)?\\.json|vercel\\.json|README(?:\\.[^/]*)?|[^/]*\\.md|\\.env(?:\\.[^/]*)?)(?:/.*)?",
+      "dest": "/frontend/404.html",
+      "status": 404
+    },
+    {
+      "src": "/api/tracking-link",
+      "dest": "/api/tracking?action=link"
+    },
+    {
+      "src": "/api/track",
+      "dest": "/api/tracking?action=track"
+    },
+    {
+      "src": "/api/cancel-order",
+      "dest": "/api/tracking?action=cancel"
+    },
+    {
+      "src": "/api/order-support",
+      "dest": "/api/tracking?action=support"
+    },
+    {
+      "src": "/api/(?<path>.*)",
+      "dest": "/api?path=$path"
+    },
+    {
+      "src": "/admin/?",
+      "dest": "/api?path=admin"
+    },
+    {
+      "src": "/sucesso(?:\\.html)?",
+      "dest": "/api?path=sucesso"
+    },
+    {
+      "src": "/frontend/?",
+      "status": 308,
+      "headers": {
+        "Location": "/"
+      }
+    },
+    {
+      "src": "/",
+      "dest": "/frontend/index.html"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(?<path>.*)",
+      "dest": "/frontend/$path"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+/* Subtle interaction feedback without moving content or overriding component transitions. */
+@media (prefers-reduced-motion:no-preference){
+ .theme-toggle,.gallery-filters button{
+  transition:background-color .18s ease,color .18s ease,border-color .18s ease;
+ }
+ .contact-form input,.contact-form textarea,.delivery-grid input,.delivery-grid select{
+  transition:border-color .18s ease,box-shadow .18s ease;
+ }
+}
+@media (prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto}
+ *,*::before,*::after{animation:none!important;transition:none!important}
+}
+
