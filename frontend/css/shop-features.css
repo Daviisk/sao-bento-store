@@ -242,3 +242,14 @@
 #veil .drawer .engraving-uploads{gap:10px!important}
 #veil .drawer .engraving-upload .engraving-icon{width:30px;height:30px}
 @media(max-width:390px){#veil .drawer .engraving-upload .engraving-circle{width:102px!important}}
+
+/* Fix from mobile screenshots: hide empty preview label once art loads */
+#veil .drawer .engraving-upload .engraving-circle::after{content:none!important;display:none!important}
+#veil .drawer .engraving-upload .engraving-circle:not(.has-art){background:#f6eee1}
+#veil .drawer .engraving-upload .engraving-circle:not(.has-art)::before{content:"Prévia da arte";font-size:11px;color:#806b52;text-align:center;padding:8px}
+#veil .drawer .engraving-upload .engraving-circle.has-art::before{content:none!important;display:none!important}
+#veil .drawer .engraving-upload .engraving-circle img.engraving-preview:not([hidden]){z-index:1}
+#veil .drawer{padding-top:0!important}
+#veil .drawer>.sheet-top{margin-top:0!important;flex-shrink:0!important}
+#veil .drawer>.sheet-top::before{inset:0 -24px -1px!important;background:#fdf9f1!important}
+#veil .drawer>.detailLayout{flex:1 0 auto}
