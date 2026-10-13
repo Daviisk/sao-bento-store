@@ -48,3 +48,10 @@ body{background:#f7f3eb;color:#34291e}
  .login-card button{min-height:48px;width:100%}
 }
 @media(max-width:420px){.top{align-items:flex-start}.top .secondary{flex-shrink:0}.stats{gap:8px}.stats article{padding:12px 10px}}
+
+#commerce-admin-view .admin-art{display:inline-flex;vertical-align:top;flex-direction:column;gap:8px;margin:10px 12px 10px 0;padding:10px;border:1px solid #d8c6a8;border-radius:14px;background:#fff9ee;color:#63451e;text-decoration:none;max-width:190px;min-width:125px;font-size:12px;font-weight:700}
+#commerce-admin-view .admin-art img{width:100%;height:155px;object-fit:contain;background:#fff;border-radius:9px}
+#commerce-admin-view .admin-art:focus-visible{outline:3px solid #ad813e;outline-offset:3px}
+#commerce-admin-view #custom-search,#commerce-admin-view #custom-status{width:100%;min-height:46px}
+#commerce-admin-view .admin-record h3{overflow-wrap:anywhere}
+@media(max-width:650px){#commerce-admin-view .admin-art{width:calc(50% - 14px);max-width:none;margin-right:8px}#commerce-admin-view .admin-art img{height:120px}#commerce-admin-view .admin-record{padding:14px}#commerce-admin-view .admin-row{align-items:flex-start}}
