@@ -270,3 +270,10 @@
 #veil .drawer .engraving-circle.has-art::before,#veil .drawer .engraving-circle.has-art::after{display:none!important;content:none!important}
 #veil .drawer .engraving-uploads>.engraving-remove{justify-self:center;align-self:center;margin:-4px auto 12px;min-height:44px}
 #veil .drawer .engraving-uploads>.engraving-remove[hidden]{display:none!important}
+
+/* Restore native file picker interaction on touch devices */
+#veil .drawer .engraving-upload{position:relative!important;cursor:pointer}
+#veil .drawer .engraving-upload input[type=file]{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;min-height:0!important;margin:0!important;padding:0!important;opacity:0!important;clip-path:none!important;clip:auto!important;overflow:visible!important;z-index:5!important;cursor:pointer!important;pointer-events:auto!important}
+#veil .drawer .engraving-upload .engraving-drop{pointer-events:none}
+#veil .drawer .engraving-upload .engraving-circle{pointer-events:none}
+#veil .drawer .engraving-uploads>.engraving-remove{position:relative;z-index:6;cursor:pointer}
