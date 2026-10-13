@@ -48,3 +48,18 @@ html[data-theme=dark]{--blue:#dfba6c;--navy:#15140f;--ink:#f1e5ce;--muted:#c4b8a
 @media(max-width:380px){.bottom button{min-width:0;padding:6px 2px;font-size:10px}.bottom button svg{width:21px;height:21px}#grid .card{border-radius:13px}}
 @media(min-width:900px){#grid .card{border-radius:19px}}
 @media(prefers-reduced-motion:reduce){.bottom button{transition:none}}
+
+/* Final catalog polish without changing layout structure */
+#grid .card{isolation:isolate;transition:border-color .16s ease,box-shadow .16s ease}
+#grid .card:focus-within{border-color:#bd9b6a;box-shadow:0 0 0 2px #bd9b6a33}
+#grid .card .photoLink{overflow:hidden;border-radius:12px}
+#grid .card .photoLink img{transition:transform .22s ease}
+@media(hover:hover) and (pointer:fine){#grid .card .photoLink:hover img{transform:scale(1.035)}}
+#grid .card h3{overflow-wrap:anywhere}
+#grid .card .spec{line-height:1.5}
+#grid .card .primary{margin-top:auto}
+.bottom{box-sizing:border-box}
+.bottom button{position:relative}
+.bottom button.active::after{content:"";position:absolute;top:1px;left:calc(50% - 13px);width:26px;height:3px;border-radius:5px;background:#a77a40}
+@media(max-width:440px){#grid{column-gap:9px;row-gap:12px}#grid .card{padding:9px}#grid .card h3{font-size:13px;line-height:1.35}#grid .card .primary{font-size:12px}}
+@media(prefers-reduced-motion:reduce){#grid .card,#grid .card .photoLink img{transition:none}}
