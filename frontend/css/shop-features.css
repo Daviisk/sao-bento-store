@@ -253,3 +253,12 @@
 #veil .drawer>.sheet-top{margin-top:0!important;flex-shrink:0!important}
 #veil .drawer>.sheet-top::before{inset:0 -24px -1px!important;background:#fdf9f1!important}
 #veil .drawer>.detailLayout{flex:1 0 auto}
+
+/* Structural fix: fixed toolbar and independent scroll region; no image can pass above header */
+#veil .drawer{display:flex!important;flex-direction:column!important;overflow:hidden!important;padding-top:0!important;padding-bottom:0!important;min-height:0}
+#veil .drawer>.sheet-top{position:relative!important;top:auto!important;flex:0 0 auto!important;min-height:94px!important;width:100%!important;margin:0!important;padding:29px 0 12px!important;z-index:5!important;background:#fdf9f1!important}
+#veil .drawer>.sheet-top::before{inset:0 -24px -1px!important}
+#veil .drawer>.sheet-scroll-content{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;min-width:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:12px 0 max(22px,env(safe-area-inset-bottom))}
+#veil .drawer>.sheet-scroll-content>.detailLayout{min-width:0}
+#veil .drawer>.sheet-scroll-content>.sheet-top{display:none}
+@media(max-height:560px){#veil .drawer>.sheet-scroll-content{padding-bottom:12px}}
