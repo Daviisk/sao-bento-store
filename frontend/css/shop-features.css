@@ -77,3 +77,32 @@
 .order-total .cart-summary-line{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0}
 .order-total .cart-summary-line b{white-space:nowrap}
 @media(max-width:800px){#custom-cart-lines .order-cart-line{padding:18px 0}#request-order .cart-shipping{padding:13px}}
+
+/* Product personalization: clean mobile upload cards and unobstructed sheet */
+#veil .drawer .custom-fields{min-width:0;width:100%}
+#veil .drawer .custom-fields>label{display:block;min-width:0;width:100%;margin:0 0 20px}
+#veil .drawer .custom-fields select{display:block;box-sizing:border-box;width:100%;max-width:100%;min-height:52px;margin-top:9px;padding:12px 40px 12px 14px;border:1px solid #d8c8ae;border-radius:14px;background:#fffdf9;color:#4b351e;font-size:15px;line-height:1.4}
+#veil .drawer .engraving-uploads{box-sizing:border-box;min-width:0;width:100%;margin:24px 0;padding:20px 16px;border:1px solid #e4d6c1;border-radius:20px;background:#fffaf2}
+#veil .drawer .engraving-uploads legend{padding:0 8px;font-size:16px;font-weight:750;line-height:1.4;color:#4b351e}
+#veil .drawer .engraving-uploads>p{font-size:13px;line-height:1.65;color:#76644d;margin:4px 0 18px}
+#veil .drawer label.engraving-upload{position:relative;display:flex;flex-direction:column;gap:10px;min-width:0;width:100%;margin:0 0 14px;padding:16px;border:1px solid #e0ceb1;border-radius:16px;background:#fffdf9;cursor:pointer;overflow:hidden}
+#veil .drawer .engraving-side{font-size:14px;font-weight:750;color:#4a321d}
+#veil .drawer .engraving-drop{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-height:62px;padding:12px;border:1px dashed #bda47e;border-radius:12px;background:#f8f0e3}
+#veil .drawer .engraving-icon{display:grid;place-items:center;width:38px;height:38px;flex:0 0 38px;border-radius:11px;background:#ead8b9;color:#6d4a20;font-size:24px;font-weight:800}
+#veil .drawer .engraving-cta{font-size:14px;font-weight:750;color:#69491f}
+#veil .drawer .engraving-hint{flex-basis:100%;font-size:12px;color:#826d53}
+#veil .drawer .engraving-upload input[type=file]{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;overflow:hidden!important;clip-path:inset(50%)!important}
+#veil .drawer .engraving-upload:focus-within{outline:3px solid #b58948;outline-offset:2px}
+#veil .drawer .engraving-upload small{font-size:11px;line-height:1.5;color:#7c6952;overflow-wrap:anywhere}
+#veil .drawer .engraving-preview:not([hidden]){display:block;width:100%;max-height:190px;object-fit:contain;padding:8px;border:1px solid #e2d4bf;border-radius:12px;background:#fff}
+#veil .drawer .engraving-uploads>label:not(.engraving-upload){display:block;width:100%;font-size:13px;font-weight:700;line-height:1.5}
+#veil .drawer .engraving-uploads textarea{box-sizing:border-box;display:block;width:100%;min-height:104px;margin-top:9px;padding:13px;border:1px solid #d8c8ae;border-radius:12px;background:#fffdf9;color:#4b351e;font-size:16px;line-height:1.5;resize:vertical}
+@media(max-width:800px){
+ #veil .drawer{padding:18px 16px calc(28px + env(safe-area-inset-bottom))}
+ #veil .drawer>.x{position:sticky;top:0;float:right;display:grid;place-items:center;margin:0 0 -44px 0;z-index:10;width:44px;height:44px}
+ #veil .drawer .detailLayout{min-width:0;width:100%;gap:22px}
+ #veil .drawer .detailLayout>div{min-width:0}
+ #veil .drawer .engraving-uploads{padding:17px 12px;margin:20px 0}
+ #veil .drawer label.engraving-upload{padding:14px 12px}
+ #veil .drawer .engraving-drop{gap:10px}
+}
