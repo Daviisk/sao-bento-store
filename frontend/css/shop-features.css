@@ -48,3 +48,16 @@
  #cart-drawer .cart-content{padding-bottom:calc(36px + env(safe-area-inset-bottom))}
 }
 @media(min-width:801px){#veil .drawer{max-width:min(540px,100%)}#veil.detailView .drawer{max-width:min(880px,90%)}}
+
+/* Accessible product customization and mobile cart layout */
+.cart-art{display:inline-flex;vertical-align:top;flex-direction:column;gap:5px;width:calc(50% - 8px);max-width:150px;margin:8px 6px 8px 0;padding:8px;border:1px solid #e1d1b6;border-radius:12px;background:#fffdf8}
+.cart-art img{display:block;width:100%;height:92px;object-fit:contain;border-radius:8px}
+.cart-art figcaption{font-size:11px;overflow-wrap:anywhere;line-height:1.4;color:#725c40}
+#custom-cart-lines .order-cart-line{align-items:flex-start}
+#custom-cart-lines .order-cart-line>div{min-width:0}
+#custom-cart-lines .order-cart-line select,#custom-cart-lines .order-cart-line input{width:100%;max-width:100%;min-height:44px}
+#custom-cart-lines .order-cart-line label{display:block;margin:10px 0}
+#custom-cart-lines .order-cart-line .textbtn{min-height:44px}
+.engraving-upload .engraving-preview{max-height:160px}
+@media(max-width:800px){#custom-cart-lines .order-cart-line>img{width:66px;height:66px;flex-basis:66px}.cart-art{width:calc(50% - 8px)}#request-order{padding:16px 0}}
+@media(prefers-reduced-motion:reduce){.enhanced-zoom .zoom-stage img{will-change:auto}}
