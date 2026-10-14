@@ -77,3 +77,9 @@ html[data-theme=dark]{--blue:#dfba6c;--navy:#15140f;--ink:#f1e5ce;--muted:#c4b8a
 #grid .card .catalog-buy-now:disabled{opacity:.5;cursor:not-allowed}
 #grid .card .catalog-buy-now:focus-visible{outline:2px solid #a7814b;outline-offset:2px}
 @media(max-width:380px){.search-toggle{flex-basis:44px;width:44px;height:44px}#grid .card .catalog-buy-now{font-size:12px;padding:8px 6px}}
+
+/* Search icon shares the header action row with favorites */
+.head .actions .search-toggle{margin:0;flex:0 0 auto;width:44px;height:44px;min-width:44px;border-radius:13px}
+.search-shell:has(.search[hidden]){display:none}
+.search-shell:not(:has(.search[hidden])){display:flex;width:100%;margin:0 0 10px}
+@media(max-width:800px){.head .actions .search-toggle{width:40px;height:40px;min-width:40px}.head .actions{gap:4px}}
