@@ -283,3 +283,14 @@
 #veil .drawer .detail-purchase-actions .buy-now-direct{display:block;width:100%;min-height:52px;border:1px solid #9d753b;border-radius:14px;background:#fffaf1;color:#553b24;font:inherit;font-weight:700;cursor:pointer}
 #veil .drawer .detail-purchase-actions .buy-now-direct:focus-visible{outline:3px solid #bd934c;outline-offset:2px}
 #veil .drawer .detail-purchase-actions button:disabled{opacity:.55;cursor:not-allowed}
+
+/* Mobile purchase and customization refinements */
+#veil .drawer .detail-purchase-actions{position:sticky;bottom:0;z-index:7;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:9px;padding:12px 0 max(12px,env(safe-area-inset-bottom));margin-bottom:0;background:linear-gradient(to bottom,rgba(253,249,241,.96),#fdf9f1 24%);border-top:1px solid #e5d7c0}
+#veil .drawer .detail-purchase-actions button{min-width:0;min-height:50px!important;margin:0!important;padding:10px 8px!important;font-size:13px!important;line-height:1.25!important;white-space:normal}
+#veil .drawer .detail-purchase-actions .buy-now-direct{background:#9b6d2c;color:#fffaf1;border-color:#9b6d2c}
+#veil .drawer .detail-purchase-actions .buy-now-direct:hover{background:#805521}
+#veil .drawer .engraving-upload:focus-within{outline:2px solid #a67d41;outline-offset:2px}
+#veil .drawer .photoThumbnails{scroll-snap-type:x proximity}
+#veil .drawer .photoThumbnails button{scroll-snap-align:start;min-width:56px}
+#veil .drawer .detailGallery .detailImg{object-fit:contain}
+@media(max-width:360px){#veil .drawer .detail-purchase-actions button{font-size:11px!important}}
