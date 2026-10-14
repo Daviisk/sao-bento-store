@@ -83,3 +83,23 @@ html[data-theme=dark]{--blue:#dfba6c;--navy:#15140f;--ink:#f1e5ce;--muted:#c4b8a
 .search-shell:has(.search[hidden]){display:none}
 .search-shell:not(:has(.search[hidden])){display:flex;width:100%;margin:0 0 10px}
 @media(max-width:800px){.head .actions .search-toggle{width:40px;height:40px;min-width:40px}.head .actions{gap:4px}}
+
+/* Header layout repair: keep logo and all three actions visible on small phones */
+.head{min-width:0}
+.head .brand{min-width:0;flex:0 1 auto;white-space:nowrap}
+.head .actions{flex:0 0 auto;align-items:center}
+.head .actions>.iconbtn{box-sizing:border-box;flex:0 0 40px;width:40px;height:40px;min-width:40px;padding:0;display:grid;place-items:center}
+.head .actions>.iconbtn svg{width:22px;height:22px}
+@media(max-width:600px){
+ .head{gap:6px}
+ .head .brand{font-size:clamp(14px,4.5vw,19px);letter-spacing:-.8px}
+ .head .brand i{font-size:clamp(15px,4vw,20px)}
+ .head .brand small{font-size:6px;letter-spacing:1.4px;margin-left:23px}
+ .head .actions{gap:3px}
+ .head .actions>.iconbtn{flex-basis:38px;width:38px;height:38px;min-width:38px}
+}
+@media(max-width:370px){
+ .head .brand{font-size:14px}
+ .head .brand small{letter-spacing:.8px}
+ .head .actions>.iconbtn{flex-basis:35px;width:35px;height:35px;min-width:35px}
+}
