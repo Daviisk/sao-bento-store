@@ -30,7 +30,7 @@ export function mountAdmin(app,{config,store,limit,commerce}){
   app.get('/api/admin/session',async(req,res)=>res.json({configured:config.adminConfigured,authenticated:await validSession(req,config,store)}));
   app.post('/api/admin/login',loginLimit,adminMutation,async(req,res)=>{
     if(!config.adminConfigured)fail(503,'admin_not_configured','Configure o acesso administrativo no servidor.');
-    if(!req.is('application/json')||!req.body||Object.keys(req.body).join(',')!=='password'||typeof req.body.password!=='string')fail(400,'invalid_login','Login inválido.');
+    if(!req.is('application/json')||!req.body||(Object.keys(req.body).sort().join(',')!=='email,password'&&Object.keys(req.body).join(',')!=='password')||typeof req.body.password!=='string'||(req.body.email!==undefined&&(typeof req.body.email!=='string'||!equal(req.body.email.trim().toLowerCase(),'contato@saobentodobroes.com'))))fail(400,'invalid_login','Login inválido.');
     if(!equal(req.body.password,config.adminPassword))fail(401,'invalid_login','Senha inválida.');
     res.cookie(cookieName,await issue(config,store),{httpOnly:true,secure:config.production,sameSite:'strict',path:'/',maxAge:8*60*60*1000});res.json({authenticated:true});
   });
