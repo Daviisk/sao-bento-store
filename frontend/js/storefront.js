@@ -33,3 +33,7 @@ all('.bottom strong').forEach((e,i)=>e.innerHTML=icon(['home','grid','cart','hea
 new MutationObserver(()=>{const count=$('#cart-count').textContent;$('#count').textContent=count;$('#mobileCount').textContent=count;$('#mobileCount').hidden=count==='0';}).observe($('#cart-count'),{childList:true,subtree:true,characterData:true});
 render();
 })();
+
+// Internal section navigation without fragment identifiers in the address bar.
+document.addEventListener('click',event=>{const link=event.target.closest('a[href^="#"]');if(!link)return;const hash=link.getAttribute('href');if(!/^#[A-Za-z][\w-]*$/.test(hash))return;const section=document.getElementById(hash.slice(1));if(!section)return;event.preventDefault();section.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});if(location.hash)history.replaceState(history.state,'',location.pathname+location.search);});
+if(location.hash&&/^#[A-Za-z][\w-]*$/.test(location.hash)){const target=document.getElementById(location.hash.slice(1));if(target){history.replaceState(history.state,'',location.pathname+location.search);requestAnimationFrame(()=>target.scrollIntoView({block:'start'}));}}
