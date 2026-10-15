@@ -28,8 +28,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer();if(e.k
 const searchToggle=document.querySelector('.search-toggle'),searchPanel=document.getElementById('search-panel');searchToggle?.addEventListener('click',()=>{const opening=searchPanel.hidden;searchPanel.hidden=!opening;searchToggle.setAttribute('aria-expanded',String(opening));searchToggle.setAttribute('aria-label',opening?'Fechar pesquisa':'Abrir pesquisa');if(opening)$('#search').focus({preventScroll:true});else if(!$('#search').value)searchToggle.focus({preventScroll:true});});
 $('#search').addEventListener('input',render);$('#sort').addEventListener('change',render);
 $('#categories').innerHTML=['Todos',...categories].map(n=>'<button class="category" type="button" data-category="'+n+'"><span class="circle">'+icon(n==='Todos'?'grid':'coin')+'</span>'+n+'</button>').join('');
-const favoriteButton=document.querySelector('.head .actions [data-ui="showFav()"]'),cartButton=document.querySelector('.head .actions [data-ui="showCart()"]');if(favoriteButton)favoriteButton.innerHTML=icon('heart');if(cartButton)cartButton.innerHTML=icon('cart')+'<span class="counter" id="count">0</span>';
-all('.bottom strong').forEach((e,i)=>e.innerHTML=icon(['home','grid','cart','heart','menu'][i]));all('.bottom strong')[2].insertAdjacentHTML('beforeend','<span class="counter" id="mobileCount" hidden>0</span>');all('.perk .symbol').forEach((e,i)=>e.innerHTML=icon(['truck','shield','support'][i]));
+// Header and bottom-navigation SVG icons are server-rendered in index.html.
+// Keep their DOM nodes intact to avoid a visible swap during page load.all('.perk .symbol').forEach((e,i)=>e.innerHTML=icon(['truck','shield','support'][i]));
 new MutationObserver(()=>{const count=$('#cart-count').textContent;$('#count').textContent=count;$('#mobileCount').textContent=count;$('#mobileCount').hidden=count==='0';}).observe($('#cart-count'),{childList:true,subtree:true,characterData:true});
 render();
 })();
