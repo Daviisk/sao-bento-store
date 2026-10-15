@@ -128,3 +128,13 @@ main#home>.hero{margin-top:0}
  main#home{padding-top:16px}
  .top{box-shadow:0 4px 18px rgba(69,49,22,.07)}
 }
+
+/* Header/banner gap: keep a clear breathing space on mobile and desktop */
+header.top{position:relative;z-index:20}
+header.top+main#home{padding-top:28px!important}
+header.top+main#home>.hero{margin-top:0!important}
+@media(max-width:800px){
+ header.top+main#home{padding-top:24px!important}
+ header.top{border-bottom:1px solid #e2d4bd;box-shadow:0 3px 12px rgba(67,46,22,.06)}
+}
+@media(max-width:390px){header.top+main#home{padding-top:22px!important}}
