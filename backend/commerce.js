@@ -91,7 +91,7 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config}){
   const shippingCents=selected.priceCents+500,totalCents=order.productsTotal+shippingCents;
   const key=req.get('idempotency-key');
   if(!/^[0-9a-f-]{36}$/i.test(key||''))fail(400,'invalid_key','Atualize a página e tente novamente.');
-  const remote=await gateway.createPix({reference:order.orderId,totalCents,email,idempotencyKey:key});
+  const paymentKey=hash('mercadopago-orders-pix:'+order.orderId).slice(0,8)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(8,12)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(12,16)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(16,20)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(20,32);const remote=await gateway.createPix({reference:order.orderId,totalCents,email,idempotencyKey:paymentKey});
   await commerce.bindMercadoPagoOrder(order.orderId,req.shopSession.id,remote,totalCents,shippingCents);
   await commerce.reconcileMercadoPagoOrder(remote);
   res.json({orderId:order.orderId,providerStatus:remote.status,pix:remote.transactions?.payments?.[0]?.payment_method||{}});
