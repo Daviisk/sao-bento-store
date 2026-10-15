@@ -30,7 +30,7 @@ export function createCommerce({store,config}){
    const expected=(o.total/100).toFixed(2);
    if(String(remote.total_amount)!==expected)fail(409,'amount_mismatch','Valor divergente.');
    const payments=remote.transactions?.payments;
-   const paid=remote.status==='processed'&&remote.status_detail==='accredited'&&Array.isArray(payments)&&payments.length>0&&payments.every(p=>p.status==='processed'&&p.status_detail==='accredited');
+   const paid=remote.status==='processed'&&remote.status_detail==='accredited'&&Array.isArray(payments)&&payments.length>0&&payments.every(p=>p.status==='processed'&&p.status_detail==='accredited')&&String(remote.total_paid_amount)===expected&&payments.reduce((sum,p)=>sum+Math.round(Number(p.paid_amount)*100),0)===o.total;
    o.mercadoPagoStatus=String(remote.status||'unknown').slice(0,60);
    if(paid){o.paymentConfirmed=true;o.paymentConfirmedAt=o.paymentConfirmedAt||new Date().toISOString();}
    o.updatedAt=new Date().toISOString();
