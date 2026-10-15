@@ -60,3 +60,23 @@
  #app-view .sidebar .sidebar-bottom .logout{width:auto;align-self:center}
  #app-view .sidebar .admin-credit{max-width:190px;margin-left:auto;border-top:0;padding:0;font-size:10px}
 }
+
+/* Login premium: centered, responsive, consistent full-width fields */
+html:has(#login-view:not([hidden])),body:has(#login-view:not([hidden])){min-height:100%;overflow-x:hidden}
+#login-view.login-shell{min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:clamp(20px,5vh,56px) 18px;background:radial-gradient(ellipse at 18% 12%,rgba(185,139,69,.21),transparent 40%),radial-gradient(ellipse at 86% 84%,rgba(143,100,42,.2),transparent 44%),linear-gradient(140deg,#302316,#4a3421 56%,#372619)}
+#login-view .login-card{display:flex;flex-direction:column;align-items:stretch;width:min(100%,460px);max-width:460px;min-width:0;margin:auto;padding:clamp(25px,4vw,40px);border:1px solid #d9c8aa;border-radius:24px;background:#fbf8f1;box-shadow:0 24px 75px rgba(22,13,4,.3)}
+#login-view .login-card .login-mark{flex:none}
+#login-view .login-card h1{font-size:clamp(27px,4vw,33px);letter-spacing:-.035em;line-height:1.17;margin:13px 0 10px}
+#login-view .login-card>p:not(.eyebrow):not(.message):not(.login-help){margin:0 0 12px;font-size:14px;line-height:1.6}
+#login-view .login-card label{display:block;margin:19px 0 8px;font-size:12px;font-weight:750}
+#login-view .login-card #admin-email,#login-view .login-card .password-field,#login-view .login-card #admin-password{box-sizing:border-box;width:100%;max-width:100%;min-width:0}
+#login-view .login-card #admin-email,#login-view .login-card #admin-password{height:54px;padding:12px 15px;border:1px solid #d3c3aa;border-radius:12px;background:#fff;color:#3a2b1e;font-size:15px;line-height:1.4;outline-offset:2px}
+#login-view .login-card #admin-email:focus,#login-view .login-card #admin-password:focus{border-color:#a87c3d;outline:2px solid rgba(168,124,61,.22)}
+#login-view .login-card #admin-email::placeholder{color:#948676;font-size:14px}
+#login-view .login-card .password-field{position:relative;display:block}
+#login-view .login-card #admin-password{padding-right:94px}
+#login-view .login-card .password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);min-width:75px;height:38px;border:0;background:transparent;color:#805b2b;font-size:12px;font-weight:800;cursor:pointer}
+#login-view .login-card .login-submit{width:100%;min-height:52px;margin:20px 0 0;background:linear-gradient(110deg,#b38a45,#835a24);border-radius:12px;box-shadow:0 6px 18px rgba(109,70,25,.15)}
+#login-view .login-card .login-help{margin:20px 0 0;padding-top:17px;border-top:1px solid #e5dac8;font-size:11px;line-height:1.55;color:#807361}
+#login-view .login-card .message:empty{display:none}
+@media(max-width:480px){#login-view.login-shell{padding:18px 14px}#login-view .login-card{padding:27px 22px;border-radius:20px}#login-view .login-card h1{font-size:28px}#login-view .login-card #admin-email,#login-view .login-card #admin-password{font-size:16px}}
