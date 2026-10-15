@@ -1,3 +1,4 @@
+import {createOrdersGateway} from './services/mercadopago-orders.js';
 import {randomUUID,randomBytes,createHash,timingSafeEqual} from 'node:crypto';
 import {fail} from './validation.js';
 import {createCommerceStore} from './commerce-store.js';
@@ -69,6 +70,40 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config}){
   res.json({options:options.map(o=>({...o,priceCents:o.priceCents+500}))});
  });
  app.post('/api/commerce/orders',limit(10),durable,session,mutation,async(req,res)=>res.status(201).json(await commerce.createOrder(req.body,req.shopSession.id,req.get('idempotency-key'))));
+ app.post('/api/commerce/orders/:id/pix',limit(5),durable,session,mutation,async(req,res)=>{
+  if(config.mode!=='production'||!config.accessToken||!config.webhookSecret)fail(503,'payments_unavailable','Pix real não está disponível.');
+  const {email,cep,serviceCode}=req.body||{};
+  if(typeof email!=='string'||!/^\\S+@\\S+\\.\\S+$/.test(email)||email.length>200)fail(400,'invalid_email','Informe um e-mail válido.');
+  if(typeof serviceCode!=='string'||serviceCode.length>40)fail(400,'invalid_shipping','Escolha uma modalidade de frete.');
+  const order=await commerce.db.get('orders',req.params.id);
+  if(!order||order.owner!==req.shopSession.id)fail(404,'order_not_found','Pedido não encontrado.');
+  if(order.paymentConfirmed||order.status!=='requested')fail(409,'order_unavailable','Pedido indisponível para cobrança.');
+  const gateway=createOrdersGateway({accessToken:config.accessToken});
+  if(order.mercadoPagoOrderId){
+   const remote=await gateway.getOrder(order.mercadoPagoOrderId);
+   return res.json({orderId:order.orderId,providerStatus:remote.status,pix:remote.transactions?.payments?.[0]?.payment_method||{}});
+  }
+  const provider=createShippingProvider();
+  if(!provider.configured)fail(503,'shipping_not_configured','Frete indisponível.');
+  const options=await provider.quote(order.items.map(i=>({productId:i.productId,quantity:i.quantity})),postalCode(cep));
+  const selected=options.find(o=>String(o.serviceCode)===serviceCode);
+  if(!selected)fail(409,'shipping_changed','Recalcule e selecione o frete.');
+  const shippingCents=selected.priceCents+500,totalCents=order.productsTotal+shippingCents;
+  const key=req.get('idempotency-key');
+  if(!/^[0-9a-f-]{36}$/i.test(key||''))fail(400,'invalid_key','Atualize a página e tente novamente.');
+  const remote=await gateway.createPix({reference:order.orderId,totalCents,email,idempotencyKey:key});
+  await commerce.bindMercadoPagoOrder(order.orderId,req.shopSession.id,remote,totalCents,shippingCents);
+  await commerce.reconcileMercadoPagoOrder(remote);
+  res.json({orderId:order.orderId,providerStatus:remote.status,pix:remote.transactions?.payments?.[0]?.payment_method||{}});
+ });
+ app.get('/api/commerce/orders/:id/payment-status',limit(20),session,async(req,res)=>{
+  const order=await commerce.db.get('orders',req.params.id);
+  if(!order||order.owner!==req.shopSession.id)fail(404,'order_not_found','Pedido não encontrado.');
+  if(order.mercadoPagoOrderId){const remote=await createOrdersGateway({accessToken:config.accessToken}).getOrder(order.mercadoPagoOrderId);await commerce.reconcileMercadoPagoOrder(remote);}
+  const current=await commerce.db.get('orders',req.params.id);
+  res.json({paymentConfirmed:current.paymentConfirmed,status:current.mercadoPagoStatus||'pending'});
+ });
+
  app.get('/api/commerce/orders/:id',limit(30),async(req,res)=>res.json(await commerce.track(req.params.id,String(req.get('authorization')||'').replace(/^Bearer /,''))));
  app.get('/api/commerce/reviews/:productId',async(req,res)=>res.json({reviews:await commerce.reviews(req.params.productId)}));
  app.post('/api/commerce/reviews',limit(5),durable,session,mutation,async(req,res)=>res.status(201).json(await commerce.review(req.body)));
