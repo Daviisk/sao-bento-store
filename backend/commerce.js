@@ -96,6 +96,30 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config}){
   await commerce.reconcileMercadoPagoOrder(remote);
   res.json({orderId:order.orderId,providerStatus:remote.status,pix:remote.transactions?.payments?.[0]?.payment_method||{}});
  });
+ app.post('/api/commerce/orders/:id/card',limit(5),durable,session,mutation,async(req,res)=>{
+  if(config.mode!=='production'||!config.accessToken||!config.webhookSecret||!config.publicKey)fail(503,'payments_unavailable','Cartão indisponível.');
+  const {email,cep,serviceCode,card}=req.body||{};
+  if(typeof email!=='string'||!/^\S+@\S+\.\S+$/.test(email)||email.length>200)fail(400,'invalid_email','Informe um e-mail válido.');
+  if(typeof serviceCode!=='string'||serviceCode.length>40)fail(400,'invalid_shipping','Selecione o frete.');
+  if(!card||typeof card!=='object')fail(400,'invalid_card','Dados do cartão inválidos.');
+  const order=await commerce.db.get('orders',req.params.id);
+  if(!order||order.owner!==req.shopSession.id)fail(404,'order_not_found','Pedido não encontrado.');
+  if(order.paymentConfirmed||order.status!=='requested')fail(409,'order_unavailable','Pedido indisponível.');
+  if(order.mercadoPagoOrderId)fail(409,'payment_in_progress','Já existe cobrança para este pedido. Consulte o status antes de tentar novamente.');
+  const provider=createShippingProvider();
+  if(!provider.configured)fail(503,'shipping_not_configured','Frete indisponível.');
+  const options=await provider.quote(order.items.map(i=>({productId:i.productId,quantity:i.quantity})),postalCode(cep));
+  const selected=options.find(o=>String(o.serviceCode)===serviceCode);
+  if(!selected)fail(409,'shipping_changed','Recalcule o frete.');
+  const shippingCents=selected.priceCents+500,totalCents=order.productsTotal+shippingCents;
+  const key=req.get('idempotency-key');
+  if(!/^[0-9a-f-]{36}$/i.test(key||''))fail(400,'invalid_key','Chave de tentativa inválida.');
+  const remote=await createOrdersGateway({accessToken:config.accessToken}).createCard({reference:order.orderId,totalCents,email,cardToken:card.token,paymentMethodId:card.paymentMethodId,paymentMethodType:card.paymentMethodType||'credit_card',installments:card.installments,idempotencyKey:key});
+  await commerce.bindMercadoPagoOrder(order.orderId,req.shopSession.id,remote,totalCents,shippingCents);
+  await commerce.reconcileMercadoPagoOrder(remote);
+  res.json({orderId:order.orderId,providerStatus:remote.status,paymentConfirmed:(await commerce.db.get('orders',order.orderId)).paymentConfirmed});
+ });
+ app.get('/api/commerce/payment-config',limit(30),session,(req,res)=>res.json({cardConfigured:Boolean(config.mode==='production'&&config.publicKey&&config.accessToken&&config.webhookSecret),publicKey:config.mode==='production'?config.publicKey:''}));
  app.get('/api/commerce/orders/:id/payment-status',limit(20),session,async(req,res)=>{
   const order=await commerce.db.get('orders',req.params.id);
   if(!order||order.owner!==req.shopSession.id)fail(404,'order_not_found','Pedido não encontrado.');
