@@ -73,7 +73,7 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config}){
  app.post('/api/commerce/orders/:id/pix',limit(5),durable,session,mutation,async(req,res)=>{
   if(config.mode!=='production'||!config.accessToken||!config.webhookSecret)fail(503,'payments_unavailable','Pix real não está disponível.');
   const {email,cep,serviceCode}=req.body||{};
-  if(typeof email!=='string'||!/^\\S+@\\S+\\.\\S+$/.test(email)||email.length>200)fail(400,'invalid_email','Informe um e-mail válido.');
+  if(typeof email!=='string'||!/^\S+@\S+\.\S+$/.test(email)||email.length>200)fail(400,'invalid_email','Informe um e-mail válido.');
   if(typeof serviceCode!=='string'||serviceCode.length>40)fail(400,'invalid_shipping','Escolha uma modalidade de frete.');
   const order=await commerce.db.get('orders',req.params.id);
   if(!order||order.owner!==req.shopSession.id)fail(404,'order_not_found','Pedido não encontrado.');
