@@ -336,3 +336,26 @@
 #veil .drawer .engraving-mode input{accent-color:#946824;flex:none}
 #veil .drawer .engraving-content[hidden]{display:none!important}
 @media(max-width:390px){#veil .drawer .engraving-mode{gap:7px}#veil .drawer .engraving-mode label{padding:11px 5px;font-size:12px}}
+
+/* Mobile: remove draggable handle, avoid scrollbars and reduce expensive effects */
+@media (max-width: 700px) {
+  #veil .drawer .sheet-handle { display:none!important; }
+  #veil .drawer .sheet-top { padding-top:10px!important; }
+  #veil .drawer, #veil .drawer .sheet-scroll-content {
+    scrollbar-width:none!important;
+    overscroll-behavior-y:contain;
+    scroll-behavior:auto!important;
+    -webkit-overflow-scrolling:touch;
+  }
+  #veil .drawer::-webkit-scrollbar,
+  #veil .drawer .sheet-scroll-content::-webkit-scrollbar { display:none!important; }
+  #veil .drawer .engraving-uploads,
+  #veil .drawer .engraving-content,
+  #veil .drawer .engraving-upload { min-width:0; max-width:100%; box-sizing:border-box; }
+  #veil .drawer .engraving-mode { display:none!important; }
+  #veil .drawer .engraving-content[hidden] { display:none!important; }
+  #veil .drawer .detail-purchase-actions { backdrop-filter:none!important; }
+  #veil .drawer .engraving-upload { contain:layout style; }
+  #veil .drawer .custom-fields label { overflow-wrap:anywhere; }
+  #veil .drawer .custom-fields select { max-width:100%; min-width:0; }
+}
