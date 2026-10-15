@@ -27,3 +27,19 @@
 .login-card button:focus-visible,.sidebar button:focus-visible,.admin-top-actions button:focus-visible{outline:2px solid #c59c58;outline-offset:3px}
 @media(max-width:850px){.sidebar{position:relative;display:flex;align-items:stretch;gap:12px}.sidebar>div{min-width:0;flex:1;display:block}.sidebar nav{display:flex;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;padding:4px 0 8px;gap:6px}.sidebar nav .nav{flex:0 0 auto;scroll-snap-align:start;white-space:nowrap}.sidebar .brand{margin:0 0 10px}.sidebar .logout{flex:0 0 auto;align-self:flex-start}.main{min-width:0}.top{flex-wrap:wrap}}
 @media(max-width:520px){.login-shell{align-items:center}.login-card{padding:26px 22px}.session-label{display:none}.sidebar{padding:13px 12px}.sidebar .nav{min-height:43px}.main{padding:16px 12px}.stats{gap:9px}.stats article{padding:13px}.top{gap:8px;margin-bottom:18px}}
+
+/* Administrative dashboard clarity and accessibility */
+#orders-view .stats article{border:1px solid #e7d8be;border-radius:16px;background:#fffcf6;min-width:0}
+#orders-view .stats article strong{font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#orders-view .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+#orders-view .toolbar input,#orders-view .toolbar select{min-height:44px}
+#app-view .sidebar .nav{min-height:44px}
+#app-view button:focus-visible,#app-view input:focus-visible,#app-view select:focus-visible{outline:3px solid #b18a4b;outline-offset:2px}
+@media(max-width:800px){
+ #orders-view .stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ #orders-view .stats article{padding:13px}
+ #orders-view .toolbar input{flex:1 1 100%;width:100%;min-width:0}
+ #app-view .sidebar nav{scrollbar-width:thin}
+ #app-view .main{overflow-wrap:anywhere}
+}
+@media(prefers-reduced-motion:reduce){#app-view *,#login-view *{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
