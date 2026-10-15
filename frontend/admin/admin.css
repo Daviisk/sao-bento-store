@@ -80,3 +80,13 @@ html:has(#login-view:not([hidden])),body:has(#login-view:not([hidden])){min-heig
 #login-view .login-card .login-help{margin:20px 0 0;padding-top:17px;border-top:1px solid #e5dac8;font-size:11px;line-height:1.55;color:#807361}
 #login-view .login-card .message:empty{display:none}
 @media(max-width:480px){#login-view.login-shell{padding:18px 14px}#login-view .login-card{padding:27px 22px;border-radius:20px}#login-view .login-card h1{font-size:28px}#login-view .login-card #admin-email,#login-view .login-card #admin-password{font-size:16px}}
+
+/* Pedidos em uma única seção, com abas para os dois fluxos existentes */
+.orders-tabs{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0 0 20px;padding:5px;border:1px solid #decfb6;border-radius:14px;background:#f5eddf;width:max-content;max-width:100%}
+.orders-tabs[hidden]{display:none!important}
+.orders-tabs button{min-height:42px;padding:10px 17px;border:0;border-radius:10px;background:transparent;color:#6c573c;font-size:13px;font-weight:750;cursor:pointer}
+.orders-tabs button.active,.orders-tabs button[aria-pressed=true]{background:#956b2e;color:#fff;box-shadow:0 2px 8px rgba(70,40,10,.13)}
+.orders-tabs button:focus-visible{outline:2px solid #956b2e;outline-offset:2px}
+.order-custom-art{display:inline-flex;flex-direction:column;gap:6px;max-width:180px;margin:10px 12px 10px 0;color:#6c4a1f;font-size:12px}
+.order-custom-art img{display:block;max-width:100%;max-height:150px;object-fit:contain;border:1px solid #d9c9b0;border-radius:10px;background:#fff}
+@media(max-width:520px){.orders-tabs{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.orders-tabs button{padding:10px 7px;font-size:12px;line-height:1.3}}
