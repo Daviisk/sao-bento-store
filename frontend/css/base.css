@@ -184,3 +184,17 @@ main#home>.hero .heroCta{min-height:48px;display:inline-flex;align-items:center;
  .bottom button{touch-action:manipulation}
 }
 @media(prefers-reduced-motion:reduce){#grid .card .photoLink img{transition:none}html{scroll-behavior:auto}}
+
+/* Header sizing matched to approved mobile reference; final authoritative override */
+@media(max-width:800px){
+ header.top .head{height:54px!important;min-height:54px;gap:6px}
+ header.top .head .brand{font-size:clamp(15px,4.5vw,19px);line-height:1.08}
+ header.top .head .brand small{margin-top:3px;font-size:6px;letter-spacing:1.25px}
+ header.top .head .actions{gap:4px}
+ header.top .head .actions>.iconbtn{width:40px;height:40px;min-width:40px;flex-basis:40px}
+ header.top+main#home{padding-top:8px!important}
+}
+@media(max-width:370px){
+ header.top .head .brand{font-size:14px}
+ header.top .head .actions>.iconbtn{width:35px;height:35px;min-width:35px;flex-basis:35px}
+}
