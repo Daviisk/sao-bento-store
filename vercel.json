@@ -79,10 +79,6 @@
       "dest": "/frontend/acompanhar.html"
     },
     {
-      "src": "/(?!api(?:/|$)|admin(?:/|$)|em-breve(?:\\.html)?$|favicon\\.ico$|robots\\.txt$|assets/|css/|js/|images/|img/).*",
-      "dest": "/frontend/em-breve.html"
-    },
-    {
       "src": "/",
       "dest": "/frontend/index.html"
     },
