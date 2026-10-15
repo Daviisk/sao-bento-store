@@ -404,3 +404,36 @@
  #veil .drawer .sheet-scroll-content{scrollbar-width:none}
  #veil .drawer .sheet-scroll-content::-webkit-scrollbar{display:none}
 }
+
+/* Checkout responsive refinement */
+#veil .drawer:has(#request-order) .order-total{margin:12px 0 20px;padding:16px 18px;border:1px solid #e4d4ba;border-radius:16px;background:#f7eedf}
+#veil .drawer:has(#request-order) .order-total .cart-summary-line{display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding:6px 0}
+#veil .drawer:has(#request-order) .order-total .cart-summary-line b{text-align:right;white-space:nowrap}
+#veil .drawer:has(#request-order) .order-total p{margin:8px 0 0;font-size:13px;line-height:1.5}
+#veil .drawer:has(#request-order) .order-cart-line{align-items:flex-start;gap:12px;padding:12px 0}
+#veil .drawer:has(#request-order) .order-cart-line>img{width:74px;height:74px;flex-basis:74px}
+#veil .drawer:has(#request-order) .cart-art{display:inline-flex;vertical-align:top;flex-direction:column;width:min(45%,150px);margin:8px 5px 8px 0;padding:6px;border:1px solid #e2d2b7;border-radius:10px;background:#fffdf9;box-sizing:border-box}
+#veil .drawer:has(#request-order) .cart-art img{display:block;width:100%;height:95px;object-fit:contain}
+#veil .drawer:has(#request-order) .cart-art figcaption{font-size:11px;overflow-wrap:anywhere;line-height:1.3}
+#request-order .checkout-steps{margin:12px 0 18px}
+#request-order .cart-section-heading{font-size:18px;line-height:1.35;margin:18px 0 8px}
+#request-order fieldset{margin:14px 0!important}
+#request-order .payment-choice{padding:16px!important}
+#request-order .payment-option{min-height:70px;box-sizing:border-box}
+#request-order .payment-option span{min-width:0}
+#request-order>button[type=submit]{min-height:54px;font-weight:800;border-radius:14px}
+@media(max-width:700px){
+ #veil .drawer:has(#request-order){height:min(94dvh,1100px)!important;max-height:94dvh!important}
+ #veil .drawer:has(#request-order)::before{display:none!important}
+ #veil .drawer:has(#request-order)>.x{width:42px!important;height:42px!important;margin:0 0 -38px!important}
+ #veil .drawer:has(#request-order)>h2{font-size:25px!important;margin-top:0!important}
+ #veil .drawer:has(#request-order)>.notice{margin:0 0 12px!important;font-size:12px!important;line-height:1.5!important}
+ #veil .drawer:has(#request-order) .sheet-scroll-content{padding-top:8px!important}
+ #veil .drawer:has(#request-order) .order-cart-line>img{width:62px;height:62px;flex-basis:62px}
+ #veil .drawer:has(#request-order) .order-total{padding:12px 14px;margin:12px 0}
+ #veil .drawer:has(#request-order) .order-total .cart-summary-line{font-size:15px}
+ #request-order .checkout-steps span{min-height:36px!important;font-size:10px!important}
+ #request-order .cart-section-heading{font-size:17px}
+ #request-order .payment-choice{padding:12px!important}
+ #request-order .payment-option{padding:12px!important;min-height:64px}
+}
