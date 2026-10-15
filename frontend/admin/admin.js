@@ -38,8 +38,36 @@
    $('#stat-total').textContent=data.summary.total;$('#stat-paid').textContent=data.summary.paid;$('#stat-awaiting-payment').textContent=data.summary.awaitingPayment;$('#stat-awaiting-shipment').textContent=data.summary.awaitingShipment;$('#stat-preparing').textContent=data.summary.preparing;$('#stat-shipped').textContent=data.summary.shipped;$('#stat-revenue').textContent=cash(data.summary.revenuePaid);$('#stat-ticket').textContent=cash(data.summary.ticketAverage);
    const body=$('#orders-body');body.replaceChildren();
    for(const o of data.orders){const tr=document.createElement('tr'),customer=o.customer||{};tr.innerHTML=`<td><strong>#${esc(o.orderCode)}</strong>${(o.supportRequests||[]).some(r=>r.status==='open')?'<span class="badge">Atendimento pendente</span>':''}<span class="muted">${esc(o.paymentId||'sem pagamento')}</span></td><td>${esc(date(o.createdAt))}</td><td><strong>${esc(customer.name||'—')}</strong><span class="muted">${esc(customer.phone||'')}<br>${esc(customer.email||'')}</span></td><td>${(o.items||[]).reduce((n,i)=>n+Number(i.quantity||0),0)}</td><td><strong>${cash(o.total)}</strong></td><td>${badge(o.status)}</td><td>${badge(o.fulfillmentStatus)}</td><td><button class="open-order" data-id="${esc(o.orderId)}">Abrir</button></td>`;body.append(tr);}
-   $('#orders-empty').hidden=data.orders.length>0;body.querySelectorAll('.open-order').forEach(b=>b.addEventListener('click',()=>openOrder(b.dataset.id)));panelMessage(`Atualizado às ${new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}.`);
+
+   try{
+    const custom=await api('/api/admin/custom-orders');
+    for(const o of custom.orders||[]){
+     const searchable=[o.orderCode,o.orderId,o.customer?.name,o.customer?.phone,o.customer?.email,...(o.items||[]).map(i=>i.name)].join(' ').toLowerCase();
+     if(q&&!searchable.includes(q.toLowerCase()))continue;
+     if(status&&!(status==='paid'?o.paymentConfirmed:status==='pending'?!o.paymentConfirmed:false))continue;
+     if(fulfillment&&o.status!==fulfillment)continue;
+     const created=String(o.createdAt||'').slice(0,10);
+     if((from&&created<from)||(to&&created>to))continue;
+     const tr=document.createElement('tr');
+     tr.innerHTML='<td><strong>#'+esc(o.orderCode)+'</strong><span class="muted">Personalizado</span></td><td>'+esc(date(o.createdAt))+'</td><td><strong>'+esc(o.customer?.name||'—')+'</strong><span class="muted">'+esc(o.customer?.phone||'')+'</span></td><td>'+(o.items||[]).reduce((n,i)=>n+Number(i.quantity||0),0)+'</td><td><strong>'+cash(o.total)+'</strong></td><td>'+(o.paymentConfirmed?'Confirmado':'Pendente')+'</td><td>'+esc(custom.statusLabels?.[o.status]||o.status)+'</td><td><button class="open-custom-order" type="button">Abrir</button></td>';
+     tr.querySelector('.open-custom-order').addEventListener('click',()=>openCustomOrder(o));
+     body.append(tr);
+    }
+   }catch(error){panelMessage('Pedidos personalizados indisponíveis: '+error.message);}
+   $('#orders-empty').hidden=body.children.length===0;body.querySelectorAll('.open-order').forEach(b=>b.addEventListener('click',()=>openOrder(b.dataset.id)));panelMessage(`Atualizado às ${new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}.`);
   }catch(err){panelMessage(err.message);if(/login|painel/i.test(err.message))showLogin(err.message);}
+ }
+
+ function openCustomOrder(o){
+  $('#dialog-title').textContent='Pedido #'+(o.orderCode||'');
+  const cards=(o.items||[]).map(i=>{
+   const arts=[['Frente',i.front],['Verso',i.back],['Arte',i.art]].filter(pair=>pair[1]?.data&&/^data:image\/(png|jpeg|webp);base64,/i.test(pair[1].data));
+   const imgs=arts.map(pair=>'<a class="order-custom-art" href="'+esc(pair[1].data)+'" download="'+esc(pair[1].name||'arte.png')+'"><img src="'+esc(pair[1].data)+'" alt="Imagem personalizada '+pair[0]+'" loading="lazy"><span>'+pair[0]+' · Baixar</span></a>').join('');
+   return '<section class="detail-card"><h3>'+esc(i.name)+'</h3><p>'+esc(i.variantLabel||'')+' · '+Number(i.quantity||1)+' unidade(s) · '+cash(i.subtotal)+'</p><p>'+esc(i.engravingNotes||i.engraving||'Sem observações')+'</p><div class="order-art-grid">'+(imgs||'<p class="muted">Nenhuma imagem enviada para este item.</p>')+'</div></section>';
+  }).join('');
+  $('#order-detail').innerHTML='<div class="detail-grid"><section class="detail-card"><h3>Cliente</h3><p><strong>'+esc(o.customer?.name||'—')+'</strong></p><p>'+esc(o.customer?.phone||'—')+'</p></section><section class="detail-card"><h3>Pagamento e andamento</h3><p>'+(o.paymentConfirmed?'Pagamento confirmado':'Pagamento pendente')+'</p><p>'+esc(o.status)+'</p><strong>'+cash(o.total)+'</strong></section></div><h3>Personalização e imagens</h3>'+cards+'<p><strong>Observações:</strong> '+esc(o.notes||'—')+'</p><button type="button" id="manage-custom-order">Gerenciar pedido</button>';
+  $('#manage-custom-order').addEventListener('click',()=>{$('#order-dialog').close();window.dispatchEvent(new CustomEvent('admin:manage-custom-order',{detail:{id:o.orderId}}));});
+  $('#order-dialog').showModal();
  }
  async function loadCustomers(){
   panelMessage('Atualizando clientes…');
