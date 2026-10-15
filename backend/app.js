@@ -10,6 +10,8 @@ import {authenticateWebhook} from './services/webhook.js';
 import {addressInput,postalCode,deliveryHash,createShipping,createShippingProvider} from './services/shipping.js';
 import {createCommerce,mountCommerce} from './commerce.js';
 import {mountAdmin} from './admin.js';
+import {createOrdersGateway} from './services/mercadopago-orders.js';
+import {WebhookSignatureValidator,InvalidWebhookSignatureError} from 'mercadopago';
 
 const equal=(a,b)=>typeof a==='string'&&typeof b==='string'&&Buffer.byteLength(a)===Buffer.byteLength(b)&&timingSafeEqual(Buffer.from(a),Buffer.from(b));
 const terminalStatus=new Set(['paid','cancelled','refunded','partially_refunded','failed','charged_back']);
@@ -109,6 +111,23 @@ export function createApp({config,catalog,store,gateway,shipping=createShipping(
   app.post('/api/webhooks/mercadopago',limit(config.webhookLimit),async(req,res)=>{if(!req.is('application/json'))fail(415,'json_required','Use JSON.');const providerId=authenticateWebhook(req,config.webhookSecret);if(req.body.application_id!==undefined&&String(req.body.application_id)!==String(config.applicationId))fail(409,'webhook_application_mismatch','Aplicação da notificação não corresponde à loja.');if(req.body.user_id!==undefined&&String(req.body.user_id)!==String(config.sellerId))fail(409,'webhook_seller_mismatch','Vendedor da notificação não corresponde à loja.');if(req.body.live_mode!==undefined&&req.body.live_mode!==(config.mode==='production'))fail(409,'webhook_mode_mismatch','Ambiente da notificação não corresponde à loja.');const remote=await gateway.getPayment(providerId);if(!uuid(remote.external_reference))fail(409,'unknown_order','Pedido não reconhecido.');const order=await store.get(remote.external_reference);if(!order)fail(409,'unknown_order','Pedido não reconhecido.');if(order.providerOrderId&&String(order.providerOrderId)!==String(remote.id))fail(409,'provider_id_mismatch','Pagamento não associado a este pedido.');await store.applySnapshot(order.orderId,cardPaymentSnapshot(remote,order,gateway));res.status(200).json({received:true});});
 
   const commerce=createCommerce({store,config});
+  // Separate Orders webhook: existing /api/webhooks/mercadopago remains for Payments API.
+  app.post('/api/webhooks/mercadopago-orders',limit(config.webhookLimit),async(req,res)=>{
+    if(!req.is('application/json'))fail(415,'json_required','Use JSON.');
+    if(!config.webhookSecret||!config.accessToken)fail(503,'gateway_not_configured','Gateway indisponível.');
+    const query=new URL(req.originalUrl,'http://internal').searchParams;
+    const ids=query.getAll('data.id'),types=query.getAll('type');
+    const id=ids.length===1?ids[0]:'';
+    if(types.length!==1||types[0]!=='order'||req.body?.type!=='order'||req.body?.data?.id!==id||!/^ORD[A-Z0-9]{8,64}$/.test(id))fail(400,'invalid_notification','Notificação inválida.');
+    if(req.body.live_mode!==undefined&&req.body.live_mode!==(config.mode==='production'))fail(409,'webhook_mode_mismatch','Ambiente divergente.');
+    if(config.applicationId&&req.body.application_id!==undefined&&String(req.body.application_id)!==String(config.applicationId))fail(409,'webhook_application_mismatch','Aplicação divergente.');
+    if(config.sellerId&&req.body.user_id!==undefined&&String(req.body.user_id)!==String(config.sellerId))fail(409,'webhook_seller_mismatch','Vendedor divergente.');
+    try{WebhookSignatureValidator.validate({xSignature:req.get('x-signature')||'',xRequestId:req.get('x-request-id')||'',dataId:id,secret:config.webhookSecret.trim()});}
+    catch(error){if(error instanceof InvalidWebhookSignatureError||error?.name==='InvalidWebhookSignatureError')fail(401,'invalid_signature','Assinatura inválida.');throw error;}
+    const remote=await createOrdersGateway({accessToken:config.accessToken}).getOrder(id);
+    await commerce.reconcileMercadoPagoOrder(remote);
+    res.status(200).json({received:true});
+  });
   mountCommerce(app,{commerce,config,session,mutation,limit});
   mountAdmin(app,{config,store,limit,commerce});
   app.get('/js/cart.js',(req,res)=>{res.type('application/javascript').send(cartScript);});
