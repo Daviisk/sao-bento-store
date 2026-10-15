@@ -5,6 +5,14 @@ import {createCommerceStore} from './commerce-store.js';
 import {products as defaults} from './products.js';
 import {createShippingProvider,postalCode} from './services/shipping.js';
 const hash=v=>createHash('sha256').update(v).digest('hex');
+function extractOrdersPix(remote){
+ const payment=remote?.transactions?.payments?.[0]||{};
+ const method=payment.payment_method||{};
+ const info=payment.payment_method?.qr_code||payment.point_of_interaction?.transaction_data||{};
+ const code=typeof method.qr_code==='string'?method.qr_code:typeof info.qr_code==='string'?info.qr_code:typeof payment.qr_code==='string'?payment.qr_code:'';
+ const base64=typeof method.qr_code_base64==='string'?method.qr_code_base64:typeof info.qr_code_base64==='string'?info.qr_code_base64:typeof payment.qr_code_base64==='string'?payment.qr_code_base64:'';
+ return {qr_code:code,qr_code_base64:base64,redirect_url:method.ticket_url||payment.ticket_url||''};
+}
 export const statusLabels={requested:'Pedido recebido',awaiting_art:'Aguardando arte',art_approved:'Arte aprovada',production:'Em produção',shipped:'Enviado',delivered:'Entregue',cancelled:'Cancelado'};
 const images=['dobrao-bronze-prof-v2.webp','dobrao-inox-prof-v2.webp','bolsa-couro-prof-v2.webp','bolsa-trio-prof-v2.webp'];
 const galleries=[[],[],['bolsa-couro-lateral-prof-v2.webp','bolsa-couro-verso-prof-v2.webp','bolsa-couro-aberta-prof-v2.webp','bolsa-couro-perspectiva-prof-v2.webp'],['bolsa-trio-aberta-prof-v2.webp','bolsa-trio-verso-prof-v2.webp']];
@@ -81,7 +89,7 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config}){
   const gateway=createOrdersGateway({accessToken:config.accessToken});
   if(order.mercadoPagoOrderId){
    const remote=await gateway.getOrder(order.mercadoPagoOrderId);
-   return res.json({orderId:order.orderId,providerStatus:remote.status,pix:remote.transactions?.payments?.[0]?.payment_method||{}});
+   return res.json({orderId:order.orderId,providerStatus:remote.status,pix:extractOrdersPix(remote)});
   }
   const provider=createShippingProvider();
   if(!provider.configured)fail(503,'shipping_not_configured','Frete indisponível.');
@@ -94,7 +102,7 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config}){
   const paymentKey=hash('mercadopago-orders-pix:'+order.orderId).slice(0,8)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(8,12)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(12,16)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(16,20)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(20,32);const remote=await gateway.createPix({reference:order.orderId,totalCents,email,idempotencyKey:paymentKey});
   await commerce.bindMercadoPagoOrder(order.orderId,req.shopSession.id,remote,totalCents,shippingCents);
   await commerce.reconcileMercadoPagoOrder(remote);
-  res.json({orderId:order.orderId,providerStatus:remote.status,pix:remote.transactions?.payments?.[0]?.payment_method||{}});
+  res.json({orderId:order.orderId,providerStatus:remote.status,pix:extractOrdersPix(remote)});
  });
  app.post('/api/commerce/orders/:id/card',limit(5),durable,session,mutation,async(req,res)=>{
   if(config.mode!=='production'||!config.accessToken||!config.webhookSecret||!config.publicKey)fail(503,'payments_unavailable','Cartão indisponível.');
