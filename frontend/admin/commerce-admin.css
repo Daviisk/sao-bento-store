@@ -55,3 +55,9 @@ body{background:#f7f3eb;color:#34291e}
 #commerce-admin-view #custom-search,#commerce-admin-view #custom-status{width:100%;min-height:46px}
 #commerce-admin-view .admin-record h3{overflow-wrap:anywhere}
 @media(max-width:650px){#commerce-admin-view .admin-art{width:calc(50% - 14px);max-width:none;margin-right:8px}#commerce-admin-view .admin-art img{height:120px}#commerce-admin-view .admin-record{padding:14px}#commerce-admin-view .admin-row{align-items:flex-start}}
+
+.custom-financial-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0}
+.custom-financial-summary article{padding:18px;border:1px solid #e0d0b3;border-radius:15px;background:#fffcf6;min-width:0}
+.custom-financial-summary small{display:block;font-size:12px;color:#75664e;line-height:1.45}
+.custom-financial-summary strong{display:block;margin-top:8px;font-size:clamp(18px,2.3vw,26px);font-variant-numeric:tabular-nums;overflow-wrap:anywhere;color:#62431c}
+@media(max-width:600px){.custom-financial-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.custom-financial-summary article:last-child{grid-column:1/-1}}
