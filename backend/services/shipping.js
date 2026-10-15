@@ -90,8 +90,9 @@ export function createCorreios(env=process.env,fetchImpl=fetch){
 export function createSuperfrete(env=process.env,fetchImpl=fetch){
   const token=env.SUPERFRETE_TOKEN||'',origin=env.SHIPPING_ORIGIN_CEP||'';
   const services=(env.SUPERFRETE_SERVICES||'1,2,17').split(',').map(v=>v.trim()).filter(v=>/^\d+$/.test(v));
-  const sizes=['SHIPPING_UNIT_WEIGHT_G','SHIPPING_PACKAGE_WEIGHT_G','SHIPPING_LENGTH_CM','SHIPPING_WIDTH_CM','SHIPPING_BASE_HEIGHT_CM','SHIPPING_UNIT_HEIGHT_CM'].map(k=>Number(env[k]));
-  const configured=Boolean(token&&/^\d{8}$/.test(origin)&&services.length&&sizes.every(n=>Number.isFinite(n)&&n>0));
+  const defaults={SHIPPING_UNIT_WEIGHT_G:0,SHIPPING_PACKAGE_WEIGHT_G:100,SHIPPING_LENGTH_CM:29.7,SHIPPING_WIDTH_CM:21,SHIPPING_BASE_HEIGHT_CM:5,SHIPPING_UNIT_HEIGHT_CM:0};
+  const sizes=Object.keys(defaults).map(k=>Number(env[k]??defaults[k]));
+  const configured=Boolean(token&&/^\d{8}$/.test(origin)&&services.length&&sizes.every((n,i)=>Number.isFinite(n)&&(i===0||i===5?n>=0:n>0)));
   return {configured,async quote(items,cep){
     if(!configured)fail(503,'shipping_not_configured','A configuração do SuperFrete está pendente.');
     const units=items.reduce((n,i)=>n+i.quantity,0),[unitWeight,boxWeight,length,width,baseHeight,unitHeight]=sizes;
