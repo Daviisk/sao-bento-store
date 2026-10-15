@@ -116,3 +116,6 @@ html:has(#login-view:not([hidden])),body:has(#login-view:not([hidden])){min-heig
 @media(max-width:1250px){#orders-view .toolbar{grid-template-columns:repeat(3,minmax(0,1fr))}#orders-view .toolbar>input[type=search]{grid-column:1/-1}}
 @media(max-width:700px){#orders-view .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}#orders-view .stats article{min-height:105px;padding:15px}#orders-view .toolbar{grid-template-columns:repeat(2,minmax(0,1fr));padding:14px;gap:10px}#orders-view .toolbar>input[type=search]{grid-column:1/-1}#orders-view .toolbar select{font-size:13px}#orders-view .toolbar .filter-clear{grid-column:1/-1}}
 @media(max-width:380px){#orders-view .toolbar{grid-template-columns:1fr}#orders-view .toolbar>*{grid-column:1/-1!important}}
+
+#orders-view .toolbar .filter-field{display:grid;gap:7px;min-width:0;font-size:12px;font-weight:750;color:#67543c}
+#orders-view .toolbar .filter-field select{width:100%;min-width:0}
