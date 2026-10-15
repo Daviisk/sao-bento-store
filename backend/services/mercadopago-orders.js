@@ -21,7 +21,7 @@ export function createOrdersGateway({accessToken}){
   },
   async createCard({reference,totalCents,email,cardToken,paymentMethodId,paymentMethodType='credit_card',installments=1,idempotencyKey}){
    if(!/^[a-zA-Z0-9_-]{1,64}$/.test(reference||''))fail(400,'invalid_reference','Referência inválida.');
-   if(!/^\\S+@\\S+\\.\\S+$/.test(email||''))fail(400,'invalid_email','E-mail válido obrigatório.');
+   if(!/^\S+@\S+\.\S+$/.test(email||''))fail(400,'invalid_email','E-mail válido obrigatório.');
    if(typeof cardToken!=='string'||!/^[a-zA-Z0-9_-]{12,128}$/.test(cardToken))fail(400,'invalid_card_token','Token do cartão inválido.');
    if(!/^[a-z0-9_]{2,32}$/.test(paymentMethodId||''))fail(400,'invalid_payment_method','Meio de pagamento inválido.');
    if(!['credit_card','debit_card'].includes(paymentMethodType))fail(400,'invalid_payment_type','Tipo de cartão inválido.');
