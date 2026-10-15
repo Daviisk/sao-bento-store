@@ -120,3 +120,11 @@ html[data-theme=dark]{--blue:#dfba6c;--navy:#15140f;--ink:#f1e5ce;--muted:#c4b8a
 @media(max-width:360px){.bottom{left:7px;right:7px;padding:4px}.bottom button{font-size:10px}}
 
 .footerContact{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:18px 0;border-top:1px solid #bca98755}.footerContact strong{font-size:13px}.footerContact a{color:inherit;text-decoration:underline;text-underline-offset:4px;overflow-wrap:anywhere}.footerContact a:hover{color:#a47a39}
+
+/* Visual separation between sticky header and the first banner */
+main#home{padding-top:clamp(14px,3.5vw,26px)}
+main#home>.hero{margin-top:0}
+@media(max-width:800px){
+ main#home{padding-top:16px}
+ .top{box-shadow:0 4px 18px rgba(69,49,22,.07)}
+}
