@@ -359,3 +359,6 @@
   #veil .drawer .custom-fields label { overflow-wrap:anywhere; }
   #veil .drawer .custom-fields select { max-width:100%; min-width:0; }
 }
+
+/* Hide the entire engraving fieldset, including its legend and border. */
+#veil .drawer .engraving-uploads[hidden], #custom-product .engraving-uploads[hidden]{display:none!important}
