@@ -43,3 +43,20 @@
  #app-view .main{overflow-wrap:anywhere}
 }
 @media(prefers-reduced-motion:reduce){#app-view *,#login-view *{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* Crédito institucional integrado à barra lateral, sem rodapé solto */
+#app-view .sidebar .sidebar-bottom{display:flex;flex-direction:column;align-items:stretch;gap:14px;width:100%;margin-top:auto;min-width:0}
+#app-view .sidebar .sidebar-bottom .logout{align-self:stretch}
+#app-view .sidebar .admin-credit{margin:0;padding:13px 10px 0;border-top:1px solid rgba(235,214,173,.2);font-size:11px;line-height:1.55;color:#d9c6a9;overflow-wrap:anywhere}
+#app-view .sidebar .admin-credit a{color:#f2d79b;text-decoration:underline;text-underline-offset:3px;font-weight:700}
+#app-view .sidebar .admin-credit a:hover{color:#fff4d9}
+#app-view .sidebar .admin-credit a:focus-visible{outline:2px solid #f2d79b;outline-offset:3px}
+@media(max-width:850px){
+ #app-view .sidebar .sidebar-bottom{flex:0 0 auto;width:auto;gap:5px;margin-top:0;align-self:flex-end}
+ #app-view .sidebar .admin-credit{font-size:10px;max-width:150px;padding:5px 0 0;text-align:right}
+}
+@media(max-width:520px){
+ #app-view .sidebar .sidebar-bottom{width:100%;align-self:stretch;display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+ #app-view .sidebar .sidebar-bottom .logout{width:auto;align-self:center}
+ #app-view .sidebar .admin-credit{max-width:190px;margin-left:auto;border-top:0;padding:0;font-size:10px}
+}
