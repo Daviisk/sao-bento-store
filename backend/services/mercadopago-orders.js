@@ -19,6 +19,17 @@ export function createOrdersGateway({accessToken}){
    const value=amount(totalCents);
    return request('/v1/orders',{method:'POST',key:idempotencyKey,body:{type:'online',processing_mode:'automatic',external_reference:reference,total_amount:value,payer:{email},transactions:{payments:[{amount:value,payment_method:{id:'pix',type:'bank_transfer'}}]}}});
   },
+  async createCard({reference,totalCents,email,cardToken,paymentMethodId,paymentMethodType='credit_card',installments=1,idempotencyKey}){
+   if(!/^[a-zA-Z0-9_-]{1,64}$/.test(reference||''))fail(400,'invalid_reference','Referência inválida.');
+   if(!/^\\S+@\\S+\\.\\S+$/.test(email||''))fail(400,'invalid_email','E-mail válido obrigatório.');
+   if(typeof cardToken!=='string'||!/^[a-zA-Z0-9_-]{12,128}$/.test(cardToken))fail(400,'invalid_card_token','Token do cartão inválido.');
+   if(!/^[a-z0-9_]{2,32}$/.test(paymentMethodId||''))fail(400,'invalid_payment_method','Meio de pagamento inválido.');
+   if(!['credit_card','debit_card'].includes(paymentMethodType))fail(400,'invalid_payment_type','Tipo de cartão inválido.');
+   if(!Number.isInteger(installments)||installments<1||installments>12)fail(400,'invalid_installments','Parcelas inválidas.');
+   if(!/^[0-9a-f-]{36}$/i.test(idempotencyKey||''))fail(400,'invalid_key','Chave inválida.');
+   const value=amount(totalCents);
+   return request('/v1/orders',{method:'POST',key:idempotencyKey,body:{type:'online',processing_mode:'automatic',capture_mode:'automatic',external_reference:reference,total_amount:value,payer:{email},transactions:{payments:[{amount:value,payment_method:{id:paymentMethodId,type:paymentMethodType,token:cardToken,installments}}]}}});
+  },
   async getOrder(id){if(!/^ORD[A-Z0-9]{8,64}$/.test(id||''))fail(400,'invalid_order_id','Order inválida.');return request('/v1/orders/'+encodeURIComponent(id));}
  };
 }
