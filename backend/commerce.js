@@ -2,6 +2,7 @@ import {randomUUID,randomBytes,createHash,timingSafeEqual} from 'node:crypto';
 import {fail} from './validation.js';
 import {createCommerceStore} from './commerce-store.js';
 import {products as defaults} from './products.js';
+import {createShippingProvider,postalCode} from './services/shipping.js';
 const hash=v=>createHash('sha256').update(v).digest('hex');
 export const statusLabels={requested:'Pedido recebido',awaiting_art:'Aguardando arte',art_approved:'Arte aprovada',production:'Em produção',shipped:'Enviado',delivered:'Entregue',cancelled:'Cancelado'};
 const images=['dobrao-bronze-prof-v2.webp','dobrao-inox-prof-v2.webp','bolsa-couro-prof-v2.webp','bolsa-trio-prof-v2.webp'];
@@ -25,6 +26,17 @@ export function createCommerce({store,config}){
 export function mountCommerce(app,{commerce,session,mutation,limit,config}){
  const durable=(req,res,next)=>{if(config.durableStorage===false)fail(503,'storage_required','O recebimento de pedidos está temporariamente indisponível.');next();};
  app.get('/api/commerce/catalog',async(req,res)=>res.json({products:await commerce.catalog(),ordersConfigured:config.durableStorage!==false,statusLabels}));
+ app.post('/api/commerce/shipping/quote',limit(15),session,mutation,async(req,res)=>{
+  const cep=postalCode(req.body?.cep),items=req.body?.items;
+  if(!Array.isArray(items)||items.length<1||items.length>20)fail(400,'invalid_cart','Informe os produtos para cotar o frete.');
+  const products=await commerce.catalog();let units=0;
+  for(const item of items){const product=products.find(p=>p.productId===item?.productId&&p.enabled);if(!product||!Number.isInteger(item.quantity)||item.quantity<1||item.quantity>100)fail(400,'invalid_cart','Confira os produtos e quantidades.');units+=item.quantity;}
+  if(units>100)fail(400,'invalid_cart','Quantidade acima do limite para cotação.');
+  const provider=createShippingProvider();
+  if(!provider.configured)fail(503,'shipping_not_configured','O frete automático ainda não está configurado.');
+  const options=await provider.quote(items,cep);
+  res.json({options:options.map(o=>({...o,priceCents:o.priceCents+500}))});
+ });
  app.post('/api/commerce/orders',limit(10),durable,session,mutation,async(req,res)=>res.status(201).json(await commerce.createOrder(req.body,req.shopSession.id,req.get('idempotency-key'))));
  app.get('/api/commerce/orders/:id',limit(30),async(req,res)=>res.json(await commerce.track(req.params.id,String(req.get('authorization')||'').replace(/^Bearer /,''))));
  app.get('/api/commerce/reviews/:productId',async(req,res)=>res.json({reviews:await commerce.reviews(req.params.productId)}));
