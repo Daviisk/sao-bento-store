@@ -214,4 +214,4 @@ main#home>.hero .heroCta{min-height:48px;display:inline-flex;align-items:center;
 }
 
 /* Featured São Bento seal: stronger contrast and premium gold finish */
-#grid .catalog-personalized-label{background:linear-gradient(135deg,#8a5a13,#bd8a31 52%,#a36b18)!important;color:#fffaf0!important;border:1px solid #e3bb6a!important;box-shadow:0 4px 13px rgba(70,40,8,.27)!important;font-size:11px!important;font-weight:850!important;letter-spacing:.015em;padding:8px 11px!important;border-radius:10px!important;max-width:calc(100% - 18px);line-height:1.2}
+#grid .catalog-personalized-label{background:#a87932!important;color:#fffaf0!important;border:1px solid #cba45d!important;box-shadow:0 2px 6px rgba(70,40,8,.12)!important;font-size:10px!important;font-weight:750!important;letter-spacing:0!important;padding:5px 8px!important;border-radius:8px!important;max-width:calc(100% - 18px);line-height:1.2}
