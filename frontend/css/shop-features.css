@@ -294,3 +294,20 @@
 #veil .drawer .photoThumbnails button{scroll-snap-align:start;min-width:56px}
 #veil .drawer .detailGallery .detailImg{object-fit:contain}
 @media(max-width:360px){#veil .drawer .detail-purchase-actions button{font-size:11px!important}}
+
+/* Guided personalization without disrupting existing form validation */
+#custom-product .custom-fields{display:grid;gap:14px}
+#custom-product .custom-progress{margin:0;padding:12px 14px;border-radius:12px;background:#f4e9d7;color:#634820;font-size:13px;font-weight:800}
+#custom-product .custom-step{min-width:0;margin:0;padding:16px;border:1px solid #e1ceb0;border-radius:16px;background:#fffcf7}
+#custom-product fieldset.custom-step{display:grid;gap:12px}
+#custom-product .engraving-uploads legend{padding:0 8px;font-weight:800;color:#61451e}
+#custom-product .engraving-upload{border-radius:13px}
+#custom-product .engraving-upload:focus-within{outline:2px solid #a77b3c;outline-offset:3px}
+#veil .drawer .detailGallery .zoom-trigger{cursor:zoom-in}
+#veil .drawer .photoThumbnails button[aria-pressed=true]{outline:2px solid #a8752d;outline-offset:2px}
+@media(max-width:600px){
+ #custom-product .custom-step{padding:12px;border-radius:14px}
+ #veil .drawer .detailGallery{margin-bottom:14px}
+ #veil .drawer .detail-purchase-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #veil .drawer .detail-purchase-actions button{min-height:52px!important}
+}
