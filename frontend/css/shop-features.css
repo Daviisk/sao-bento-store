@@ -486,3 +486,12 @@
  #veil .drawer .sheet-scroll-content{padding-bottom:calc(8px + env(safe-area-inset-bottom))!important}
  #veil .drawer .engraving-uploads .engraving-drop{padding:12px!important}
 }
+
+
+/* Guided product personalization: explicitly confirmed steps */
+#custom-product [hidden]{display:none!important}
+#custom-product .step-confirm{display:block;width:100%;min-height:48px;margin:10px 0 18px;padding:12px 16px;border:1px solid #a87a36;border-radius:13px;background:linear-gradient(120deg,#98702f,#c49b52);color:#fffaf1;font:700 15px/1.4 inherit;cursor:pointer;text-align:center}
+#custom-product .step-confirm:focus-visible{outline:3px solid #63451c;outline-offset:3px}
+#custom-product .custom-progress{border-radius:12px;background:#f1e6d2;color:#614725;padding:12px 14px;font-weight:750}
+#custom-product .engraving-uploads[data-personal-step="2"]{margin-top:12px!important}
+#request-order input[name="phone"]{font-variant-numeric:tabular-nums;letter-spacing:.015em}
