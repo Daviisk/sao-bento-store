@@ -75,7 +75,7 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config}){
   const provider=createShippingProvider();
   if(!provider.configured)fail(503,'shipping_not_configured','O frete automático ainda não está configurado.');
   const options=await provider.quote(items,cep);
-  res.json({options:options.map(o=>({...o,priceCents:1}))});
+  res.json({options:options.map(o=>({...o,priceCents:o.priceCents}))});
  });
  app.post('/api/commerce/orders',limit(10),durable,session,mutation,async(req,res)=>res.status(201).json(await commerce.createOrder(req.body,req.shopSession.id,req.get('idempotency-key'))));
  app.post('/api/commerce/orders/:id/pix',limit(5),durable,session,mutation,async(req,res)=>{
@@ -96,7 +96,7 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config}){
   const options=await provider.quote(order.items.map(i=>({productId:i.productId,quantity:i.quantity})),postalCode(cep));
   const selected=options.find(o=>String(o.serviceCode)===serviceCode);
   if(!selected)fail(409,'shipping_changed','Recalcule e selecione o frete.');
-  const shippingCents=1,totalCents=order.productsTotal+shippingCents;
+  const shippingCents=selected.priceCents,totalCents=order.productsTotal+shippingCents;
   const key=req.get('idempotency-key');
   if(!/^[0-9a-f-]{36}$/i.test(key||''))fail(400,'invalid_key','Atualize a página e tente novamente.');
   const paymentKey=hash('mercadopago-orders-pix:'+order.orderId).slice(0,8)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(8,12)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(12,16)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(16,20)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(20,32);const remote=await gateway.createPix({reference:order.orderId,totalCents,email,idempotencyKey:paymentKey});
@@ -119,7 +119,7 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config}){
   const options=await provider.quote(order.items.map(i=>({productId:i.productId,quantity:i.quantity})),postalCode(cep));
   const selected=options.find(o=>String(o.serviceCode)===serviceCode);
   if(!selected)fail(409,'shipping_changed','Recalcule o frete.');
-  const shippingCents=1,totalCents=order.productsTotal+shippingCents;
+  const shippingCents=selected.priceCents,totalCents=order.productsTotal+shippingCents;
   const key=req.get('idempotency-key');
   if(!/^[0-9a-f-]{36}$/i.test(key||''))fail(400,'invalid_key','Chave de tentativa inválida.');
   const remote=await createOrdersGateway({accessToken:config.accessToken}).createCard({reference:order.orderId,totalCents,email,cardToken:card.token,paymentMethodId:card.paymentMethodId,paymentMethodType:card.paymentMethodType||'credit_card',installments:card.installments,idempotencyKey:key});
