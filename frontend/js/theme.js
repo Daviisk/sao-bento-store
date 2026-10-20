@@ -1,34 +1,17 @@
 (()=> {
   'use strict';
   const root=document.documentElement;
-  const key='sao-bento.theme';
-  let theme='light';
-  try { if(localStorage.getItem(key)==='dark') theme='dark'; } catch {}
-  function apply(value){
-    theme=value;
-    root.dataset.theme=value;
-    const button=document.getElementById('theme-toggle');
-    if(button){
-      button.setAttribute('aria-pressed',String(value==='dark'));
-      button.setAttribute('aria-label',value==='dark'?'Ativar modo claro':'Ativar modo escuro');
-      button.textContent=value==='dark'?'☀ Modo claro':'☾ Modo escuro';
-    }
-    document.querySelectorAll('[data-logo-light][data-logo-dark]').forEach(logo=>{
-      logo.src=value==='dark'?logo.dataset.logoDark:logo.dataset.logoLight;
+  // The store has one visual identity, including for returning visitors.
+  root.dataset.theme='light';
+  root.style.colorScheme='only light';
+  try { localStorage.removeItem('sao-bento.theme'); } catch {}
+  const applyLight=()=>{
+    document.querySelectorAll('[data-logo-light]').forEach(logo=>{
+      logo.src=logo.dataset.logoLight;
     });
     const meta=document.querySelector('meta[name="theme-color"]');
-    if(meta) meta.content=value==='dark'?'#10100e':'#f4efe4';
-  }
-  apply(theme);
-  document.addEventListener('DOMContentLoaded',()=>{
-    apply(theme);
-    document.getElementById('theme-toggle')?.addEventListener('click',()=>{
-      apply(theme==='dark'?'light':'dark');
-      try {localStorage.setItem(key,theme);} catch {}
-    });
-  },{once:true});
-  window.addEventListener('storage',event=>{
-    if(event.key===key) apply(event.newValue==='dark'?'dark':'light');
-  });
+    if(meta) meta.content='#f4efe4';
+  };
+  applyLight();
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',applyLight,{once:true});
 })();
-

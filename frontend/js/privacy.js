@@ -1,5 +1,6 @@
 (()=>{'use strict';
-try{document.documentElement.dataset.theme=localStorage.getItem('sao-bento.theme')==='dark'?'dark':'light';}catch{}
+document.documentElement.dataset.theme='light';
+try{localStorage.removeItem('sao-bento.theme');}catch{}
 const status=document.getElementById('status');
 async function api(path,options){const r=await fetch(path,{credentials:'same-origin',cache:'no-store',...options});if(!r.ok){if(r.status===401)throw Error('Não há sessão ativa. Para dados de outras compras, solicite atendimento à loja.');throw Error('Não foi possível concluir. Tente novamente.');}return r.json();}
 api('/api/privacy/config').then(c=>{if(c.controller)document.getElementById('controller').textContent='Responsável pelo tratamento: '+c.controller;if(c.email){document.getElementById('contact').textContent='Canal de privacidade: '+c.email;const a=document.getElementById('request');a.href='mailto:'+encodeURIComponent(c.email)+'?subject=Solicitação%20de%20privacidade';a.hidden=false;}}).catch(()=>{});

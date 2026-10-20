@@ -262,3 +262,6 @@ html[data-theme=dark] .footerContact,html[data-theme=dark] .footerBottom{border-
 .head .brand .brand-name{display:block;white-space:nowrap;line-height:1.05}
 .head .brand .brand-name small{display:block;margin-top:4px}
 @media(max-width:480px){.head .brand{gap:7px}.head .brand .brand-logo{width:34px;height:34px}.head .brand .brand-name{font-size:clamp(15px,4.2vw,20px)}}
+
+/* São Bento is always displayed in its original light palette. */
+:root{color-scheme:only light}
