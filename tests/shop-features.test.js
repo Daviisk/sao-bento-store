@@ -89,3 +89,14 @@ test('checkout shows unit and line prices plus total with selected freight',asyn
  assert.equal(d.querySelector('#order-grand-total').textContent,'R$ 215,00');
  assert.match(d.querySelector('#shipping-total').textContent,/Total de produtos \+ frete: R\$ 215,00/);
 });
+
+
+test('sticky product purchase bar reaches the bottom without stacked blank spacing',()=>{
+ const css=readFileSync('frontend/css/shop-features.css','utf8');
+ const fix=css.slice(css.lastIndexOf('/* Keep the purchase bar sticky'));
+ assert.match(fix,/#veil\.detailView \.drawer\s*\{[^}]*padding-bottom:0!important/s);
+ assert.match(fix,/#veil\.detailView \.drawer>\.sheet-scroll-content\s*\{[^}]*padding-bottom:0!important/s);
+ assert.match(fix,/#veil\.detailView \.drawer \.detail-purchase-actions\s*\{[^}]*position:sticky!important/s);
+ assert.match(fix,/bottom:0!important/);
+ assert.match(fix,/env\(safe-area-inset-bottom\)/);
+});
