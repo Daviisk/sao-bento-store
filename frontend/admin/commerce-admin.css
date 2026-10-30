@@ -177,3 +177,7 @@ body{background:#f7f3eb;color:#34291e}
 #commerce-admin-view .product-photo-preview-wrap img{width:100%;height:100%;object-fit:contain;background:#fff}
 #commerce-admin-view .product-photo-preview-wrap img[hidden],#commerce-admin-view .product-photo-preview-wrap [hidden]{display:none}
 #commerce-admin-view .product-photo-preview-wrap span{padding:12px;color:#786b57;font-size:12px;text-align:center}
+
+/* Toggle for products previously removed from the public store */
+#commerce-admin-view .show-removed-toggle{display:flex;align-items:center;gap:8px;min-height:42px;white-space:nowrap;font-size:13px}
+#commerce-admin-view .show-removed-toggle input{width:18px;height:18px;min-height:18px;flex:0 0 auto}
