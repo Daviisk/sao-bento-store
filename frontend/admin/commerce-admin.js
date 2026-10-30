@@ -19,7 +19,7 @@ function editProduct(p,isNew=false){
   if(!container)return;
   container.innerHTML=galleryOrder.map((src,i)=>{
    const removed=removedGallery.has(src);
-   return '<div class="gallery-thumb'+(removed?' is-pending-remove':'')+'" data-gallery-item><img src="'+esc(src)+'" alt="Foto adicional '+(i+1)+'" loading="lazy" decoding="async"><span class="gallery-order-label">Foto '+(i+2)+'</span><div class="gallery-order-actions"><button type="button" class="gallery-order-button" data-move-gallery="'+esc(src)+'" data-direction="-1" aria-label="Mover foto '+(i+2)+' para cima" '+(i===0||removed?'disabled':'')+'>↑</button><button type="button" class="gallery-order-button" data-move-gallery="'+esc(src)+'" data-direction="1" aria-label="Mover foto '+(i+2)+' para baixo" '+(i===galleryOrder.length-1||removed?'disabled':'')+'>↓</button></div><button type="button" class="gallery-remove-button" data-remove-gallery="'+esc(src)+'" aria-pressed="'+String(removed)+'">'+(removed?'Desfazer':'Remover')+'</button></div>';
+   return '<div class="gallery-thumb'+(removed?' is-pending-remove':'')+'" data-gallery-item><img src="'+esc(src)+'" alt="Foto adicional '+(i+1)+'" loading="lazy" decoding="async"><span class="gallery-order-label">Foto '+(i+2)+'</span><div class="gallery-order-actions"><button type="button" class="gallery-order-button" data-move-gallery="'+esc(src)+'" data-direction="-1" aria-label="Mover foto '+(i+2)+' para cima" '+(i===0||removed||form.elements.upload.files.length?'disabled':'')+'>↑</button><button type="button" class="gallery-order-button" data-move-gallery="'+esc(src)+'" data-direction="1" aria-label="Mover foto '+(i+2)+' para baixo" '+(i===galleryOrder.length-1||removed?'disabled':'')+'>↓</button></div><button type="button" class="gallery-remove-button" data-remove-gallery="'+esc(src)+'" aria-pressed="'+String(removed)+'">'+(removed?'Desfazer':'Remover')+'</button></div>';
   }).join('')||'<p class="gallery-empty">Nenhuma foto adicional. A foto principal aparece primeiro na loja.</p>';
   container.querySelectorAll('[data-move-gallery]').forEach(button=>button.addEventListener('click',()=>{
    const src=button.dataset.moveGallery,index=galleryOrder.indexOf(src),direction=Number(button.dataset.direction);
@@ -69,7 +69,7 @@ function editProduct(p,isNew=false){
  $('#back-catalog').onclick=()=>load('catalog');
  drawGallery();
  form.elements.upload.addEventListener('change',()=>{
-  const file=form.elements.upload.files[0];if(file){const url=URL.createObjectURL(file);$('#product-photo-preview').src=url;}
+  const file=form.elements.upload.files[0];if(file){const url=URL.createObjectURL(file);$('#product-photo-preview').src=url;}drawGallery();
  });
  form.addEventListener('submit',async e=>{
   e.preventDefault();const button=form.querySelector('[type=submit]');button.disabled=true;button.textContent='Salvando…';
