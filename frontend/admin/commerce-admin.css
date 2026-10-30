@@ -61,3 +61,21 @@ body{background:#f7f3eb;color:#34291e}
 .custom-financial-summary small{display:block;font-size:12px;color:#75664e;line-height:1.45}
 .custom-financial-summary strong{display:block;margin-top:8px;font-size:clamp(18px,2.3vw,26px);font-variant-numeric:tabular-nums;overflow-wrap:anywhere;color:#62431c}
 @media(max-width:600px){.custom-financial-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.custom-financial-summary article:last-child{grid-column:1/-1}}
+
+/* Product editor and category management */
+#commerce-admin-view .category-manager{margin:18px 0;padding:18px;border:1px solid #e0d0b3;border-radius:15px;background:#fffcf6}
+#commerce-admin-view .category-manager h3{margin-top:0}
+#commerce-admin-view .category-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:9px;margin-top:14px}
+#commerce-admin-view .category-list .admin-record{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0;padding:10px}
+#commerce-admin-view .category-list strong{flex:1 1 100%;overflow-wrap:anywhere}
+#commerce-admin-view .product-edit-form{display:grid;gap:14px;max-width:760px}
+#commerce-admin-view .product-edit-form>label,#commerce-admin-view .product-edit-form .admin-grid>label{display:grid;gap:7px}
+#commerce-admin-view .product-edit-form input:not([type=checkbox]):not([type=file]),#commerce-admin-view .product-edit-form select,#commerce-admin-view .product-edit-form textarea{width:100%;min-height:44px;padding:10px 12px;border:1px solid #d8cbb6;border-radius:10px;background:#fff;color:#2c261e;font:inherit}
+#commerce-admin-view .product-photo-editor{display:grid;gap:12px;padding:16px;border:1px solid #e0d0b3;border-radius:14px;background:#fffcf6}
+#commerce-admin-view .product-photo-editor h3{margin:0}
+#commerce-admin-view #product-photo-preview{display:block;width:150px;height:150px;object-fit:contain;border:1px solid #ddd;border-radius:12px;background:#fff;padding:6px}
+#commerce-admin-view .product-gallery-preview{display:flex;flex-wrap:wrap;gap:10px}
+#commerce-admin-view .gallery-thumb{display:grid;gap:5px;padding:7px;border:1px solid #e2d6c4;border-radius:10px;background:#fff;font-size:12px}
+#commerce-admin-view .gallery-thumb img{width:82px;height:82px;object-fit:contain}
+#commerce-admin-view .product-form-actions{display:flex;gap:10px;flex-wrap:wrap}
+@media(max-width:600px){#commerce-admin-view .category-list{grid-template-columns:1fr}#commerce-admin-view .product-form-actions button{flex:1}}
