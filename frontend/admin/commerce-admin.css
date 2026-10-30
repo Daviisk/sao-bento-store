@@ -156,3 +156,18 @@ body{background:#f7f3eb;color:#34291e}
 #commerce-admin-view .gallery-remove-button[aria-pressed="true"]{background:#66594b}
 #commerce-admin-view .gallery-remove-button:focus-visible{outline:3px solid #cda15e;outline-offset:2px}
 @media(max-width:600px){#commerce-admin-view .gallery-thumb{width:calc(50% - 7px);max-width:160px}#commerce-admin-view .gallery-remove-button{min-height:42px}}
+
+/* Gallery sequence controls */
+#commerce-admin-view .gallery-thumb{display:grid;align-content:start;gap:7px;min-width:112px;max-width:142px;padding:9px}
+#commerce-admin-view .gallery-thumb img{width:100%;height:96px;object-fit:contain}
+#commerce-admin-view .gallery-order-label{font-size:11px;color:#776950;font-weight:700;text-align:center}
+#commerce-admin-view .gallery-order-actions{display:flex;gap:6px}
+#commerce-admin-view .gallery-order-button{flex:1;min-height:38px;padding:6px 10px;background:#80602e;color:#fff;border:0;border-radius:8px;font-size:18px;font-weight:700;line-height:1;cursor:pointer}
+#commerce-admin-view .gallery-order-button:hover{background:#65491f}
+#commerce-admin-view .gallery-order-button:disabled{opacity:.3;cursor:not-allowed}
+#commerce-admin-view .gallery-order-button:focus-visible{outline:3px solid #cda15e;outline-offset:2px}
+#commerce-admin-view .gallery-empty{margin:0;padding:12px;color:#776950;font-size:13px}
+@media(max-width:600px){
+ #commerce-admin-view .gallery-thumb{width:calc(50% - 7px);max-width:170px}
+ #commerce-admin-view .gallery-order-button{min-height:42px}
+}
