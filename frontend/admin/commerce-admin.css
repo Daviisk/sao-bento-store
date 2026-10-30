@@ -79,3 +79,70 @@ body{background:#f7f3eb;color:#34291e}
 #commerce-admin-view .gallery-thumb img{width:82px;height:82px;object-fit:contain}
 #commerce-admin-view .product-form-actions{display:flex;gap:10px;flex-wrap:wrap}
 @media(max-width:600px){#commerce-admin-view .category-list{grid-template-columns:1fr}#commerce-admin-view .product-form-actions button{flex:1}}
+
+/* Simplified product workspace */
+#commerce-admin-view .admin-catalog-heading,#commerce-admin-view .admin-section-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+#commerce-admin-view .admin-catalog-heading{margin:4px 0 18px}
+#commerce-admin-view .admin-catalog-heading h2,#commerce-admin-view .admin-section-heading h3{margin:0}
+#commerce-admin-view .admin-catalog-heading p,#commerce-admin-view .admin-section-heading p{margin:5px 0 0;color:#776b5a;font-size:13px}
+#commerce-admin-view .category-manager{padding:15px}
+#commerce-admin-view .category-create{display:flex;gap:8px;align-items:center;margin:0;padding:0;border:0;background:transparent}
+#commerce-admin-view .category-create input{width:min(230px,42vw);min-height:40px}
+#commerce-admin-view .category-chip{display:flex;align-items:center;gap:8px;border:1px solid var(--admin-border);background:#fffdf8;border-radius:12px;padding:8px 10px}
+#commerce-admin-view .category-chip strong{flex:1;min-width:0;overflow-wrap:anywhere}
+#commerce-admin-view .category-chip button{padding:7px 10px;font-size:12px;min-height:34px}
+#commerce-admin-view .catalog-toolbar{display:flex;align-items:end;gap:12px;flex-wrap:wrap;padding:13px;margin:14px 0;border:1px solid var(--admin-border);border-radius:14px;background:#fffdf8}
+#commerce-admin-view .catalog-toolbar>label{min-width:180px}
+#commerce-admin-view .catalog-toolbar .select-visible{display:flex;align-items:center;gap:8px;min-height:42px}
+#commerce-admin-view .catalog-toolbar .select-visible input{width:18px;height:18px;min-height:18px}
+#commerce-admin-view .bulk-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-left:auto}
+#commerce-admin-view .bulk-actions span{font-size:12px;color:#6c604e;font-weight:700}
+#commerce-admin-view .bulk-actions button{padding:9px 12px;min-height:40px;font-size:12px}
+#commerce-admin-view .bulk-actions button:disabled{opacity:.42;cursor:not-allowed}
+#commerce-admin-view .bulk-actions #bulk-delete{background:#695344}
+#commerce-admin-view .admin-product-row{display:grid;grid-template-columns:26px 76px minmax(0,1fr) auto;align-items:center;gap:12px;padding:13px;margin:10px 0;border:1px solid var(--admin-border);border-radius:14px;background:#fffdf8}
+#commerce-admin-view .product-select{display:flex;align-items:center;justify-content:center}
+#commerce-admin-view .product-select input{width:18px;height:18px;min-height:18px}
+#commerce-admin-view .admin-product-row .admin-product-image{width:76px;height:76px;object-fit:contain;border:1px solid #eee4d6;border-radius:10px;background:white}
+#commerce-admin-view .admin-product-copy{min-width:0}
+#commerce-admin-view .admin-product-copy h3{margin:0 0 4px;font-size:15px}
+#commerce-admin-view .admin-product-copy p{margin:3px 0;color:#756750;font-size:12px}
+#commerce-admin-view .admin-product-copy .product-stock-summary{font-weight:700;color:#493b29}
+#commerce-admin-view .admin-product-copy small{display:block;margin-top:3px}
+#commerce-admin-view .product-status{display:inline-block;margin-top:5px;padding:3px 7px;border-radius:7px;font-size:10px;font-weight:700}
+#commerce-admin-view .product-status.is-active{background:#e9f1e5;color:#3c6934}
+#commerce-admin-view .product-status.is-inactive{background:#f2eae0;color:#7c5a38}
+#commerce-admin-view .product-row-actions{display:flex;align-items:center;gap:5px}
+#commerce-admin-view .product-row-actions button{min-width:38px;padding:8px 10px;font-size:12px}
+#commerce-admin-view .product-row-actions button:disabled{opacity:.35;cursor:not-allowed}
+#commerce-admin-view .admin-empty{padding:25px;text-align:center;color:#756750}
+#commerce-admin-view .product-edit-form{max-width:900px;gap:15px}
+#commerce-admin-view .product-edit-form>label,#commerce-admin-view .product-edit-form .admin-grid>label{min-width:0}
+#commerce-admin-view .product-photo-editor,#commerce-admin-view .finish-manager,#commerce-admin-view .stock-manager{display:grid;gap:12px;padding:16px;border:1px solid #e0d0b3;border-radius:14px;background:#fffcf6}
+#commerce-admin-view .finish-manager[hidden]{display:none}
+#commerce-admin-view .finish-options{display:flex;gap:9px;flex-wrap:wrap}
+#commerce-admin-view .finish-option{display:flex!important;align-items:center;gap:8px;padding:10px 13px;border:1px solid #decfb8;border-radius:10px;background:white;cursor:pointer}
+#commerce-admin-view .finish-option input{width:18px;height:18px;min-height:18px}
+#commerce-admin-view .finish-option span{font-size:13px}
+#commerce-admin-view .stock-backorder{align-self:end;padding:10px 0}
+#commerce-admin-view .stock-backorder input,#commerce-admin-view .product-enabled input{width:18px;height:18px;min-height:18px}
+#commerce-admin-view .product-enabled{display:flex!important;align-items:center;gap:9px}
+#commerce-admin-view .product-form-actions .secondary-action{background:#6e6253}
+#commerce-admin-view .gallery-thumb{min-width:105px;max-width:125px}
+#commerce-admin-view .gallery-thumb span{display:flex;align-items:center;gap:6px}
+#commerce-admin-view .gallery-thumb input{width:16px;height:16px;min-height:16px}
+#commerce-admin-view .admin-section-heading{margin-bottom:4px}
+@media(max-width:650px){
+ #commerce-admin-view .admin-product-row{grid-template-columns:22px 58px minmax(0,1fr);gap:8px;padding:10px}
+ #commerce-admin-view .admin-product-row .admin-product-image{width:58px;height:58px}
+ #commerce-admin-view .product-row-actions{grid-column:2/-1;justify-content:flex-end}
+ #commerce-admin-view .catalog-toolbar{align-items:stretch}
+ #commerce-admin-view .catalog-toolbar>label{min-width:0;width:100%}
+ #commerce-admin-view .bulk-actions{margin-left:0;width:100%;justify-content:flex-end}
+ #commerce-admin-view .bulk-actions span{margin-right:auto}
+ #commerce-admin-view .category-create{width:100%}
+ #commerce-admin-view .category-create input{flex:1;width:0}
+ #commerce-admin-view .admin-catalog-heading>button{width:100%}
+ #commerce-admin-view .finish-options{display:grid;grid-template-columns:1fr}
+ #commerce-admin-view .finish-option{min-height:44px}
+}
