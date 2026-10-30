@@ -1,5 +1,7 @@
 (()=> {
   'use strict';
+  // Prevent Chrome from restoring a mid-page scroll position after reload.
+  try { if ('scrollRestoration' in history) history.scrollRestoration='manual'; } catch {}
   const root=document.documentElement;
   // The store has one visual identity, including for returning visitors.
   root.dataset.theme='light';
