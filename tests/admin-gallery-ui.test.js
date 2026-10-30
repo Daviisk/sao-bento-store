@@ -18,7 +18,7 @@ test('admin gallery supports visible ordering, swapping the first additional pho
  assert.match(admin,/data-move-gallery=/);
  assert.match(admin,/data-direction="-1"/);
  assert.match(admin,/data-direction="1"/);
- assert.match(admin,/galleryOrder=p\.gallery/);
+ assert.match(admin,/galleryOrder=isNew\?\[\]:\(p\.gallery\|\|\[\]\)\.filter/);
  assert.match(admin,/galleryOrder\.indexOf\(src\)/);
  assert.match(admin,/const previousMain=mainImage;mainImage=src;galleryOrder\[index\]=previousMain/);
  assert.match(admin,/\[galleryOrder\[index\],galleryOrder\[next\]\]=\[galleryOrder\[next\],galleryOrder\[index\]\]/);
