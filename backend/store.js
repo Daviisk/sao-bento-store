@@ -31,7 +31,7 @@ export function openStore(filename){
   function nextOrderCode(){const row=db.prepare("SELECT value FROM counters WHERE name='order_number'").get(),next=Number(row?.value||1000)+1;db.prepare("UPDATE counters SET value=? WHERE name='order_number'").run(next);return String(next);}
   function addFulfillmentHistory(order,from,to,source){if(from===to)return;const at=new Date().toISOString();order.fulfillmentHistory=Array.isArray(order.fulfillmentHistory)?order.fulfillmentHistory:[];order.fulfillmentHistory.push({from:from??null,to,at,source});order.fulfillmentUpdatedAt=at;}
   return {
-    kind:'sqlite',db,tx,get,save,close:()=>db.close(),
+    kind:'sqlite',db,tx,get,save,hasProductInOrders(productId){return Boolean(db.prepare("SELECT 1 FROM orders, json_each(document,'$.items') AS item WHERE json_extract(item.value,'$.productId')=? LIMIT 1").get(productId));},close:()=>db.close(),
     addSupportRequest(id,kind){return tx(()=>{const order=get(id);if(!order)throw Error('Order unavailable');order.supportRequests=order.supportRequests||[];const existing=order.supportRequests.find(r=>r.kind===kind&&r.status==='open');if(existing)return existing;const receipt={id:randomUUID(),kind,status:'open',createdAt:new Date().toISOString()};order.supportRequests.push(receipt);save(order);return receipt;});},
     hideOrderFromAdmin(id){return tx(()=>{const order=get(id);if(!order)return null;order.adminDeletedAt=order.adminDeletedAt||new Date().toISOString();save(order);return order;});},
     privacyOrders(owner){return db.prepare('SELECT document FROM orders WHERE owner=? ORDER BY rowid').all(owner).map(decode);},
