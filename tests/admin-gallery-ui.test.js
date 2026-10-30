@@ -30,7 +30,7 @@ test('new product form starts without a sample coin photo and prompts for the ma
  assert.match(admin,/image:'',gallery:\[\],variants\},true\)/);
  assert.match(admin,/Selecione uma foto principal/);
  assert.match(admin,/product-photo-placeholder/);
- assert.match(admin,/product-photo-preview'\)\.hidden=false/);
+ assert.match(admin,/wrap\.innerHTML='<img id=\"product-photo-preview\" src=/);
 });
 
 test('new product preview contains no example image element or inherited gallery image',()=>{
