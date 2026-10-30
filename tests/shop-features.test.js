@@ -14,3 +14,31 @@ test('bags skip all engraving steps and expose only quantity before adding to ca
  assert.match(d.querySelector('#custom-cart-lines').textContent,/Bolsa de Couro/);
  assert.match(d.querySelector('#custom-cart-lines').textContent,/2/);
 });
+
+test('bags and the trio use a plain product flow with no engraving controls',async t=>{
+ const {w,d}=await page(t);
+ d.querySelector('[data-commerce-detail="produto_03"]').click();await tick();
+ const form=d.querySelector('#custom-product');
+ assert(form);assert.equal(form.querySelector('.engraving-uploads'),null);
+ assert.equal(form.elements.variant,undefined);
+ assert.equal(form.querySelector('[data-confirm-step]'),null);
+ assert.equal(form.elements.quantity.closest('[hidden]'),null);
+ form.elements.quantity.value='2';form.dispatchEvent(new w.Event('submit',{cancelable:true}));await tick();
+ assert(d.querySelector('#request-order'));
+ assert.match(d.querySelector('#custom-cart-lines').textContent,/Bolsa de Couro/);
+ assert.equal(d.querySelectorAll('#custom-cart-lines [data-custom-variant]').length,0);
+ d.querySelector('[data-ui="closeDrawer()"]')?.click();
+ d.querySelector('[data-commerce-detail="produto_04"]').click();await tick();
+ assert.equal(d.querySelector('#custom-product .engraving-uploads'),null);
+ assert.equal(d.querySelector('#custom-product').elements.variant,undefined);
+});
+test('dobrao without engraving skips file upload and is identified clearly in the cart',async t=>{
+ const {w,d}=await page(t);
+ d.querySelector('[data-commerce-detail="produto_01"]').click();await tick();
+ const form=d.querySelector('#custom-product');form.elements.variant.value='none';form.elements.variant.dispatchEvent(new w.Event('change',{bubbles:true}));
+ form.querySelector('[data-confirm-step="1"]').click();
+ assert.equal(form.querySelector('.engraving-uploads').hidden,true);
+ assert.equal(form.elements.quantity.closest('[hidden]'),null);
+ form.dispatchEvent(new w.Event('submit',{cancelable:true}));await tick();
+ assert.match(d.querySelector('#custom-cart-lines').textContent,/Sem gravação/);
+});
