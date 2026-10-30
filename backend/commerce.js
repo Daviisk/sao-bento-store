@@ -16,7 +16,7 @@ function extractOrdersPix(remote){
 export const statusLabels={requested:'Pedido recebido',awaiting_art:'Aguardando arte',art_approved:'Arte aprovada',production:'Em produção',shipped:'Enviado',delivered:'Entregue',cancelled:'Cancelado'};
 const images=['dobrao-bronze-prof-v2.webp','dobrao-inox-prof-v2.webp','bolsa-couro-prof-v2.webp','bolsa-trio-prof-v2.webp'];
 const galleries=[[],[],['bolsa-couro-lateral-prof-v2.webp','bolsa-couro-verso-prof-v2.webp','bolsa-couro-aberta-prof-v2.webp','bolsa-couro-perspectiva-prof-v2.webp'],['bolsa-trio-aberta-prof-v2.webp','bolsa-trio-verso-prof-v2.webp']];
-export const seedProducts=defaults.map((p,i)=>({...p,category:i<2?'Dobrões':'Bolsas',description:i<2?'Dobrão para berimbau, gravado ou lapidado.':'Bolsa de couro para guardar e transportar seus dobrões.',image:'/images/'+images[i],gallery:['/images/'+images[i],...galleries[i].map(n=>'/images/'+n)],variants:(i<2?['gravado','lapidado','sem_gravacao']:['padrao']).map(id=>({id,label:id==='padrao'?'Padrão':id==='gravado'?'Gravado':id==='lapidado'?'Lapidado':'Sem gravação',enabled:true,stock:null,allowBackorder:true})),stock:null,allowBackorder:true,productionDays:null}));
+export const seedProducts=defaults.map((p,i)=>({...p,category:i<2?'Dobrões':'Bolsas',description:i<2?'Dobrão para berimbau, gravado ou lapidado.':'Bolsa de couro para guardar e transportar seus dobrões.',material:['Bronze','Aço inoxidável','Couro','Couro'][i],dimensions:i===1?'Diâmetro: 38 mm · Espessura: 8 mm':'',image:'/images/'+images[i],gallery:['/images/'+images[i],...galleries[i].map(n=>'/images/'+n)],variants:(i<2?['gravado','lapidado','sem_gravacao']:['padrao']).map(id=>({id,label:id==='padrao'?'Padrão':id==='gravado'?'Gravado':id==='lapidado'?'Lapidado':'Sem gravação',enabled:true,stock:null,allowBackorder:true})),stock:null,allowBackorder:true,productionDays:null}));
 const plain=v=>v&&typeof v==='object'&&!Array.isArray(v);
 export function cleanText(v,max=100,required=false){if(typeof v!=='string'||v.length>max||/[<>\x00-\x1f\x7f]/.test(v)||required&&!v.trim())fail(400,'invalid_text','Confira os campos preenchidos.');return v.trim();}
 function contact(raw){if(!plain(raw))fail(400,'invalid_contact','Informe seu contato.');const name=cleanText(raw.name,100,true),phone=cleanText(raw.phone,30,true).replace(/\D/g,'');if(name.length<2||!/^\d{10,13}$/.test(phone))fail(400,'invalid_contact','Informe nome e telefone com DDD.');return {name,phone};}
@@ -27,6 +27,7 @@ function validateProduct(raw,old){
  const productId=old?.productId||cleanText(raw.productId,40,true);
  if(!/^[a-zA-Z0-9_-]{3,40}$/.test(productId))fail(400,'invalid_product','Identificador inválido.');
  const name=cleanText(raw.name,100,true),description=cleanText(raw.description||'',1000);
+ const material=cleanText(raw.material??old?.material??'',80),dimensions=cleanText(raw.dimensions??old?.dimensions??'',120);
  if(!Number.isSafeInteger(raw.priceCents)||raw.priceCents<1||raw.priceCents>10000000||typeof raw.enabled!=='boolean')fail(400,'invalid_product','Confira preço e disponibilidade.');
  if(!validPhoto(raw.image)||!Array.isArray(raw.gallery)||raw.gallery.length>10||raw.gallery.some(v=>!validPhoto(v)))fail(400,'invalid_photo','Selecione imagens da loja ou envie uma foto.');
  if(!Array.isArray(raw.variants)||raw.variants.length<1||raw.variants.length>8)fail(400,'invalid_variants','Informe os acabamentos disponíveis.');
@@ -42,7 +43,7 @@ function validateProduct(raw,old){
  if(stock!==null&&(!Number.isSafeInteger(stock)||stock<0||stock>100000)||typeof allowBackorder!=='boolean')fail(400,'invalid_stock','Informe um estoque válido para o produto.');
  const productionDays=raw.productionDays===null?null:Number(raw.productionDays);
  if(productionDays!==null&&(!Number.isSafeInteger(productionDays)||productionDays<0||productionDays>365))fail(400,'invalid_days','Prazo inválido.');
- return {productId,name,category:cleanText(raw.category||old?.category||'',60,true),description,priceCents:raw.priceCents,enabled:raw.enabled,image:raw.image,gallery:raw.gallery,variants,stock,allowBackorder,productionDays,maxQuantity:10};
+ return {productId,name,category:cleanText(raw.category||old?.category||'',60,true),description,material,dimensions,priceCents:raw.priceCents,enabled:raw.enabled,image:raw.image,gallery:raw.gallery,variants,stock,allowBackorder,productionDays,maxQuantity:10};
 }
 export function createCommerce({store,config}){
  const db=createCommerceStore(store,config.databaseSchema||'public');
@@ -56,6 +57,8 @@ export function createCommerce({store,config}){
   let catalogChanged=false;
   for(const p of products){
    if(!p.category){p.category=p.productId==='produto_01'||p.productId==='produto_02'?'Dobrões':categories.includes('Bolsas')?'Bolsas':categories[0];catalogChanged=true;}
+   if(!Object.hasOwn(p,'material')){p.material=p.productId==='produto_01'?'Bronze':p.productId==='produto_02'?'Aço inoxidável':/bolsa/i.test(p.name)?'Couro':'';catalogChanged=true;}
+   if(!Object.hasOwn(p,'dimensions')){p.dimensions=p.productId==='produto_02'?'Diâmetro: 38 mm · Espessura: 8 mm':'';catalogChanged=true;}
    if(!Object.hasOwn(p,'stock')){
     const stockValues=(p.variants||[]).map(v=>v.stock);
     p.stock=stockValues.length&&stockValues.every(Number.isSafeInteger)?stockValues.reduce((sum,value)=>sum+value,0):null;
