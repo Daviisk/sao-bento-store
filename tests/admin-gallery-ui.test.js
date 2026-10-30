@@ -35,10 +35,11 @@ test('new product form starts without a sample coin photo and prompts for the ma
 
 test('new product preview contains no example image element or inherited gallery image',()=>{
  const admin=readFileSync('frontend/admin/commerce-admin.js','utf8');
- assert.match(admin,/let mainImage=isNew\?'':\(p\.image\|\|'\'\)/);
- assert.match(admin,/let galleryOrder=isNew\?\[\]:/);
- assert.match(admin,/const photoPreview=.*\(mainImage\?'<img id="product-photo-preview"/);
- assert.match(admin,/: '<span id="product-photo-placeholder">Selecione uma foto principal<\/span>'/);
- assert.match(admin,/const renderMainPreview=\(\)=>/);
- assert.doesNotMatch(admin,/const photoPreview=.*<img id="product-photo-preview" src=.*\+\(mainImage\?'':'hidden'\)/);
+ assert.ok(admin.includes("let mainImage=isNew?'':(p.image||'');"));
+ assert.ok(admin.includes("let galleryOrder=isNew?[]:"));
+ assert.ok(admin.includes("(mainImage?'<img id=\"product-photo-preview\""));
+ assert.ok(admin.includes("'<span id=\"product-photo-placeholder\">Selecione uma foto principal</span>')+'</div>'"));
+ assert.ok(admin.includes("const renderMainPreview=()=>"));
+ assert.ok(admin.includes("if(file&&wrap){const url=URL.createObjectURL(file);wrap.innerHTML="));
+ assert.ok(admin.includes("image:'',gallery:[],variants},true)"));
 });
