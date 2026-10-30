@@ -88,7 +88,7 @@ export function createCommerce({store,config}){
 }
 export function mountCommerce(app,{commerce,session,mutation,limit,config}){
  const durable=(req,res,next)=>{if(config.durableStorage===false)fail(503,'storage_required','O recebimento de pedidos está temporariamente indisponível.');next();};
- app.get('/api/commerce/catalog',async(req,res)=>res.json({products:await commerce.catalog(),ordersConfigured:config.durableStorage!==false,statusLabels}));
+ app.get('/api/commerce/catalog',async(req,res)=>res.json({products:await commerce.catalog(),categories:await commerce.categories(),ordersConfigured:config.durableStorage!==false,statusLabels}));
  app.post('/api/commerce/shipping/quote',limit(15),session,mutation,async(req,res)=>{
   const cep=postalCode(req.body?.cep),items=req.body?.items;
   if(!Array.isArray(items)||items.length<1||items.length>20)fail(400,'invalid_cart','Informe os produtos para cotar o frete.');
