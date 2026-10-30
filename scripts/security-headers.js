@@ -17,7 +17,7 @@ const policy=[
  "script-src-attr 'none'",
  // Existing inline layout styles and provider-generated styles require this.
  "style-src 'self' 'unsafe-inline'",
- "img-src 'self' data: https://*.mercadopago.com https://*.mercadopago.com.br https://*.mlstatic.com",
+ "img-src 'self' data: blob: https://*.mercadopago.com https://*.mercadopago.com.br https://*.mlstatic.com",
  "font-src 'self' data:",
  "connect-src 'self' https://viacep.com.br https://api.mercadopago.com https://*.mercadopago.com https://*.mercadopago.com.br https://*.mlstatic.com",
  // Bank-issued 3DS challenges can use independent HTTPS domains.
