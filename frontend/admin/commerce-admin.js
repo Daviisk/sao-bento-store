@@ -13,7 +13,7 @@ function editProduct(p,isNew=false){
  let mainImage=p.image;
  let galleryOrder=p.gallery.filter(src=>src!==p.image);
  const removedGallery=new Set();
- const photoPreview='<img id="product-photo-preview" src="'+esc(mainImage)+'" alt="Prévia da foto principal" width="150" height="150" loading="eager">';
+ const photoPreview='<div class="product-photo-preview-wrap"><img id="product-photo-preview" src="'+esc(mainImage||'')+'" alt="Prévia da foto principal" width="150" height="150" loading="eager" '+(mainImage?'':'hidden')+'><span id="product-photo-placeholder" '+(mainImage?'hidden':'')+'>Selecione uma foto principal</span></div>';
  const drawGallery=()=>{
   const container=formGallery();
   if(!container)return;
@@ -26,7 +26,7 @@ function editProduct(p,isNew=false){
    if(index<0||removedGallery.has(src))return;
    if(direction<0&&index===0){
     const previousMain=mainImage;mainImage=src;galleryOrder[index]=previousMain;
-    $('#product-photo-preview').src=mainImage;
+    $('#product-photo-preview').src=mainImage;$('#product-photo-preview').hidden=!mainImage;$('#product-photo-placeholder').hidden=!!mainImage;
    }else{
     const next=index+direction;if(next<0||next>=galleryOrder.length)return;
     [galleryOrder[index],galleryOrder[next]]=[galleryOrder[next],galleryOrder[index]];
@@ -69,7 +69,7 @@ function editProduct(p,isNew=false){
  $('#back-catalog').onclick=()=>load('catalog');
  drawGallery();
  form.elements.upload.addEventListener('change',()=>{
-  const file=form.elements.upload.files[0];if(file){const url=URL.createObjectURL(file);$('#product-photo-preview').src=url;}drawGallery();
+  const file=form.elements.upload.files[0];if(file){const url=URL.createObjectURL(file);$('#product-photo-preview').src=url;$('#product-photo-preview').hidden=false;$('#product-photo-placeholder').hidden=true;}drawGallery();
  });
  form.addEventListener('submit',async e=>{
   e.preventDefault();const button=form.querySelector('[type=submit]');button.disabled=true;button.textContent='Salvando…';
@@ -157,7 +157,7 @@ async function catalog(){
  $('#new-product').onclick=()=>{
   const isDobrao=(categories.includes('Dobrões')? 'Dobrões':categories[0])==='Dobrões';
   const variants=isDobrao?finishDefinitions.map(option=>({...option,enabled:true,stock:null,allowBackorder:true})):[{id:'padrao',label:'Padrão',enabled:true,stock:null,allowBackorder:true}];
-  editProduct({productId:'produto_novo',name:'',category:isDobrao?'Dobrões':categories[0]||'',description:'',priceCents:10000,stock:null,allowBackorder:true,productionDays:null,enabled:true,image:'/images/dobrao-bronze-prof-v2.webp',gallery:['/images/dobrao-bronze-prof-v2.webp'],variants},true);
+  editProduct({productId:'produto_novo',name:'',category:isDobrao?'Dobrões':categories[0]||'',description:'',priceCents:10000,stock:null,allowBackorder:true,productionDays:null,enabled:true,image:'',gallery:[],variants},true);
  };
 }
 async function customOrders(){const d=await api('/api/admin/custom-orders');orders=d.orders;const paid=orders.filter(o=>o.paymentConfirmed&&o.status!=='cancelled');const pending=orders.filter(o=>!o.paymentConfirmed&&o.status!=='cancelled');const revenue=paid.reduce((sum,o)=>sum+Number(o.total||0),0);view.innerHTML='<h2>Pedidos personalizados e kits</h2><section class="custom-financial-summary" aria-label="Resumo financeiro dos pedidos personalizados"><article><small>Pedidos pagos confirmados</small><strong>'+paid.length+'</strong></article><article><small>Pedidos aguardando pagamento</small><strong>'+pending.length+'</strong></article><article><small>Valor confirmado</small><strong>'+cash(revenue)+'</strong></article></section><p class="notice">Resumo dos pedidos personalizados confirmados; não inclui vendas do checkout convencional nem desconta taxas ou reembolsos. Valores pendentes não são faturamento.</p><p>Solicitações não confirmam pagamento. Marque pagamento recebido somente após conferir o recebimento real. A baixa de estoque ocorre uma única vez na confirmação.</p><label>Buscar pedido, cliente, telefone ou produto<input id="custom-search" type="search"></label><label>Etapa<select id="custom-status"><option value="">Todas as etapas</option>'+Object.entries(d.statusLabels).map(([k,v])=>'<option value="'+esc(k)+'">'+esc(v)+'</option>').join('')+'</select></label><div id="custom-orders-list"></div>';const draw=()=>{$('#custom-orders-list').innerHTML=orders.filter(o=>(!$('#custom-status').value||o.status===$('#custom-status').value)&&(o.orderCode+' '+o.orderId+' '+o.customer.name+' '+o.customer.phone+' '+o.items.map(i=>i.name+' '+i.variantLabel).join(' ')).toLowerCase().includes($('#custom-search').value.toLowerCase())).map(o=>'<article class="admin-record"><h3>'+esc(o.orderCode)+' · '+esc(o.customer.name)+'</h3><p>'+esc(o.customer.phone)+' · '+esc(d.statusLabels[o.status])+' · '+cash(o.total)+'</p><p>'+(!o.paymentConfirmed?'Pagamento não confirmado':'Pagamento confirmado manualmente')+'</p><button data-edit-order="'+esc(o.orderId)+'">Abrir pedido</button></article>').join('')||'<p>Nenhum pedido encontrado.</p>';view.querySelectorAll('[data-edit-order]').forEach(b=>b.onclick=()=>editOrder(orders.find(o=>o.orderId===b.dataset.editOrder),d.statusLabels));};const printQueue=$('#print-queue');if(printQueue)printQueue.onclick=()=>window.print();$('#custom-search').oninput=draw;$('#custom-status').onchange=draw;draw();}
