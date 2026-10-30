@@ -16,3 +16,12 @@ test('storefront opts out of restoring the previous mid-page scroll on reload',(
  const theme=readFileSync('frontend/js/theme.js','utf8');
  assert.match(theme,/history\.scrollRestoration='manual'/);
 });
+
+test('storefront forces scroll to top on reload after the browser pageshow restoration phase',()=>{
+ const theme=readFileSync('frontend/js/theme.js','utf8');
+ assert.match(theme,/navigation\?\.type==='reload'&&!location\.hash/);
+ assert.match(theme,/window\.addEventListener\('pageshow'/);
+ assert.match(theme,/document\.addEventListener\('DOMContentLoaded'/);
+ assert.match(theme,/requestAnimationFrame\(\(\)=>\{forceTop\(\);requestAnimationFrame\(forceTop\);\}\)/);
+ assert.match(theme,/document\.documentElement\.scrollTop=0/);
+});
