@@ -43,3 +43,10 @@ test('new product preview contains no example image element or inherited gallery
  assert.ok(admin.includes("if(file&&wrap){const url=URL.createObjectURL(file);wrap.innerHTML="));
  assert.ok(admin.includes("image:'',gallery:[],variants},true)"));
 });
+
+test('product editor exposes material and dimensions for the product detail page',()=>{
+ const admin=readFileSync('frontend/admin/commerce-admin.js','utf8');
+ assert.match(admin,/name="material" maxlength="80"/);
+ assert.match(admin,/name="dimensions" maxlength="120"/);
+ assert.match(admin,/material:form\.elements\.material\.value,dimensions:form\.elements\.dimensions\.value/);
+});

@@ -181,3 +181,7 @@ body{background:#f7f3eb;color:#34291e}
 /* Toggle for products previously removed from the public store */
 #commerce-admin-view .show-removed-toggle{display:flex;align-items:center;gap:8px;min-height:42px;white-space:nowrap;font-size:13px}
 #commerce-admin-view .show-removed-toggle input{width:18px;height:18px;min-height:18px;flex:0 0 auto}
+
+/* Product information fields */
+#commerce-admin-view .product-spec-fields{margin:2px 0 0}
+#commerce-admin-view .product-spec-fields+small{display:block;margin:-6px 0 12px;color:#786b59;font-size:12px;line-height:1.5}
