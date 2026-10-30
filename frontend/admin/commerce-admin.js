@@ -10,16 +10,43 @@ function finishVariantsMarkup(p){
  return finishDefinitions.map(option=>'<label class="finish-option"><input type="checkbox" name="finish" value="'+option.id+'" '+(current.has(option.id)&&current.get(option.id).enabled!==false?'checked':'')+'><span>'+option.label+'</span></label>').join('');
 }
 function editProduct(p,isNew=false){
- const photoPreview='<img id="product-photo-preview" src="'+esc(p.image)+'" alt="Prévia da foto principal" width="150" height="150" loading="eager">';
- const gallery=p.gallery.filter(src=>src!==p.image).map((src,i)=>'<div class="gallery-thumb" data-gallery-item><img src="'+esc(src)+'" alt="Foto adicional '+(i+1)+'" loading="lazy" decoding="async"><button type="button" class="gallery-remove-button" data-remove-gallery="'+esc(src)+'" aria-pressed="false">Remover</button></div>').join('');
+ let mainImage=p.image;
+ let galleryOrder=p.gallery.filter(src=>src!==p.image);
  const removedGallery=new Set();
+ const photoPreview='<img id="product-photo-preview" src="'+esc(mainImage)+'" alt="Prévia da foto principal" width="150" height="150" loading="eager">';
+ const drawGallery=()=>{
+  const container=formGallery();
+  if(!container)return;
+  container.innerHTML=galleryOrder.map((src,i)=>{
+   const removed=removedGallery.has(src);
+   return '<div class="gallery-thumb'+(removed?' is-pending-remove':'')+'" data-gallery-item><img src="'+esc(src)+'" alt="Foto adicional '+(i+1)+'" loading="lazy" decoding="async"><span class="gallery-order-label">Foto '+(i+2)+'</span><div class="gallery-order-actions"><button type="button" class="gallery-order-button" data-move-gallery="'+esc(src)+'" data-direction="-1" aria-label="Mover foto '+(i+2)+' para cima" '+(i===0||removed||form.elements.upload.files.length?'disabled':'')+'>↑</button><button type="button" class="gallery-order-button" data-move-gallery="'+esc(src)+'" data-direction="1" aria-label="Mover foto '+(i+2)+' para baixo" '+(i===galleryOrder.length-1||removed?'disabled':'')+'>↓</button></div><button type="button" class="gallery-remove-button" data-remove-gallery="'+esc(src)+'" aria-pressed="'+String(removed)+'">'+(removed?'Desfazer':'Remover')+'</button></div>';
+  }).join('')||'<p class="gallery-empty">Nenhuma foto adicional. A foto principal aparece primeiro na loja.</p>';
+  container.querySelectorAll('[data-move-gallery]').forEach(button=>button.addEventListener('click',()=>{
+   const src=button.dataset.moveGallery,index=galleryOrder.indexOf(src),direction=Number(button.dataset.direction);
+   if(index<0||removedGallery.has(src))return;
+   if(direction<0&&index===0){
+    const previousMain=mainImage;mainImage=src;galleryOrder[index]=previousMain;
+    $('#product-photo-preview').src=mainImage;
+   }else{
+    const next=index+direction;if(next<0||next>=galleryOrder.length)return;
+    [galleryOrder[index],galleryOrder[next]]=[galleryOrder[next],galleryOrder[index]];
+   }
+   drawGallery();
+  }));
+  container.querySelectorAll('[data-remove-gallery]').forEach(button=>button.addEventListener('click',()=>{
+   const src=button.dataset.removeGallery,item=button.closest('[data-gallery-item]');
+   if(removedGallery.has(src))removedGallery.delete(src);else removedGallery.add(src);
+   drawGallery();
+  }));
+ };
+ const formGallery=()=>$('#product-gallery-list');
  const defaultFinish=[{id:'gravado',label:'Gravado',enabled:true},{id:'lapidado',label:'Lapidado',enabled:true},{id:'sem_gravacao',label:'Sem gravação',enabled:true}];
  const initialVariants=p.variants?.length?p.variants:defaultFinish;
  view.innerHTML='<div class="admin-editor-head"><div><h2>'+(isNew?'Novo produto':'Editar produto')+'</h2><p>Dados, fotos, acabamentos e estoque em um só lugar.</p></div></div><form id="product-edit" class="product-edit-form">'+
  '<div class="admin-grid"><label>Nome do produto<input name="name" required maxlength="100" value="'+esc(p.name)+'" placeholder="Ex.: Dobrão de Bronze"></label><label>Categoria<select name="category" required>'+categories.map(cat=>'<option value="'+esc(cat)+'" '+(p.category===cat?'selected':'')+'>'+esc(cat)+'</option>').join('')+'</select></label></div>'+
  '<div class="admin-grid"><label>Preço (R$)<input name="price" type="number" inputmode="decimal" min="0.01" max="100000" step="0.01" required value="'+(p.priceCents/100).toFixed(2)+'"></label><label>Prazo de produção (dias úteis)<input name="days" type="number" min="0" max="365" value="'+(p.productionDays??'')+'" placeholder="A confirmar"></label></div>'+
  '<label>Descrição<textarea name="description" maxlength="1000" rows="3">'+esc(p.description)+'</textarea></label>'+
- '<section class="product-photo-editor"><div class="admin-section-heading"><div><h3>Fotos e arquivos</h3><p>Imagem principal e galeria do produto.</p></div></div><label>Foto principal '+(isNew?'(obrigatória)':'(opcional)')+'<input name="upload" type="file" accept="image/png,image/jpeg,image/webp" '+(isNew?'required':'')+'></label>'+photoPreview+'<label>Adicionar fotos à galeria<input name="galleryUpload" type="file" accept="image/png,image/jpeg,image/webp" multiple></label><div class="product-gallery-preview">'+gallery+'</div><small>JPG, PNG ou WebP · até 1 MB por arquivo · máximo de 10 fotos. Use o botão Remover em cada imagem; a alteração é aplicada ao salvar.</small></section>'+
+ '<section class="product-photo-editor"><div class="admin-section-heading"><div><h3>Fotos e arquivos</h3><p>A foto principal aparece primeiro. Use ↑ / ↓ para mudar a sequência; ao subir a primeira foto adicional, ela vira a capa.</p></div></div><label>Substituir foto principal '+(isNew?'(obrigatória)':'(opcional)')+'<input name="upload" type="file" accept="image/png,image/jpeg,image/webp" '+(isNew?'required':'')+'></label>'+photoPreview+'<label>Adicionar fotos à galeria<input name="galleryUpload" type="file" accept="image/png,image/jpeg,image/webp" multiple></label><div id="product-gallery-list" class="product-gallery-preview"></div><small>JPG, PNG ou WebP · até 1 MB por arquivo · máximo de 10 fotos. A sequência só é salva ao salvar o produto.</small></section>'+
  '<section class="finish-manager" id="finish-manager"><div class="admin-section-heading"><div><h3>Acabamentos disponíveis</h3><p>Escolha o que o cliente poderá selecionar no dobrão.</p></div></div><div class="finish-options">'+finishVariantsMarkup({...p,variants:initialVariants})+'</div><small>Gravado e Lapidado permitem enviar arte. Sem gravação não solicita arquivos.</small></section>'+
  '<section class="stock-manager"><div class="admin-section-heading"><div><h3>Estoque do produto</h3><p>Uma quantidade total, compartilhada entre todos os acabamentos.</p></div></div><div class="admin-grid"><label>Quantidade em estoque<input name="stock" type="number" min="0" max="100000" step="1" value="'+(p.stock??'')+'" placeholder="Em branco: não controlar"></label><label class="check stock-backorder"><input name="allowBackorder" type="checkbox" '+(p.allowBackorder!==false?'checked':'')+'>Permitir encomenda quando zerar</label></div><small>O estoque não é dividido entre Gravado, Lapidado ou Sem gravação. O sistema soma todos os itens do mesmo produto no pedido.</small></section>'+
  '<label class="check product-enabled"><input name="enabled" type="checkbox" '+(p.enabled?'checked':'')+'>Produto ativo na loja</label>'+
@@ -40,23 +67,16 @@ function editProduct(p,isNew=false){
   refreshFinishVisibility();
  });
  $('#back-catalog').onclick=()=>load('catalog');
- form.querySelectorAll('[data-remove-gallery]').forEach(button=>button.addEventListener('click',()=>{
-  const src=button.dataset.removeGallery,item=button.closest('[data-gallery-item]');
-  if(removedGallery.has(src)){
-   removedGallery.delete(src);item?.classList.remove('is-pending-remove');button.textContent='Remover';button.setAttribute('aria-pressed','false');
-  }else{
-   removedGallery.add(src);item?.classList.add('is-pending-remove');button.textContent='Desfazer';button.setAttribute('aria-pressed','true');
-  }
- }));
+ drawGallery();
  form.elements.upload.addEventListener('change',()=>{
-  const file=form.elements.upload.files[0];if(file){const url=URL.createObjectURL(file);$('#product-photo-preview').src=url;}
+  const file=form.elements.upload.files[0];if(file){const url=URL.createObjectURL(file);$('#product-photo-preview').src=url;}drawGallery();
  });
  form.addEventListener('submit',async e=>{
   e.preventDefault();const button=form.querySelector('[type=submit]');button.disabled=true;button.textContent='Salvando…';
   try{
-   let main=p.image,gallery=p.gallery.filter(src=>!removedGallery.has(src));
+   let main=mainImage,gallery=galleryOrder.filter(src=>!removedGallery.has(src));
    const mainFile=await image(form.elements.upload);
-   if(mainFile){main=(await mutate('/api/admin/media',mainFile,'POST')).url;if(gallery[0]===p.image)gallery[0]=main;}
+   if(mainFile)main=(await mutate('/api/admin/media',mainFile,'POST')).url;
    for(const file of form.elements.galleryUpload.files){const encoded=await image({files:[file]});gallery.push((await mutate('/api/admin/media',encoded,'POST')).url);}
    gallery=[...new Set([main,...gallery].filter(Boolean))];if(gallery.length>10)throw Error('A galeria aceita no máximo 10 imagens.');
    if(isNew&&!mainFile)throw Error('Selecione uma foto principal para cadastrar o produto.');
