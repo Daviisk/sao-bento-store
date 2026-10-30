@@ -78,8 +78,8 @@ export function mountAdmin(app,{config,store,limit,commerce}){
     app.patch('/api/admin/categories/:name',requireAdmin,adminMutation,async(req,res)=>res.json({categories:await commerce.categoryMutation('rename',req.body,req.params.name)}));
     app.delete('/api/admin/categories/:name',requireAdmin,adminMutation,async(req,res)=>res.json({categories:await commerce.categoryMutation('delete',{name:req.params.name},req.params.name)}));
     app.post('/api/admin/catalog',requireAdmin,adminMutation,async(req,res)=>res.status(201).json(await commerce.productMutation(req.body)));
-    app.patch('/api/admin/catalog/:id',requireAdmin,adminMutation,async(req,res)=>res.json(await commerce.productMutation(req.body,req.params.id)));
     app.patch('/api/admin/catalog/order',requireAdmin,adminMutation,async(req,res)=>res.json(await commerce.reorderProducts(req.body?.productIds)));
+    app.patch('/api/admin/catalog/:id',requireAdmin,adminMutation,async(req,res)=>res.json(await commerce.productMutation(req.body,req.params.id)));
     app.post('/api/admin/catalog/bulk',requireAdmin,adminMutation,async(req,res)=>res.json(await commerce.bulkProducts(req.body?.action,req.body?.productIds)));
     app.delete('/api/admin/catalog/:id',requireAdmin,adminMutation,async(req,res)=>res.json(await commerce.deleteProduct(req.params.id)));
     app.post('/api/admin/media',requireAdmin,adminMutation,async(req,res)=>{const media=validateImage(req.body);if(!media)fail(400,'invalid_photo','Envie uma imagem.');const id=randomUUID();await commerce.db.put('media',id,media);res.status(201).json({url:'/api/commerce/media/'+id});});
