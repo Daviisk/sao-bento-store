@@ -9,13 +9,13 @@ const deliveryAddress={cep:'01001000',street:'Praça da Sé',number:'1',compleme
 const quoteId='11111111-1111-4111-8111-111111111111';
 async function prepareShipping(p){for(const [key,value] of Object.entries(deliveryAddress))p.d.querySelector('#delivery-form [name="'+key+'"]').value=value;p.d.querySelector('#shipping-calculate').click();await tick();const radio=p.d.querySelector('[name="shipping-choice"]');radio.checked=true;radio.dispatchEvent(new p.w.Event('change',{bubbles:true}));}
 const tick=()=>new Promise(r=>setTimeout(r,0));
-test('HTTPS preview without backend displays R$150 per unit and visual total without allowing payment',async t=>{
+test('HTTPS preview without backend displays R$100 per unit and visual total without allowing payment',async t=>{
  const p=await page(t,{error:true});p.add('produto_01');p.add('produto_01');p.add('produto_02');
- assert.match(p.d.querySelector('#cart-total').textContent,/450,00/);
- assert.match(p.d.querySelector('#cart-lines').textContent,/150,00/);
+ assert.match(p.d.querySelector('#cart-total').textContent,/300,00/);
+ assert.match(p.d.querySelector('#cart-lines').textContent,/100,00/);
  assert.equal(p.d.querySelector('#cart-checkout').disabled,true);
  assert.equal(p.d.querySelectorAll('[data-product-price]').length,4);
- assert.match(p.d.querySelector('[data-product-price]').textContent,/150,00/);
+ assert.match(p.d.querySelector('[data-product-price]').textContent,/100,00/);
 });
 test('shipping selection shows total and changes to CEP or cart invalidate quote; address is not stored',async t=>{
  const p=await page(t);p.add('produto_01');await prepareShipping(p);
