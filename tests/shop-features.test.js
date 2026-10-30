@@ -87,5 +87,5 @@ test('checkout shows unit and line prices plus total with selected freight',asyn
  const option=d.querySelector('[name=shippingChoice]');assert(option);option.click();
  assert.equal(d.querySelector('#shipping-price').textContent,'R$ 15,00');
  assert.equal(d.querySelector('#order-grand-total').textContent,'R$ 215,00');
- assert.match(d.querySelector('#shipping-total').textContent,/Produtos \+ frete: R\$ 215,00/);
+ assert.match(d.querySelector('#shipping-total').textContent,/Total de produtos \+ frete: R\$ 215,00/);
 });
