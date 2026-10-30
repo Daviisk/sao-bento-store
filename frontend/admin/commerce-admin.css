@@ -146,3 +146,13 @@ body{background:#f7f3eb;color:#34291e}
  #commerce-admin-view .finish-options{display:grid;grid-template-columns:1fr}
  #commerce-admin-view .finish-option{min-height:44px}
 }
+
+/* Real action button for each gallery file */
+#commerce-admin-view .gallery-thumb{position:relative;align-content:start;min-width:112px;max-width:132px}
+#commerce-admin-view .gallery-thumb.is-pending-remove{border-color:#b96c5c;background:#fff4f1}
+#commerce-admin-view .gallery-thumb.is-pending-remove img{opacity:.45}
+#commerce-admin-view .gallery-remove-button{width:100%;min-height:36px;padding:7px 10px;background:#8b493d;color:#fff;border:0;border-radius:8px;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+#commerce-admin-view .gallery-remove-button:hover{background:#71382f}
+#commerce-admin-view .gallery-remove-button[aria-pressed="true"]{background:#66594b}
+#commerce-admin-view .gallery-remove-button:focus-visible{outline:3px solid #cda15e;outline-offset:2px}
+@media(max-width:600px){#commerce-admin-view .gallery-thumb{width:calc(50% - 7px);max-width:160px}#commerce-admin-view .gallery-remove-button{min-height:42px}}
