@@ -73,8 +73,13 @@ export function mountAdmin(app,{config,store,limit,commerce}){
   });
   if(commerce){
     app.get('/api/admin/catalog',requireAdmin,async(req,res)=>res.json({products:await commerce.catalog()}));
+    app.get('/api/admin/categories',requireAdmin,async(req,res)=>res.json({categories:await commerce.categories()}));
+    app.post('/api/admin/categories',requireAdmin,adminMutation,async(req,res)=>res.status(201).json({categories:await commerce.categoryMutation('create',req.body)}));
+    app.patch('/api/admin/categories/:name',requireAdmin,adminMutation,async(req,res)=>res.json({categories:await commerce.categoryMutation('rename',req.body,req.params.name)}));
+    app.delete('/api/admin/categories/:name',requireAdmin,adminMutation,async(req,res)=>res.json({categories:await commerce.categoryMutation('delete',{name:req.params.name},req.params.name)}));
     app.post('/api/admin/catalog',requireAdmin,adminMutation,async(req,res)=>res.status(201).json(await commerce.productMutation(req.body)));
     app.patch('/api/admin/catalog/:id',requireAdmin,adminMutation,async(req,res)=>res.json(await commerce.productMutation(req.body,req.params.id)));
+    app.delete('/api/admin/catalog/:id',requireAdmin,adminMutation,async(req,res)=>res.json(await commerce.deleteProduct(req.params.id)));
     app.post('/api/admin/media',requireAdmin,adminMutation,async(req,res)=>{const media=validateImage(req.body);if(!media)fail(400,'invalid_photo','Envie uma imagem.');const id=randomUUID();await commerce.db.put('media',id,media);res.status(201).json({url:'/api/commerce/media/'+id});});
     app.get('/api/admin/custom-orders',requireAdmin,async(req,res)=>res.json({orders:(await commerce.db.list('orders')).map(({tokenHash,owner,...o})=>o),statusLabels}));
     app.patch('/api/admin/custom-orders/:id',requireAdmin,adminMutation,async(req,res)=>{const {tokenHash,owner,...o}=await commerce.updateOrder(req.params.id,req.body);res.json(o);});
