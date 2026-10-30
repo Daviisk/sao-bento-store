@@ -32,3 +32,13 @@ test('new product form starts without a sample coin photo and prompts for the ma
  assert.match(admin,/product-photo-placeholder/);
  assert.match(admin,/product-photo-preview'\)\.hidden=false/);
 });
+
+test('new product preview contains no example image element or inherited gallery image',()=>{
+ const admin=readFileSync('frontend/admin/commerce-admin.js','utf8');
+ assert.match(admin,/let mainImage=isNew\?'':\(p\.image\|\|'\'\)/);
+ assert.match(admin,/let galleryOrder=isNew\?\[\]:/);
+ assert.match(admin,/const photoPreview=.*\(mainImage\?'<img id="product-photo-preview"/);
+ assert.match(admin,/: '<span id="product-photo-placeholder">Selecione uma foto principal<\/span>'/);
+ assert.match(admin,/const renderMainPreview=\(\)=>/);
+ assert.doesNotMatch(admin,/const photoPreview=.*<img id="product-photo-preview" src=.*\+\(mainImage\?'':'hidden'\)/);
+});
