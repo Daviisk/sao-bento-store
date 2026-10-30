@@ -42,7 +42,7 @@ export function createPostgresStore(databaseUrl,schema='public'){
 
   return {
     kind:'postgres',
-    async hasProductInOrders(productId){const rows=await sql`SELECT 1 FROM ${sql(schema)}.orders WHERE EXISTS (SELECT 1 FROM jsonb_array_elements(COALESCE(document->'items','[]'::jsonb)) AS item WHERE item->>'productId'=${productId}) LIMIT 1`;return rows.length>0;},
+    async hasProductInOrders(productId){const rows=await sql`SELECT 1 FROM ${sql(schema)}.orders WHERE EXISTS (SELECT 1 FROM jsonb_array_elements(COALESCE(document->'items','[]'::jsonb)) AS item(value) WHERE item.value->>'productId'=${productId}) LIMIT 1`;return rows.length>0;},
     async addSupportRequest(id,kind){return sql.begin(async tx=>{const order=await getWith(tx,id,{lock:true});if(!order)throw Error('Order unavailable');order.supportRequests=order.supportRequests||[];const existing=order.supportRequests.find(r=>r.kind===kind&&r.status==='open');if(existing)return existing;const receipt={id:randomUUID(),kind,status:'open',createdAt:new Date().toISOString()};order.supportRequests.push(receipt);await tx`UPDATE ${sql(schema)}.orders SET document=jsonb_set(document,'{supportRequests}',${JSON.stringify(order.supportRequests)}::jsonb),updated_at=now() WHERE id=${id}::uuid`;return receipt;});},
     async hideOrderFromAdmin(id){const rows=await sql`UPDATE ${sql(schema)}.orders SET document=jsonb_set(document,'{adminDeletedAt}',COALESCE(document->'adminDeletedAt',to_jsonb(now()::text))),updated_at=now() WHERE id=${id}::uuid RETURNING document`;return rows[0]?decode(rows[0].document):null;},
     async privacyOrders(owner){return (await sql`SELECT document FROM ${sql(schema)}.orders WHERE owner=${owner} ORDER BY created_at`).map(row=>decode(row.document));},
