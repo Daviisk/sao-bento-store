@@ -546,3 +546,15 @@
  #veil .drawer .detail-purchase-actions{grid-template-columns:1fr}
  #veil .drawer .checkout-summary .cart-grand-total strong{font-size:18px}
 }
+
+
+/* Keep the purchase bar sticky, but remove stacked bottom insets that leave a blank strip below it. */
+@media(max-width:800px){
+ #veil.detailView .drawer{padding-bottom:0!important}
+ #veil.detailView .drawer>.sheet-scroll-content{padding-bottom:0!important}
+ #veil.detailView .drawer .detail-purchase-actions{
+  position:sticky!important;
+  bottom:0!important;
+  padding-bottom:max(4px,env(safe-area-inset-bottom))!important;
+ }
+}
