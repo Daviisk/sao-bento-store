@@ -43,7 +43,7 @@ test('dobrao without engraving skips file upload and is identified clearly in th
  const {w,d}=await page(t);
  d.querySelector('[data-commerce-detail="produto_01"]').click();await tick();
  const form=d.querySelector('#custom-product');form.elements.variant.value='none';form.elements.variant.dispatchEvent(new w.Event('change',{bubbles:true}));
- form.querySelector('[data-confirm-step="1"]').click();
+ 
  assert.equal(form.querySelector('.engraving-uploads').hidden,true);
  assert.equal(form.elements.quantity.closest('[hidden]'),null);
  form.dispatchEvent(new w.Event('submit',{cancelable:true}));await tick();
