@@ -24,3 +24,11 @@ test('admin gallery supports visible ordering, swapping the first additional pho
  assert.match(admin,/\[galleryOrder\[index\],galleryOrder\[next\]\]=\[galleryOrder\[next\],galleryOrder\[index\]\]/);
  assert.match(admin,/gallery=\[\.\.\.new Set\(\[main,\.\.\.gallery\]/);
 });
+
+test('new product form starts without a sample coin photo and prompts for the main photo',()=>{
+ const admin=readFileSync('frontend/admin/commerce-admin.js','utf8');
+ assert.match(admin,/image:'',gallery:\[\],variants\},true\)/);
+ assert.match(admin,/Selecione uma foto principal/);
+ assert.match(admin,/product-photo-placeholder/);
+ assert.match(admin,/product-photo-preview'\)\.hidden=false/);
+});
