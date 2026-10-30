@@ -27,10 +27,17 @@ test('bags and the trio use a plain product flow with no engraving controls',asy
  assert(d.querySelector('#request-order'));
  assert.match(d.querySelector('#custom-cart-lines').textContent,/Bolsa de Couro/);
  assert.equal(d.querySelectorAll('#custom-cart-lines [data-custom-variant]').length,0);
- d.querySelector('[data-ui="closeDrawer()"]')?.click();
- d.querySelector('[data-commerce-detail="produto_04"]').click();await tick();
+ await w.SBFeatures.detailByIndex(3);await tick();
  assert.equal(d.querySelector('#custom-product .engraving-uploads'),null);
  assert.equal(d.querySelector('#custom-product').elements.variant,undefined);
+});
+test('storefront category filters follow the catalog categories instead of hardcoded product names',async t=>{
+ const {w,d}=await page(t);
+ const names=[...d.querySelectorAll('#categories [data-category]')].map(b=>b.dataset.category);
+ assert.deepEqual(names,['Todos','Dobrões','Bolsas','Acessórios']);
+ d.querySelector('#categories [data-category="Bolsas"]').click();
+ await tick();
+ assert.equal([...d.querySelectorAll('#grid .piece')].filter(el=>!el.hidden).length,2);
 });
 test('dobrao without engraving skips file upload and is identified clearly in the cart',async t=>{
  const {w,d}=await page(t);
