@@ -63,7 +63,7 @@ export function createCommerce({store,config}){
    }
    if(typeof p.allowBackorder!=='boolean'){p.allowBackorder=(p.variants||[]).some(v=>v.allowBackorder===true);catalogChanged=true;}
    for(const v of p.variants||[])if(typeof v.enabled!=='boolean'){v.enabled=true;catalogChanged=true;}
-   if(['produto_01','produto_02'].includes(p.productId)&&!(p.variants||[]).some(v=>v.id==='sem_gravacao')){
+   if(p.category==='Dobrões'&&!(p.variants||[]).some(v=>v.id==='sem_gravacao')){
     p.variants.push({id:'sem_gravacao',label:'Sem gravação',enabled:true,stock:null,allowBackorder:true});
     catalogChanged=true;
    }
@@ -97,7 +97,7 @@ export function createCommerce({store,config}){
    if(p.stock!==null&&used>p.stock&&!p.allowBackorder)fail(409,'out_of_stock','Estoque insuficiente: '+p.name+'.');
    let engravingNotes=cleanText(raw.engravingNotes||'',500),front=validateImage(raw.front),back=validateImage(raw.back);
    if(raw.engraving||raw.art)fail(400,'invalid_customization','Gravação somente por imagens; use observações para instruções.');
-   const supportsEngraving=p.variants.some(option=>['gravado','lapidado'].includes(option.id));
+   const supportsEngraving=['gravado','lapidado'].includes(v.id);
    if(!supportsEngraving&&(front||back||engravingNotes&&engravingNotes!=='Sem gravação'))fail(400,'invalid_customization','Personalização disponível somente nos dobrões.');
    if(v.id==='sem_gravacao'){if(front||back)fail(400,'invalid_customization','Sem gravação não aceita arquivos.');engravingNotes='Sem gravação';}
    const subtotal=p.priceCents*raw.quantity;total+=subtotal;

@@ -24,7 +24,8 @@ function editProduct(p,isNew=false){
  '<label class="check product-enabled"><input name="enabled" type="checkbox" '+(p.enabled?'checked':'')+'>Produto ativo na loja</label>'+
  '<div class="product-form-actions"><button type="submit">Salvar</button><button type="button" id="back-catalog" class="secondary-action">Cancelar</button></div><p id="save-message" role="status"></p></form>';
  const form=$('#product-edit'),finishManager=$('#finish-manager'),finishOptions=form.querySelector('.finish-options');
- const refreshFinishVisibility=()=>{finishManager.hidden=form.elements.category.value!=='Dobrões';};
+ const hasExistingFinishes=initialVariants.some(v=>finishDefinitions.some(option=>option.id===v.id));
+ const refreshFinishVisibility=()=>{finishManager.hidden=!(form.elements.category.value==='Dobrões'||(form.elements.category.value===p.category&&hasExistingFinishes));};
  if(form.elements.category.value!=='Dobrões'&&isNew){
   initialVariants.splice(0,initialVariants.length,{id:'padrao',label:'Padrão',enabled:true});
  }
