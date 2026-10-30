@@ -29,3 +29,10 @@ test('product deletion preserves products already referenced by orders',async t=
  await agent.delete('/api/admin/catalog/produto_03').set('Origin',config.baseURL).expect(409);
  assert.equal((await agent.get('/api/admin/catalog')).body.products.some(p=>p.productId==='produto_03'),true);
 });
+
+test('standard checkout order records also protect product deletion',t=>{
+ const store=openStore(':memory:');t.after(()=>store.close());
+ store.obtain('session-owner','order-request-key',{hash:'cart-hash-01'},{items:[{productId:'produto_01',quantity:1}],productsTotal:10000,total:10000},()=>({}));
+ assert.equal(store.hasProductInOrders('produto_01'),true);
+ assert.equal(store.hasProductInOrders('produto_02'),false);
+});
