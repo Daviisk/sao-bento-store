@@ -10,10 +10,11 @@ function finishVariantsMarkup(p){
  return finishDefinitions.map(option=>'<label class="finish-option"><input type="checkbox" name="finish" value="'+option.id+'" '+(current.has(option.id)&&current.get(option.id).enabled!==false?'checked':'')+'><span>'+option.label+'</span></label>').join('');
 }
 function editProduct(p,isNew=false){
- let mainImage=p.image;
- let galleryOrder=p.gallery.filter(src=>src!==p.image);
+ let mainImage=isNew?'':(p.image||'');
+ let galleryOrder=isNew?[]:(p.gallery||[]).filter(src=>src!==p.image);
  const removedGallery=new Set();
- const photoPreview='<div class="product-photo-preview-wrap"><img id="product-photo-preview" src="'+esc(mainImage||'')+'" alt="Prévia da foto principal" width="150" height="150" loading="eager" '+(mainImage?'':'hidden')+'><span id="product-photo-placeholder" '+(mainImage?'hidden':'')+'>Selecione uma foto principal</span></div>';
+ const photoPreview='<div id="product-photo-preview-wrap" class="product-photo-preview-wrap">'+(mainImage?'<img id="product-photo-preview" src="'+esc(mainImage)+'" alt="Prévia da foto principal" width="150" height="150" loading="eager">':'<span id="product-photo-placeholder">Selecione uma foto principal</span>')+'</div>';
+ const renderMainPreview=()=>{const wrap=$('#product-photo-preview-wrap');if(!wrap)return;wrap.innerHTML=mainImage?'<img id="product-photo-preview" src="'+esc(mainImage)+'" alt="Prévia da foto principal" width="150" height="150" loading="eager">':'<span id="product-photo-placeholder">Selecione uma foto principal</span>';};
  const drawGallery=()=>{
   const container=formGallery();
   if(!container)return;
@@ -26,7 +27,7 @@ function editProduct(p,isNew=false){
    if(index<0||removedGallery.has(src))return;
    if(direction<0&&index===0){
     const previousMain=mainImage;mainImage=src;galleryOrder[index]=previousMain;
-    $('#product-photo-preview').src=mainImage;$('#product-photo-preview').hidden=!mainImage;$('#product-photo-placeholder').hidden=!!mainImage;
+    renderMainPreview();
    }else{
     const next=index+direction;if(next<0||next>=galleryOrder.length)return;
     [galleryOrder[index],galleryOrder[next]]=[galleryOrder[next],galleryOrder[index]];
@@ -69,7 +70,10 @@ function editProduct(p,isNew=false){
  $('#back-catalog').onclick=()=>load('catalog');
  drawGallery();
  form.elements.upload.addEventListener('change',()=>{
-  const file=form.elements.upload.files[0];if(file){const url=URL.createObjectURL(file);$('#product-photo-preview').src=url;$('#product-photo-preview').hidden=false;$('#product-photo-placeholder').hidden=true;}drawGallery();
+  const file=form.elements.upload.files[0],wrap=$('#product-photo-preview-wrap');
+  if(file&&wrap){const url=URL.createObjectURL(file);wrap.innerHTML='<img id="product-photo-preview" src="'+esc(url)+'" alt="Prévia da nova foto principal" width="150" height="150" loading="eager">';}
+  else renderMainPreview();
+  drawGallery();
  });
  form.addEventListener('submit',async e=>{
   e.preventDefault();const button=form.querySelector('[type=submit]');button.disabled=true;button.textContent='Salvando…';
