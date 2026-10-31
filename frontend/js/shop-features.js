@@ -47,8 +47,7 @@ async function detail(p,options={}){
  const personalized=hasEngraving(p);
  const detailMarkup='<div class="product-sheet-heading"><span>'+esc(p.name)+'</span><strong>'+cash(p.priceCents)+'</strong></div>'+
  '<div class="detailLayout">'+gallery(p)+'<div class="product-info-panel"><p class="eyebrow">SÃO BENTO · CAPOEIRA</p><h2>'+esc(p.name)+'</h2><p class="product-description">'+esc(p.description||'Produto São Bento Dobrões.')+'</p><div class="price">'+cash(p.priceCents)+'</div>'+
- productSpecs(p)+engravingInfo(p)+
- '<p class="notice product-delivery-note">'+(p.productionDays===null?'Prazo de produção e disponibilidade serão confirmados pela loja.':'Produção: '+p.productionDays+' dias úteis, além do transporte.')+'</p>'+
+ productSpecs(p)+
  '<form id="custom-product">'+(personalized?customFields(p,'',true):'')+
  '<div class="detail-quantity custom-step" data-personal-step="3" '+(personalized?'hidden':'')+'><label for="detail-quantity">Quantidade</label><div class="detail-quantity-control"><button type="button" data-detail-qty="-1" aria-label="Diminuir quantidade">−</button><input id="detail-quantity" name="quantity" type="number" inputmode="numeric" value="1" min="1" max="100" required><button type="button" data-detail-qty="1" aria-label="Aumentar quantidade">+</button></div></div>'+
  '<div class="detail-purchase-actions" data-personal-step="3" hidden><button class="primary full" type="submit" '+(!p.enabled?'disabled':'')+'>'+(personalized?'Adicionar ao pedido →':'Adicionar ao carrinho →')+'</button><button class="buy-now-direct" id="buy-now" type="button" '+(!p.enabled?'disabled':'')+'>Comprar agora →</button></div><p id="custom-message" role="status"></p></form></div></div>';
