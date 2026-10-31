@@ -12,6 +12,7 @@ import {createCommerce,mountCommerce} from './commerce.js';
 import {mountAdmin} from './admin.js';
 import {createOrdersGateway} from './services/mercadopago-orders.js';
 import {WebhookSignatureValidator,InvalidWebhookSignatureError} from 'mercadopago';
+import {createOrderConfirmationSender} from './services/resend.js';
 
 const equal=(a,b)=>typeof a==='string'&&typeof b==='string'&&Buffer.byteLength(a)===Buffer.byteLength(b)&&timingSafeEqual(Buffer.from(a),Buffer.from(b));
 const terminalStatus=new Set(['paid','cancelled','refunded','partially_refunded','failed','charged_back']);
