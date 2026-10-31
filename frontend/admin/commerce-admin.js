@@ -1,9 +1,9 @@
 (()=>{
 'use strict';const $=s=>document.querySelector(s),view=$('#commerce-admin-view'),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),cash=n=>(n/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});let active='',products=[],orders=[],categories=[];
-const api=async(path,options={})=>{const r=await fetch(path,{credentials:'same-origin',cache:'no-store',...options,signal:AbortSignal.timeout(20000)}),d=await r.json();if(!r.ok)throw Error(d.message||'Falha ao carregar.');return d;};
+const api=async(path,options={})=>{const r=await fetch(path,{credentials:'same-origin',cache:'no-store',...options,signal:AbortSignal.timeout(20000)});let d={};try{d=await r.json();}catch{d={message:'O servidor retornou uma resposta inválida ('+r.status+'). Tente novamente.'};}if(!r.ok)throw Error(d.message||'Falha ao carregar ('+r.status+').');return d;};
 const mutate=(path,body,method='PATCH')=>api(path,{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
 function msg(t){$('#panel-message').textContent=t;}
-async function image(input){const f=input.files[0];if(!f)return null;if(f.size>1048576||!['image/png','image/jpeg','image/webp'].includes(f.type))throw Error('Use JPG, PNG ou WebP até 1 MB.');return {name:f.name,data:await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(f);})};}
+function validateImageFile(f){if(!f)return;if(f.size>1048576||!['image/png','image/jpeg','image/webp'].includes(f.type))throw Error('Cada foto deve ser JPG, PNG ou WebP com até 1 MB.');}\nasync function image(input){const f=input.files[0];if(!f)return null;validateImageFile(f);return readImage(f);}\nasync function readImage(f){validateImageFile(f);return {name:f.name,data:await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(Error('Não foi possível ler a foto selecionada.'));r.readAsDataURL(f);})};}
 const finishDefinitions=[{id:'gravado',label:'Gravado'},{id:'lapidado',label:'Lapidado'},{id:'sem_gravacao',label:'Sem gravação'}];
 function finishVariantsMarkup(p){
  const current=new Map((p.variants||[]).map(v=>[v.id,v]));
@@ -84,14 +84,14 @@ function editProduct(p,isNew=false){
   drawGallery();
  });
  form.addEventListener('submit',async e=>{
-  e.preventDefault();const button=form.querySelector('[type=submit]');button.disabled=true;button.textContent='Salvando…';
+  e.preventDefault();const button=form.querySelector('[type=submit]');if(!form.reportValidity())return;const selectedGallery=Array.from(form.elements.galleryUpload.files);if(galleryOrder.filter(src=>!removedGallery.has(src)).length+selectedGallery.length+(form.elements.upload.files.length||(!mainImage?0:1))>10){$('#save-message').textContent='A galeria aceita no máximo 10 fotos contando a foto principal.';return;}try{validateImageFile(form.elements.upload.files[0]);selectedGallery.forEach(validateImageFile);}catch(error){$('#save-message').textContent=error.message;return;}button.disabled=true;button.textContent='Salvando…';
   try{
    let main=mainImage,gallery=galleryOrder.filter(src=>!removedGallery.has(src));
    const mainFile=await image(form.elements.upload);
    if(mainFile)main=(await mutate('/api/admin/media',mainFile,'POST')).url;
    if(!main)throw Error('Selecione uma foto principal para o produto.');
-   for(const file of form.elements.galleryUpload.files){const encoded=await image({files:[file]});gallery.push((await mutate('/api/admin/media',encoded,'POST')).url);}
-   gallery=[...new Set([main,...gallery].filter(Boolean))];if(gallery.length>10)throw Error('A galeria aceita no máximo 10 imagens.');
+   for(const file of selectedGallery){const encoded=await readImage(file);gallery.push((await mutate('/api/admin/media',encoded,'POST')).url);}
+   gallery=[...new Set([main,...gallery].filter(Boolean))];if(gallery.length>10)throw Error('A galeria aceita no máximo 10 fotos contando a foto principal.');
    if(isNew&&!mainFile)throw Error('Selecione uma foto principal para cadastrar o produto.');
    const oldVariants=p.variants||[];
    let nextVariants;
