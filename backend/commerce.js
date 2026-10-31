@@ -5,6 +5,7 @@ import {createCommerceStore} from './commerce-store.js';
 import {products as defaults} from './products.js';
 import {createShippingProvider,postalCode} from './services/shipping.js';
 const hash=v=>createHash('sha256').update(v).digest('hex');
+export function orderPaymentKey(kind,orderId){if(!['pix','card'].includes(kind)||!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(orderId||''))fail(400,'invalid_order','Pedido inválido para idempotência.');const value=hash('mercadopago-orders-'+kind+':'+orderId).slice(0,32);return value.slice(0,8)+'-'+value.slice(8,12)+'-'+value.slice(12,16)+'-'+value.slice(16,20)+'-'+value.slice(20,32);}
 function extractOrdersPix(remote){
  const payment=remote?.transactions?.payments?.[0]||{};
  const method=payment.payment_method||{};
@@ -15,7 +16,7 @@ function extractOrdersPix(remote){
 }
 export const statusLabels={requested:'Pedido recebido',awaiting_art:'Aguardando arte',art_approved:'Arte aprovada',production:'Em produção',shipped:'Enviado',delivered:'Entregue',cancelled:'Cancelado'};
 const images=['dobrao-bronze-prof-v2.webp','dobrao-inox-prof-v2.webp','bolsa-couro-prof-v2.webp','bolsa-trio-prof-v2.webp'];
-const galleries=[[],[],['bolsa-couro-lateral-prof-v2.webp','bolsa-couro-verso-prof-v2.webp','bolsa-couro-aberta-prof-v2.webp','bolsa-couro-perspectiva-prof-v2.webp'],['bolsa-trio-aberta-prof-v2.webp','bolsa-trio-verso-prof-v2.webp']];
+const galleries=[[],[],['bolsa-couro-lateral-prof-v2.webp','bolsa-couro-verso-prof-v2.webp','bolsa-couro-aberta.jpg','bolsa-couro-perspectiva-prof-v2.webp'],['bolsa-trio-aberta-prof-v2.webp','bolsa-trio-verso-prof-v2.webp']];
 export const seedProducts=defaults.map((p,i)=>({...p,category:i<2?'Dobrões':'Bolsas',description:i<2?'Dobrão para berimbau, gravado ou lapidado.':'Bolsa de couro para guardar e transportar seus dobrões.',material:['Bronze','Aço inoxidável','Couro','Couro'][i],dimensions:i===1?'Diâmetro: 38 mm · Espessura: 8 mm':'',image:'/images/'+images[i],gallery:['/images/'+images[i],...galleries[i].map(n=>'/images/'+n)],variants:(i<2?['gravado','lapidado','sem_gravacao']:['padrao']).map(id=>({id,label:id==='padrao'?'Padrão':id==='gravado'?'Gravado':id==='lapidado'?'Lapidado':'Sem gravação',enabled:true,stock:null,allowBackorder:true})),stock:null,allowBackorder:true,productionDays:null}));
 const plain=v=>v&&typeof v==='object'&&!Array.isArray(v);
 export function cleanText(v,max=100,required=false){if(typeof v!=='string'||v.length>max||/[<>\x00-\x1f\x7f]/.test(v)||required&&!v.trim())fail(400,'invalid_text','Confira os campos preenchidos.');return v.trim();}
@@ -128,7 +129,7 @@ export function createCommerce({store,config}){
    return {orderId:id,paymentConfirmed:o.paymentConfirmed,providerStatus:o.mercadoPagoStatus};
   });
  }
- async function bindMercadoPagoOrder(id,owner,remote,totalCents,shippingCents){
+ async function bindMercadoPagoOrder(id,owner,remote,totalCents,shippingCents,{email,shippingName,serviceCode}={}){
   if(!plain(remote)||typeof remote.id!=='string'||!remote.id||remote.external_reference!==id)fail(400,'invalid_provider_order','Order inválida.');
   if(!Number.isSafeInteger(totalCents)||!Number.isSafeInteger(shippingCents)||shippingCents<0)fail(400,'invalid_amount','Valor inválido.');
   return db.transaction(async tx=>{
@@ -136,7 +137,7 @@ export function createCommerce({store,config}){
    if(!o||o.owner!==owner)fail(404,'order_not_found','Pedido não encontrado.');
    if(o.mercadoPagoOrderId&&o.mercadoPagoOrderId!==remote.id)fail(409,'order_already_bound','Pedido já possui cobrança.');
    if(o.productsTotal+shippingCents!==totalCents)fail(409,'amount_mismatch','Total divergente.');
-   o.mercadoPagoOrderId=remote.id;o.shippingCents=shippingCents;o.total=totalCents;o.mercadoPagoStatus=String(remote.status||'unknown').slice(0,60);o.updatedAt=new Date().toISOString();
+   o.mercadoPagoOrderId=remote.id;o.shippingCents=shippingCents;o.shipping={name:cleanText(shippingName||'Entrega',100,true),serviceCode:String(serviceCode||''),priceCents:shippingCents};o.customer={...o.customer,email:String(email||'').trim().toLowerCase()};o.total=totalCents;o.mercadoPagoStatus=String(remote.status||'unknown').slice(0,60);o.updatedAt=new Date().toISOString();
    await tx.put('orders',id,o);
    return {orderId:id,providerOrderId:remote.id};
   });
@@ -173,7 +174,7 @@ export function createCommerce({store,config}){
   if(raw.shippingCents!==null&&(!Number.isSafeInteger(raw.shippingCents)||raw.shippingCents<0||raw.shippingCents>1000000))fail(400,'invalid_shipping','Frete inválido.');
   o.shippingCents=raw.shippingCents;o.total=o.productsTotal+(o.shippingCents||0);o.updatedAt=new Date().toISOString();await tx.put('orders',id,o);return o;
  });}
- return {db,catalog,createOrder,updateOrder,bindMercadoPagoOrder,reconcileMercadoPagoOrder,safeOrder,checkToken,async categories(){return categoryList();},async categoryMutation(action,raw,oldName){return db.transaction(async tx=>{const names=await categoryList(tx),products=await catalog(tx),name=cleanText(raw?.name,60,true),same=v=>v.toLocaleLowerCase('pt-BR')===name.toLocaleLowerCase('pt-BR');if(action==='create'){if(names.some(same))fail(409,'duplicate_category','Esta categoria já existe.');names.push(name);}else if(action==='rename'){const index=names.findIndex(v=>v===oldName);if(index<0)fail(404,'category_not_found','Categoria não encontrada.');if(names.some((v,i)=>i!==index&&same(v)))fail(409,'duplicate_category','Esta categoria já existe.');for(const p of products)if(p.category===oldName)p.category=name;names[index]=name;await tx.put('settings','catalog',products);}else if(action==='delete'){if(!names.includes(oldName))fail(404,'category_not_found','Categoria não encontrada.');if(products.some(p=>p.category===oldName))fail(409,'category_in_use','Mova os produtos desta categoria antes de excluí-la.');if(names.length===1)fail(409,'last_category','A loja precisa manter pelo menos uma categoria.');names.splice(names.indexOf(oldName),1);}else fail(400,'invalid_category_action','Ação de categoria inválida.');await tx.put('settings','categories',names);return names;});},async deleteProduct(id){return this.bulkProducts('delete',[id]);},async bulkProducts(action,ids){return db.transaction(async tx=>{
+ return {db,catalog,createOrder,updateOrder,bindMercadoPagoOrder,reconcileMercadoPagoOrder,safeOrder,checkToken,async markEmailConfirmationSent(id,emailId){return db.transaction(async tx=>{const order=await tx.get('orders',id);if(!order||order.emailConfirmationSentAt)return false;order.emailConfirmationSentAt=new Date().toISOString();order.emailConfirmationId=String(emailId||'').slice(0,200);await tx.put('orders',id,order);return true;});},async categories(){return categoryList();},async categoryMutation(action,raw,oldName){return db.transaction(async tx=>{const names=await categoryList(tx),products=await catalog(tx),name=cleanText(raw?.name,60,true),same=v=>v.toLocaleLowerCase('pt-BR')===name.toLocaleLowerCase('pt-BR');if(action==='create'){if(names.some(same))fail(409,'duplicate_category','Esta categoria já existe.');names.push(name);}else if(action==='rename'){const index=names.findIndex(v=>v===oldName);if(index<0)fail(404,'category_not_found','Categoria não encontrada.');if(names.some((v,i)=>i!==index&&same(v)))fail(409,'duplicate_category','Esta categoria já existe.');for(const p of products)if(p.category===oldName)p.category=name;names[index]=name;await tx.put('settings','catalog',products);}else if(action==='delete'){if(!names.includes(oldName))fail(404,'category_not_found','Categoria não encontrada.');if(products.some(p=>p.category===oldName))fail(409,'category_in_use','Mova os produtos desta categoria antes de excluí-la.');if(names.length===1)fail(409,'last_category','A loja precisa manter pelo menos uma categoria.');names.splice(names.indexOf(oldName),1);}else fail(400,'invalid_category_action','Ação de categoria inválida.');await tx.put('settings','categories',names);return names;});},async deleteProduct(id){return this.bulkProducts('delete',[id]);},async bulkProducts(action,ids){return db.transaction(async tx=>{
  const list=await catalog(tx);
  if(!['delete','deactivate'].includes(action)||!Array.isArray(ids)||!ids.length||ids.length>50||new Set(ids).size!==ids.length||ids.some(id=>typeof id!=='string'))fail(400,'invalid_bulk_action','Selecione produtos válidos.');
  const selected=ids.map(id=>list.find(p=>p.productId===id));
@@ -192,7 +193,7 @@ export function createCommerce({store,config}){
  const ordered=ids.map(id=>list.find(product=>product.productId===id));await tx.put('settings','catalog',ordered);return {productIds:ids};
  });},async productMutation(raw,id){return db.transaction(async tx=>{const list=await catalog(tx),names=await categoryList(tx),old=list.find(p=>p.productId===id);if(id&&!old)fail(404,'product_not_found','Produto não encontrado.');const p=validateProduct(raw,old);if(!names.includes(p.category))fail(400,'invalid_category','Selecione uma categoria existente.');if(!old&&list.some(v=>v.productId===p.productId))fail(409,'duplicate_product','Identificador já utilizado.');if(old&&old.variants.some(v=>!p.variants.some(n=>n.id===v.id)))fail(409,'variant_removal','Preserve as opções existentes para manter o histórico.');await tx.put('settings','catalog',old?list.map(v=>v.productId===id?p:v):[...list,p]);return p;});},async track(id,token){const o=await db.get('orders',id);checkToken(o,token);if(!o.paymentConfirmed)fail(403,'payment_required','O acompanhamento estará disponível após a confirmação do pagamento.');return safeOrder(o);},async reviews(pid){return (await db.list('reviews')).filter(r=>r.productId===pid&&r.approved).map(({rating,comment,displayName,createdAt,photo,id})=>({id,rating,comment,displayName,createdAt,photo:photo?'/api/commerce/review-photo/'+id:null,verified:true}));},async review(raw){if(!plain(raw))fail(400,'invalid_review','Avaliação inválida.');return db.transaction(async tx=>{const o=await tx.get('orders',raw.orderId);checkToken(o,raw.token);if(!o.paymentConfirmed||o.status!=='delivered'||!o.items.some(i=>i.productId===raw.productId))fail(403,'review_not_eligible','Avaliações disponíveis após pagamento e entrega.');const id=hash(o.orderId+':'+raw.productId);if(await tx.get('reviews',id))fail(409,'duplicate_review','Você já avaliou este produto.');if(!Number.isInteger(raw.rating)||raw.rating<1||raw.rating>5)fail(400,'invalid_rating','Selecione de uma a cinco estrelas.');await tx.put('reviews',id,{id,orderId:o.orderId,productId:raw.productId,rating:raw.rating,comment:cleanText(raw.comment,1000,true),displayName:o.customer.name.split(' ')[0],photo:validateImage(raw.photo),approved:false,createdAt:new Date().toISOString()});return {submitted:true,message:'Avaliação recebida para moderação.'};});},async group(raw){if(!plain(raw))fail(400,'invalid_group','Solicitação inválida.');const customer=contact(raw.customer),group=cleanText(raw.group,100,true),notes=cleanText(raw.notes,2000,true),quantity=raw.quantity;if(!Number.isInteger(quantity)||quantity<1||quantity>10000)fail(400,'invalid_quantity','Informe a quantidade desejada.');const art=validateImage(raw.art),id=randomUUID();await db.put('groups',id,{id,customer,group,notes,quantity,art,status:'new',createdAt:new Date().toISOString()});return {id,message:'Solicitação registrada. A loja vai confirmar valores e prazo com você.'};}};
 }
-export function mountCommerce(app,{commerce,session,mutation,limit,config}){
+export function mountCommerce(app,{commerce,session,mutation,limit,config,notifyPaidOrder=async()=>{}}){
  const durable=(req,res,next)=>{if(config.durableStorage===false)fail(503,'storage_required','O recebimento de pedidos está temporariamente indisponível.');next();};
  app.get('/api/commerce/catalog',async(req,res)=>res.json({products:await commerce.catalog(),categories:await commerce.categories(),ordersConfigured:config.durableStorage!==false,statusLabels}));
  app.post('/api/commerce/shipping/quote',limit(15),session,mutation,async(req,res)=>{
@@ -214,12 +215,14 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config}){
   if(typeof serviceCode!=='string'||serviceCode.length>40)fail(400,'invalid_shipping','Escolha uma modalidade de frete.');
   const order=await commerce.db.get('orders',req.params.id);
   if(!order||order.owner!==req.shopSession.id)fail(404,'order_not_found','Pedido não encontrado.');
-  if(order.paymentConfirmed||order.status!=='requested')fail(409,'order_unavailable','Pedido indisponível para cobrança.');
   const gateway=createOrdersGateway({accessToken:config.accessToken});
   if(order.mercadoPagoOrderId){
    const remote=await gateway.getOrder(order.mercadoPagoOrderId);
+   await commerce.reconcileMercadoPagoOrder(remote);
+   await notifyPaidOrder(order.orderId);
    return res.json({orderId:order.orderId,providerStatus:remote.status,pix:extractOrdersPix(remote)});
   }
+  if(order.paymentConfirmed||order.status!=='requested')fail(409,'order_unavailable','Pedido indisponível para cobrança.');
   const provider=createShippingProvider();
   if(!provider.configured)fail(503,'shipping_not_configured','Frete indisponível.');
   const options=await provider.quote(order.items.map(i=>({productId:i.productId,quantity:i.quantity})),postalCode(cep));
@@ -228,9 +231,10 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config}){
   const shippingCents=selected.priceCents,totalCents=order.productsTotal+shippingCents;
   const key=req.get('idempotency-key');
   if(!/^[0-9a-f-]{36}$/i.test(key||''))fail(400,'invalid_key','Atualize a página e tente novamente.');
-  const paymentKey=hash('mercadopago-orders-pix:'+order.orderId).slice(0,8)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(8,12)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(12,16)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(16,20)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(20,32);const remote=await gateway.createPix({reference:order.orderId,totalCents,email,idempotencyKey:paymentKey});
-  await commerce.bindMercadoPagoOrder(order.orderId,req.shopSession.id,remote,totalCents,shippingCents);
+  const paymentKey=orderPaymentKey('pix',order.orderId);const remote=await gateway.createPix({reference:order.orderId,totalCents,email,idempotencyKey:paymentKey});
+  await commerce.bindMercadoPagoOrder(order.orderId,req.shopSession.id,remote,totalCents,shippingCents,{email,shippingName:selected.name,serviceCode:selected.serviceCode});
   await commerce.reconcileMercadoPagoOrder(remote);
+  await notifyPaidOrder(order.orderId);
   res.json({orderId:order.orderId,providerStatus:remote.status,pix:extractOrdersPix(remote)});
  });
  app.post('/api/commerce/orders/:id/card',limit(5),durable,session,mutation,async(req,res)=>{
@@ -251,16 +255,17 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config}){
   const shippingCents=selected.priceCents,totalCents=order.productsTotal+shippingCents;
   const key=req.get('idempotency-key');
   if(!/^[0-9a-f-]{36}$/i.test(key||''))fail(400,'invalid_key','Chave de tentativa inválida.');
-  const remote=await createOrdersGateway({accessToken:config.accessToken}).createCard({reference:order.orderId,totalCents,email,cardToken:card.token,paymentMethodId:card.paymentMethodId,paymentMethodType:card.paymentMethodType||'credit_card',installments:card.installments,idempotencyKey:key});
-  await commerce.bindMercadoPagoOrder(order.orderId,req.shopSession.id,remote,totalCents,shippingCents);
+  const remote=await createOrdersGateway({accessToken:config.accessToken}).createCard({reference:order.orderId,totalCents,email,cardToken:card.token,paymentMethodId:card.paymentMethodId,paymentMethodType:card.paymentMethodType||'credit_card',installments:card.installments,idempotencyKey:orderPaymentKey('card',order.orderId)});
+  await commerce.bindMercadoPagoOrder(order.orderId,req.shopSession.id,remote,totalCents,shippingCents,{email,shippingName:selected.name,serviceCode:selected.serviceCode});
   await commerce.reconcileMercadoPagoOrder(remote);
+  await notifyPaidOrder(order.orderId);
   res.json({orderId:order.orderId,providerStatus:remote.status,paymentConfirmed:(await commerce.db.get('orders',order.orderId)).paymentConfirmed});
  });
  app.get('/api/commerce/payment-config',limit(30),session,(req,res)=>res.json({cardConfigured:Boolean(config.mode==='production'&&config.publicKey&&config.accessToken&&config.webhookSecret),publicKey:config.mode==='production'?config.publicKey:''}));
  app.get('/api/commerce/orders/:id/payment-status',limit(20),session,async(req,res)=>{
   const order=await commerce.db.get('orders',req.params.id);
   if(!order||order.owner!==req.shopSession.id)fail(404,'order_not_found','Pedido não encontrado.');
-  if(order.mercadoPagoOrderId){const remote=await createOrdersGateway({accessToken:config.accessToken}).getOrder(order.mercadoPagoOrderId);await commerce.reconcileMercadoPagoOrder(remote);}
+  if(order.mercadoPagoOrderId){const remote=await createOrdersGateway({accessToken:config.accessToken}).getOrder(order.mercadoPagoOrderId);await commerce.reconcileMercadoPagoOrder(remote);await notifyPaidOrder(order.orderId);}
   const current=await commerce.db.get('orders',req.params.id);
   res.json({paymentConfirmed:current.paymentConfirmed,status:current.mercadoPagoStatus||'pending'});
  });

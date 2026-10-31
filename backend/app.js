@@ -123,6 +123,18 @@ export function createApp({config,catalog,store,gateway,shipping=createShipping(
   app.post('/api/webhooks/mercadopago',limit(config.webhookLimit),async(req,res)=>{if(!req.is('application/json'))fail(415,'json_required','Use JSON.');const providerId=authenticateWebhook(req,config.webhookSecret);if(req.body.application_id!==undefined&&String(req.body.application_id)!==String(config.applicationId))fail(409,'webhook_application_mismatch','Aplicação da notificação não corresponde à loja.');if(req.body.user_id!==undefined&&String(req.body.user_id)!==String(config.sellerId))fail(409,'webhook_seller_mismatch','Vendedor da notificação não corresponde à loja.');if(req.body.live_mode!==undefined&&req.body.live_mode!==(config.mode==='production'))fail(409,'webhook_mode_mismatch','Ambiente da notificação não corresponde à loja.');const remote=await gateway.getPayment(providerId);if(!uuid(remote.external_reference))fail(409,'unknown_order','Pedido não reconhecido.');const order=await store.get(remote.external_reference);if(!order)fail(409,'unknown_order','Pedido não reconhecido.');if(order.providerOrderId&&String(order.providerOrderId)!==String(remote.id))fail(409,'provider_id_mismatch','Pagamento não associado a este pedido.');await store.applySnapshot(order.orderId,cardPaymentSnapshot(remote,order,gateway));await notifyPaidOrder(await store.get(order.orderId));res.status(200).json({received:true});});
 
   const commerce=createCommerce({store,config});
+  async function notifyPaidCommerceOrder(orderId){
+    if(!sendConfirmation)return;
+    try{
+      const order=await commerce.db.get('orders',orderId);
+      if(!order?.paymentConfirmed||order.emailConfirmationSentAt||!order.customer?.email)return;
+      const emailOrder={...order,status:'paid',shipping:order.shipping||{name:'Entrega',priceCents:order.shippingCents||0}};
+      const result=await sendConfirmation(emailOrder);
+      if(result?.id)await commerce.markEmailConfirmationSent(orderId,result.id);
+    }catch(error){
+      logger.error(JSON.stringify({event:'commerce_order_confirmation_email_failed',orderId,statusCode:Number(error?.statusCode)||0,code:String(error?.code||'resend_error').slice(0,80)}));
+    }
+  }
   // Separate Orders webhook: existing /api/webhooks/mercadopago remains for Payments API.
   app.post('/api/webhooks/mercadopago-orders',limit(config.webhookLimit),async(req,res)=>{
     if(!req.is('application/json'))fail(415,'json_required','Use JSON.');
@@ -138,16 +150,17 @@ export function createApp({config,catalog,store,gateway,shipping=createShipping(
     catch(error){if(error instanceof InvalidWebhookSignatureError||error?.name==='InvalidWebhookSignatureError')fail(401,'invalid_signature','Assinatura inválida.');throw error;}
     const remote=await createOrdersGateway({accessToken:config.accessToken}).getOrder(id);
     await commerce.reconcileMercadoPagoOrder(remote);
+    await notifyPaidCommerceOrder(remote.external_reference);
     res.status(200).json({received:true});
   });
-  mountCommerce(app,{commerce,config,session,mutation,limit});
+  mountCommerce(app,{commerce,config,session,mutation,limit,notifyPaidOrder:notifyPaidCommerceOrder});
   mountAdmin(app,{config,store,limit,commerce});
   app.get('/js/cart.js',(req,res)=>{res.type('application/javascript').send(cartScript);});
   app.get(['/sucesso','/sucesso.html'],(req,res)=>res.sendFile(join(config.frontendPath,'sucesso.html')));
   app.get(['/admin','/admin/'],(req,res)=>res.sendFile(join(config.frontendPath,'admin','index.html')));
   app.use(express.static(config.frontendPath,{dotfiles:'deny',index:'index.html',redirect:false,etag:false}));
   app.use((req,res)=>res.status(404).json({error:'not_found',message:'Recurso não encontrado.'}));
-  app.use((error,req,res,next)=>{if(res.headersSent)return next(error);if(error.type==='entity.parse.failed')return res.status(400).json({error:'invalid_json',message:'JSON malformado.'});if(error.type==='entity.too.large')return res.status(413).json({error:'body_too_large',message:'Requisição muito grande.'});if(error instanceof AppError)return res.status(error.status).json({error:error.code,message:error.message});const incident=randomUUID();logger.error(JSON.stringify({event:'internal_error',incident}));res.status(500).json({error:'internal_error',message:'Não foi possível concluir a operação.',incident});});
+  app.use((error,req,res,next)=>{if(res.headersSent)return next(error);if(error.type==='entity.parse.failed')return res.status(400).json({error:'invalid_json',message:'JSON malformado.'});if(error.type==='entity.too.large')return res.status(413).json({error:'body_too_large',message:'Requisição muito grande.'});if(error instanceof AppError)return res.status(error.status).json({error:error.code,message:error.message});const incident=randomUUID();logger.error(JSON.stringify({event:'internal_error',incident,errorName:String(error?.name||'Error').slice(0,80),code:error instanceof AppError?error.code:undefined,debug:config.production?undefined:String(error?.stack||'').slice(0,1600)}));res.status(500).json({error:'internal_error',message:'Não foi possível concluir a operação.',incident});});
   return app;
 }
 
