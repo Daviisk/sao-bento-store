@@ -185,3 +185,9 @@ body{background:#f7f3eb;color:#34291e}
 /* Product information fields */
 #commerce-admin-view .product-spec-fields{margin:2px 0 0}
 #commerce-admin-view .product-spec-fields+small{display:block;margin:-6px 0 12px;color:#786b59;font-size:12px;line-height:1.5}
+
+
+/* Visual feedback while reordering gallery photos */
+#commerce-admin-view .gallery-order-label{user-select:none;-webkit-user-select:none;touch-action:none;cursor:grab}
+#commerce-admin-view .gallery-thumb.is-dragging{opacity:.45}
+#commerce-admin-view .gallery-thumb.is-drop-target{border:2px dashed #936b2c;background:#f5ead7;transform:scale(.98)}

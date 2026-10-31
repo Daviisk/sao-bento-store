@@ -20,7 +20,7 @@ export function readConfig(env=process.env){
   const adminConfigured=adminPassword.length>=8&&adminSessionSecret.length>=32&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(adminEmail);
   const databaseUrl=String(env.DATABASE_URL||'').trim();
   const resendApiKey=String(env.RESEND_API_KEY||'').trim();
-  const resendFromEmail=String(env.RESEND_FROM_EMAIL||'São Bento Dobrões <pedidos@saobentodobroes.com>').trim();
+  const resendFromEmail=String(env.RESEND_FROM_EMAIL||'São Bento Dobrões <Contato@saobentodobroes.com>').trim();
   const resendReplyTo=String(env.RESEND_REPLY_TO||'').trim().toLowerCase();
   if(resendReplyTo&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(resendReplyTo))throw Error('RESEND_REPLY_TO inválido.');
   if(databaseUrl){const db=new URL(databaseUrl);if(!['postgres:','postgresql:'].includes(db.protocol)||!db.hostname||!db.username||!db.password)throw Error('DATABASE_URL PostgreSQL inválida.');}

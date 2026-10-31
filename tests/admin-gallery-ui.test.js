@@ -60,3 +60,17 @@ test('product form validates all selected photos and gallery capacity before upl
  assert.match(admin,/selectedGallery\.forEach\(validateImageFile\)/);
  assert.match(admin,/for\(const file of selectedGallery\)/);
 });
+
+
+test('admin gallery supports drag-and-drop and touch pointer reordering',()=>{
+ const admin=readFileSync('frontend/admin/commerce-admin.js','utf8');
+ assert.match(admin,/item\.draggable=true/);
+ assert.match(admin,/addEventListener\('dragstart'/);
+ assert.match(admin,/addEventListener\('dragover'/);
+ assert.match(admin,/addEventListener\('drop'/);
+ assert.match(admin,/addEventListener\('pointerdown'/);
+ assert.match(admin,/addEventListener\('pointermove'/);
+ assert.match(admin,/addEventListener\('pointerup'/);
+ assert.match(admin,/document\.elementFromPoint/);
+ assert.match(admin,/galleryOrder\.splice\(to,0,galleryOrder\.splice\(from,1\)\[0\]\)/);
+});
