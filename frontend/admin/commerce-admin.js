@@ -141,7 +141,7 @@ async function catalog(){
   if(action==='deactivate'&&!confirm('Remover '+ids.length+' produto(s) da loja? Os pedidos antigos serão preservados.'))return;
   if(action==='delete'&&!confirm('Apagar definitivamente '+ids.length+' produto(s)? Produtos que aparecem em pedidos não podem ser apagados.'))return;
   $('#bulk-deactivate').disabled=true;$('#bulk-delete').disabled=true;
-  try{await mutate('/api/admin/catalog/bulk',{action,productIds:ids},'POST');products=action==='delete'?products.filter(product=>!ids.includes(product.productId)):products.map(product=>ids.includes(product.productId)?{...product,enabled:false}:product);if(action==='deactivate')$('#show-removed').checked=false;$('#select-visible').checked=false;draw();msg(action==='delete'?'Produtos apagados.':'Produtos removidos da loja.');}
+  try{const result=await mutate('/api/admin/catalog/bulk',{action,productIds:ids},'POST');products=action==='delete'?products.filter(product=>!ids.includes(product.productId)):products.map(product=>ids.includes(product.productId)?{...product,enabled:false}:product);if(action==='deactivate')$('#show-removed').checked=false;$('#select-visible').checked=false;draw();msg(action==='delete'?(result.archivedProductIds?.length?'Produtos removidos da lista. '+result.archivedProductIds.length+' produto(s) foram arquivados para preservar pedidos antigos.':'Produtos apagados definitivamente.'):'Produtos removidos da loja.');}
   catch(error){msg(error.message);syncSelection();}
  }
  $('#bulk-deactivate').onclick=()=>runBulk('deactivate');
