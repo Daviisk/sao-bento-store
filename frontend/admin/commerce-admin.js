@@ -36,6 +36,62 @@ function editProduct(p,isNew=false){
    }
    drawGallery();
   }));
+  // Permite reordenar fotos arrastando, inclusive em telas sensíveis ao toque.
+  let dragSource=null, pointerDrag=null;
+  container.querySelectorAll('[data-gallery-item]').forEach(item=>{
+   item.draggable=true;
+   item.addEventListener('dragstart',event=>{
+    dragSource=item.querySelector('[data-remove-gallery]')?.dataset.removeGallery||null;
+    if(!dragSource||removedGallery.has(dragSource)){event.preventDefault();return;}
+    event.dataTransfer.effectAllowed='move';
+    event.dataTransfer.setData('text/plain',dragSource);
+    item.classList.add('is-dragging');
+   });
+   item.addEventListener('dragend',()=>{item.classList.remove('is-dragging');container.querySelectorAll('.is-drop-target').forEach(el=>el.classList.remove('is-drop-target'));});
+   item.addEventListener('dragover',event=>{if(dragSource){event.preventDefault();event.dataTransfer.dropEffect='move';item.classList.add('is-drop-target');}});
+   item.addEventListener('dragleave',()=>item.classList.remove('is-drop-target'));
+   item.addEventListener('drop',event=>{
+    event.preventDefault();item.classList.remove('is-drop-target');
+    const source=dragSource||event.dataTransfer.getData('text/plain'),target=item.querySelector('[data-remove-gallery]')?.dataset.removeGallery;
+    dragSource=null;
+    if(!source||!target||source===target||removedGallery.has(source)||removedGallery.has(target))return;
+    const from=galleryOrder.indexOf(source),to=galleryOrder.indexOf(target);
+    if(from<0||to<0)return;
+    galleryOrder.splice(to,0,galleryOrder.splice(from,1)[0]);drawGallery();
+   });
+  });
+  container.querySelectorAll('.gallery-order-label').forEach(handle=>{
+   handle.style.touchAction='none';handle.style.cursor='grab';
+   handle.addEventListener('pointerdown',event=>{
+    if(event.pointerType!=='touch'&&event.pointerType!=='pen')return;
+    const item=handle.closest('[data-gallery-item]'),src=item?.querySelector('[data-remove-gallery]')?.dataset.removeGallery;
+    if(!src||removedGallery.has(src))return;
+    pointerDrag={src,startX:event.clientX,startY:event.clientY,moved:false};
+    handle.setPointerCapture?.(event.pointerId);
+   });
+   handle.addEventListener('pointermove',event=>{
+    if(!pointerDrag)return;
+    if(!pointerDrag.moved&&Math.hypot(event.clientX-pointerDrag.startX,event.clientY-pointerDrag.startY)<8)return;
+    pointerDrag.moved=true;
+    const target=document.elementFromPoint(event.clientX,event.clientY)?.closest('[data-gallery-item]');
+    container.querySelectorAll('.is-drop-target').forEach(el=>el.classList.remove('is-drop-target'));
+    if(target&&target!==handle.closest('[data-gallery-item]'))target.classList.add('is-drop-target');
+   });
+   const finishPointerDrag=event=>{
+    if(!pointerDrag)return;
+    const state=pointerDrag;pointerDrag=null;
+    if(!state.moved)return;
+    const target=document.elementFromPoint(event.clientX,event.clientY)?.closest('[data-gallery-item]');
+    const targetSrc=target?.querySelector('[data-remove-gallery]')?.dataset.removeGallery;
+    if(targetSrc&&targetSrc!==state.src&&!removedGallery.has(targetSrc)){
+     const from=galleryOrder.indexOf(state.src),to=galleryOrder.indexOf(targetSrc);
+     if(from>=0&&to>=0)galleryOrder.splice(to,0,galleryOrder.splice(from,1)[0]);
+    }
+    drawGallery();
+   };
+   handle.addEventListener('pointerup',finishPointerDrag);
+   handle.addEventListener('pointercancel',finishPointerDrag);
+  });
   container.querySelectorAll('[data-remove-gallery]').forEach(button=>button.addEventListener('click',()=>{
    const src=button.dataset.removeGallery,item=button.closest('[data-gallery-item]');
    if(removedGallery.has(src))removedGallery.delete(src);else removedGallery.add(src);
