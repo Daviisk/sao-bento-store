@@ -15,3 +15,22 @@ test('product material and dimensions are retained in the catalog',async t=>{
  assert.equal(stored.material,'Bronze fundido');
  assert.equal(stored.dimensions,'Diâmetro: 38 mm');
 });
+
+
+test('removing a product photo deletes orphaned uploaded media but keeps shared photos',async t=>{
+ const c=setup(t),products=await c.catalog(),first=products[0],id=randomUUID();
+ const bytes=Buffer.concat([Buffer.from('RIFF'),Buffer.alloc(4),Buffer.from('WEBP'),Buffer.from([1,2,3])]).toString('base64');
+ const photo=validateImage({name:'foto.webp',data:'data:image/webp;base64,'+bytes});
+ const url='/api/commerce/media/'+id;
+ await c.db.put('media',id,photo);
+ first.image=url;first.gallery=[url];
+ await c.productMutation(first,first.productId);
+ const second={...first,productId:'produto_teste',name:'Produto de teste'};
+ await c.productMutation(second);
+ first.image='/images/dobrao-bronze-prof-v2.webp';first.gallery=[first.image];
+ await c.productMutation(first,first.productId);
+ assert.ok(await c.db.get('media',id),'a foto deve continuar enquanto outro produto a utiliza');
+ second.image='/images/dobrao-inox-prof-v2.webp';second.gallery=[second.image];
+ await c.productMutation(second,second.productId);
+ assert.equal(await c.db.get('media',id),null,'a foto sem referências deve ser apagada do armazenamento');
+});
