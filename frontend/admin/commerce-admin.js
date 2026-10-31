@@ -3,7 +3,9 @@
 const api=async(path,options={})=>{const r=await fetch(path,{credentials:'same-origin',cache:'no-store',...options,signal:AbortSignal.timeout(20000)});let d={};try{d=await r.json();}catch{d={message:'O servidor retornou uma resposta inválida ('+r.status+'). Tente novamente.'};}if(!r.ok)throw Error(d.message||'Falha ao carregar ('+r.status+').');return d;};
 const mutate=(path,body,method='PATCH')=>api(path,{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
 function msg(t){$('#panel-message').textContent=t;}
-function validateImageFile(f){if(!f)return;if(f.size>1048576||!['image/png','image/jpeg','image/webp'].includes(f.type))throw Error('Cada foto deve ser JPG, PNG ou WebP com até 1 MB.');}\nasync function image(input){const f=input.files[0];if(!f)return null;validateImageFile(f);return readImage(f);}\nasync function readImage(f){validateImageFile(f);return {name:f.name,data:await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(Error('Não foi possível ler a foto selecionada.'));r.readAsDataURL(f);})};}
+function validateImageFile(f){if(!f)return;if(f.size>1048576||!['image/png','image/jpeg','image/webp'].includes(f.type))throw Error('Cada foto deve ser JPG, PNG ou WebP com até 1 MB.');}
+async function image(input){const f=input.files[0];if(!f)return null;validateImageFile(f);return readImage(f);}
+async function readImage(f){validateImageFile(f);return {name:f.name,data:await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(Error('Não foi possível ler a foto selecionada.'));r.readAsDataURL(f);})};}
 const finishDefinitions=[{id:'gravado',label:'Gravado'},{id:'lapidado',label:'Lapidado'},{id:'sem_gravacao',label:'Sem gravação'}];
 function finishVariantsMarkup(p){
  const current=new Map((p.variants||[]).map(v=>[v.id,v]));
