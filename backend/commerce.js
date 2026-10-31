@@ -99,12 +99,14 @@ export function createCommerce({store,config}){
    const used=(units.get(p.productId)||0)+raw.quantity;units.set(p.productId,used);
    if(p.stock!==null&&used>p.stock&&!p.allowBackorder)fail(409,'out_of_stock','Estoque insuficiente: '+p.name+'.');
    let engravingNotes=cleanText(raw.engravingNotes||'',500),front=validateImage(raw.front),back=validateImage(raw.back);
+   const isCoin=['produto_01','produto_02'].includes(p.productId),thickness=raw.thickness===undefined&&isCoin?'8 mm':raw.thickness;
+   if((isCoin&&!['6 mm','8 mm','10 mm'].includes(thickness))||(!isCoin&&thickness!==undefined&&thickness!==null))fail(400,'invalid_thickness','Escolha uma espessura válida para o dobrão.');
    if(raw.engraving||raw.art)fail(400,'invalid_customization','Gravação somente por imagens; use observações para instruções.');
    const supportsEngraving=['gravado','lapidado'].includes(v.id);
    if(!supportsEngraving&&(front||back||engravingNotes&&engravingNotes!=='Sem gravação'))fail(400,'invalid_customization','Personalização disponível somente nos dobrões.');
    if(v.id==='sem_gravacao'){if(front||back)fail(400,'invalid_customization','Sem gravação não aceita arquivos.');engravingNotes='Sem gravação';}
    const subtotal=p.priceCents*raw.quantity;total+=subtotal;
-   return {productId:p.productId,name:p.name,variantId:v.id,variantLabel:v.label,quantity:raw.quantity,unitPrice:p.priceCents,subtotal,engravingNotes,front,back,backorder:p.stock!==null&&used>p.stock,productionDays:p.productionDays};
+   return {productId:p.productId,name:p.name,variantId:v.id,variantLabel:v.label,...(isCoin?{thickness}:{}),quantity:raw.quantity,unitPrice:p.priceCents,subtotal,engravingNotes,front,back,backorder:p.stock!==null&&used>p.stock,productionDays:p.productionDays};
   });
   if(total>100000000)fail(400,'total_limit','Valor acima do limite.');
   return {items,total};
