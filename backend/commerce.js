@@ -5,6 +5,7 @@ import {createCommerceStore} from './commerce-store.js';
 import {products as defaults} from './products.js';
 import {createShippingProvider,postalCode} from './services/shipping.js';
 const hash=v=>createHash('sha256').update(v).digest('hex');
+export function orderPaymentKey(kind,orderId){if(!['pix','card'].includes(kind)||!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(orderId||''))fail(400,'invalid_order','Pedido inválido para idempotência.');const value=hash('mercadopago-orders-'+kind+':'+orderId).slice(0,32);return value.slice(0,8)+'-'+value.slice(8,12)+'-'+value.slice(12,16)+'-'+value.slice(16,20)+'-'+value.slice(20,32);}
 function extractOrdersPix(remote){
  const payment=remote?.transactions?.payments?.[0]||{};
  const method=payment.payment_method||{};
@@ -128,7 +129,7 @@ export function createCommerce({store,config}){
    return {orderId:id,paymentConfirmed:o.paymentConfirmed,providerStatus:o.mercadoPagoStatus};
   });
  }
- async function bindMercadoPagoOrder(id,owner,remote,totalCents,shippingCents){
+ async function bindMercadoPagoOrder(id,owner,remote,totalCents,shippingCents,{email,shippingName,serviceCode}={}){
   if(!plain(remote)||typeof remote.id!=='string'||!remote.id||remote.external_reference!==id)fail(400,'invalid_provider_order','Order inválida.');
   if(!Number.isSafeInteger(totalCents)||!Number.isSafeInteger(shippingCents)||shippingCents<0)fail(400,'invalid_amount','Valor inválido.');
   return db.transaction(async tx=>{
@@ -136,7 +137,7 @@ export function createCommerce({store,config}){
    if(!o||o.owner!==owner)fail(404,'order_not_found','Pedido não encontrado.');
    if(o.mercadoPagoOrderId&&o.mercadoPagoOrderId!==remote.id)fail(409,'order_already_bound','Pedido já possui cobrança.');
    if(o.productsTotal+shippingCents!==totalCents)fail(409,'amount_mismatch','Total divergente.');
-   o.mercadoPagoOrderId=remote.id;o.shippingCents=shippingCents;o.total=totalCents;o.mercadoPagoStatus=String(remote.status||'unknown').slice(0,60);o.updatedAt=new Date().toISOString();
+   o.mercadoPagoOrderId=remote.id;o.shippingCents=shippingCents;o.shipping={name:cleanText(shippingName||'Entrega',100,true),serviceCode:String(serviceCode||''),priceCents:shippingCents};o.customer={...o.customer,email:String(email||'').trim().toLowerCase()};o.total=totalCents;o.mercadoPagoStatus=String(remote.status||'unknown').slice(0,60);o.updatedAt=new Date().toISOString();
    await tx.put('orders',id,o);
    return {orderId:id,providerOrderId:remote.id};
   });
@@ -173,7 +174,7 @@ export function createCommerce({store,config}){
   if(raw.shippingCents!==null&&(!Number.isSafeInteger(raw.shippingCents)||raw.shippingCents<0||raw.shippingCents>1000000))fail(400,'invalid_shipping','Frete inválido.');
   o.shippingCents=raw.shippingCents;o.total=o.productsTotal+(o.shippingCents||0);o.updatedAt=new Date().toISOString();await tx.put('orders',id,o);return o;
  });}
- return {db,catalog,createOrder,updateOrder,bindMercadoPagoOrder,reconcileMercadoPagoOrder,safeOrder,checkToken,async categories(){return categoryList();},async categoryMutation(action,raw,oldName){return db.transaction(async tx=>{const names=await categoryList(tx),products=await catalog(tx),name=cleanText(raw?.name,60,true),same=v=>v.toLocaleLowerCase('pt-BR')===name.toLocaleLowerCase('pt-BR');if(action==='create'){if(names.some(same))fail(409,'duplicate_category','Esta categoria já existe.');names.push(name);}else if(action==='rename'){const index=names.findIndex(v=>v===oldName);if(index<0)fail(404,'category_not_found','Categoria não encontrada.');if(names.some((v,i)=>i!==index&&same(v)))fail(409,'duplicate_category','Esta categoria já existe.');for(const p of products)if(p.category===oldName)p.category=name;names[index]=name;await tx.put('settings','catalog',products);}else if(action==='delete'){if(!names.includes(oldName))fail(404,'category_not_found','Categoria não encontrada.');if(products.some(p=>p.category===oldName))fail(409,'category_in_use','Mova os produtos desta categoria antes de excluí-la.');if(names.length===1)fail(409,'last_category','A loja precisa manter pelo menos uma categoria.');names.splice(names.indexOf(oldName),1);}else fail(400,'invalid_category_action','Ação de categoria inválida.');await tx.put('settings','categories',names);return names;});},async deleteProduct(id){return this.bulkProducts('delete',[id]);},async bulkProducts(action,ids){return db.transaction(async tx=>{
+ return {db,catalog,createOrder,updateOrder,bindMercadoPagoOrder,reconcileMercadoPagoOrder,safeOrder,checkToken,async markEmailConfirmationSent(id,emailId){return db.transaction(async tx=>{const order=await tx.get('orders',id);if(!order||order.emailConfirmationSentAt)return false;order.emailConfirmationSentAt=new Date().toISOString();order.emailConfirmationId=String(emailId||'').slice(0,200);await tx.put('orders',id,order);return true;});},async categories(){return categoryList();},async categoryMutation(action,raw,oldName){return db.transaction(async tx=>{const names=await categoryList(tx),products=await catalog(tx),name=cleanText(raw?.name,60,true),same=v=>v.toLocaleLowerCase('pt-BR')===name.toLocaleLowerCase('pt-BR');if(action==='create'){if(names.some(same))fail(409,'duplicate_category','Esta categoria já existe.');names.push(name);}else if(action==='rename'){const index=names.findIndex(v=>v===oldName);if(index<0)fail(404,'category_not_found','Categoria não encontrada.');if(names.some((v,i)=>i!==index&&same(v)))fail(409,'duplicate_category','Esta categoria já existe.');for(const p of products)if(p.category===oldName)p.category=name;names[index]=name;await tx.put('settings','catalog',products);}else if(action==='delete'){if(!names.includes(oldName))fail(404,'category_not_found','Categoria não encontrada.');if(products.some(p=>p.category===oldName))fail(409,'category_in_use','Mova os produtos desta categoria antes de excluí-la.');if(names.length===1)fail(409,'last_category','A loja precisa manter pelo menos uma categoria.');names.splice(names.indexOf(oldName),1);}else fail(400,'invalid_category_action','Ação de categoria inválida.');await tx.put('settings','categories',names);return names;});},async deleteProduct(id){return this.bulkProducts('delete',[id]);},async bulkProducts(action,ids){return db.transaction(async tx=>{
  const list=await catalog(tx);
  if(!['delete','deactivate'].includes(action)||!Array.isArray(ids)||!ids.length||ids.length>50||new Set(ids).size!==ids.length||ids.some(id=>typeof id!=='string'))fail(400,'invalid_bulk_action','Selecione produtos válidos.');
  const selected=ids.map(id=>list.find(p=>p.productId===id));
@@ -218,6 +219,8 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config}){
   const gateway=createOrdersGateway({accessToken:config.accessToken});
   if(order.mercadoPagoOrderId){
    const remote=await gateway.getOrder(order.mercadoPagoOrderId);
+   await commerce.reconcileMercadoPagoOrder(remote);
+   await notifyPaidOrder(order.orderId);
    return res.json({orderId:order.orderId,providerStatus:remote.status,pix:extractOrdersPix(remote)});
   }
   const provider=createShippingProvider();
@@ -228,9 +231,10 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config}){
   const shippingCents=selected.priceCents,totalCents=order.productsTotal+shippingCents;
   const key=req.get('idempotency-key');
   if(!/^[0-9a-f-]{36}$/i.test(key||''))fail(400,'invalid_key','Atualize a página e tente novamente.');
-  const paymentKey=hash('mercadopago-orders-pix:'+order.orderId).slice(0,8)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(8,12)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(12,16)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(16,20)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(20,32);const remote=await gateway.createPix({reference:order.orderId,totalCents,email,idempotencyKey:paymentKey});
-  await commerce.bindMercadoPagoOrder(order.orderId,req.shopSession.id,remote,totalCents,shippingCents);
+  const paymentKey=orderPaymentKey('pix',order.orderId);const remote=await gateway.createPix({reference:order.orderId,totalCents,email,idempotencyKey:paymentKey});
+  await commerce.bindMercadoPagoOrder(order.orderId,req.shopSession.id,remote,totalCents,shippingCents,{email,shippingName:selected.name,serviceCode:selected.serviceCode});
   await commerce.reconcileMercadoPagoOrder(remote);
+  await notifyPaidOrder(order.orderId);
   res.json({orderId:order.orderId,providerStatus:remote.status,pix:extractOrdersPix(remote)});
  });
  app.post('/api/commerce/orders/:id/card',limit(5),durable,session,mutation,async(req,res)=>{
@@ -251,16 +255,17 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config}){
   const shippingCents=selected.priceCents,totalCents=order.productsTotal+shippingCents;
   const key=req.get('idempotency-key');
   if(!/^[0-9a-f-]{36}$/i.test(key||''))fail(400,'invalid_key','Chave de tentativa inválida.');
-  const remote=await createOrdersGateway({accessToken:config.accessToken}).createCard({reference:order.orderId,totalCents,email,cardToken:card.token,paymentMethodId:card.paymentMethodId,paymentMethodType:card.paymentMethodType||'credit_card',installments:card.installments,idempotencyKey:key});
-  await commerce.bindMercadoPagoOrder(order.orderId,req.shopSession.id,remote,totalCents,shippingCents);
+  const remote=await createOrdersGateway({accessToken:config.accessToken}).createCard({reference:order.orderId,totalCents,email,cardToken:card.token,paymentMethodId:card.paymentMethodId,paymentMethodType:card.paymentMethodType||'credit_card',installments:card.installments,idempotencyKey:orderPaymentKey('card',order.orderId)});
+  await commerce.bindMercadoPagoOrder(order.orderId,req.shopSession.id,remote,totalCents,shippingCents,{email,shippingName:selected.name,serviceCode:selected.serviceCode});
   await commerce.reconcileMercadoPagoOrder(remote);
+  await notifyPaidOrder(order.orderId);
   res.json({orderId:order.orderId,providerStatus:remote.status,paymentConfirmed:(await commerce.db.get('orders',order.orderId)).paymentConfirmed});
  });
  app.get('/api/commerce/payment-config',limit(30),session,(req,res)=>res.json({cardConfigured:Boolean(config.mode==='production'&&config.publicKey&&config.accessToken&&config.webhookSecret),publicKey:config.mode==='production'?config.publicKey:''}));
  app.get('/api/commerce/orders/:id/payment-status',limit(20),session,async(req,res)=>{
   const order=await commerce.db.get('orders',req.params.id);
   if(!order||order.owner!==req.shopSession.id)fail(404,'order_not_found','Pedido não encontrado.');
-  if(order.mercadoPagoOrderId){const remote=await createOrdersGateway({accessToken:config.accessToken}).getOrder(order.mercadoPagoOrderId);await commerce.reconcileMercadoPagoOrder(remote);}
+  if(order.mercadoPagoOrderId){const remote=await createOrdersGateway({accessToken:config.accessToken}).getOrder(order.mercadoPagoOrderId);await commerce.reconcileMercadoPagoOrder(remote);await notifyPaidOrder(order.orderId);}
   const current=await commerce.db.get('orders',req.params.id);
   res.json({paymentConfirmed:current.paymentConfirmed,status:current.mercadoPagoStatus||'pending'});
  });
