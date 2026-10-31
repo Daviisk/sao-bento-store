@@ -558,3 +558,22 @@
   padding-bottom:max(4px,env(safe-area-inset-bottom))!important;
  }
 }
+
+
+/* Product detail: eliminate the empty strip below the fixed purchase buttons on every viewport. */
+#veil.detailView .drawer{
+ padding-bottom:0!important;
+}
+#veil.detailView .drawer .sheet-scroll-content{
+ padding-bottom:0!important;
+}
+#veil.detailView .drawer .detail-purchase-actions{
+ margin-bottom:0!important;
+ padding-bottom:env(safe-area-inset-bottom)!important;
+ bottom:0!important;
+}
+@media(min-width:801px){
+ #veil.detailView .drawer .detail-purchase-actions{
+  padding-bottom:0!important;
+ }
+}
