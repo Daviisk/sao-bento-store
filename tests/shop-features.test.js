@@ -100,3 +100,13 @@ test('sticky product purchase bar reaches the bottom without stacked blank spaci
  assert.match(fix,/bottom:0!important/);
  assert.match(fix,/env\(safe-area-inset-bottom\)/);
 });
+
+test('bag gallery uses a valid non-empty fallback image asset',()=>{
+ const image=readFileSync('frontend/images/bolsa-couro-aberta.jpg');
+ assert.ok(image.length>1000,'A foto alternativa da bolsa precisa conter dados reais.');
+ assert.equal(image.subarray(0,2).toString('hex'),'ffd8','A foto alternativa deve ser JPEG válido.');
+ const commerce=readFileSync('backend/commerce.js','utf8');
+ const storefront=readFileSync('frontend/js/storefront.js','utf8');
+ assert.doesNotMatch(commerce,/bolsa-couro-aberta-prof-v2\.webp/);
+ assert.doesNotMatch(storefront,/bolsa-couro-aberta-prof-v2\.webp/);
+});
