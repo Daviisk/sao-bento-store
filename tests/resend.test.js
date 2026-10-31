@@ -24,7 +24,7 @@ test('sends a payment-confirmed order email with idempotency and escaped HTML',a
  assert.equal(call.options.headers['Idempotency-Key'],'order-confirmation-'+order.orderId);
  const body=JSON.parse(call.options.body);
  assert.deepEqual(body.to,['cliente@example.com']);
- assert.equal(body.reply_to,'contato@saobentodobroes.com');
+ assert.equal(Object.hasOwn(body,'reply_to'),false);
  assert.match(body.subject,/SB1001/);
  assert.match(body.html,/Cliente &lt;Teste&gt;/);
  assert.match(body.html,/Dobrão &lt;Bronze&gt;/);
