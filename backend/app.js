@@ -150,7 +150,7 @@ export function createApp({config,catalog,store,gateway,shipping=createShipping(
     await notifyPaidCommerceOrder(await commerce.db.get('orders',reconciled.orderId));
     res.status(200).json({received:true});
   });
-  mountCommerce(app,{commerce,config,session,mutation,limit});
+  mountCommerce(app,{commerce,config,session,mutation,limit,notifyPaidCommerceOrder});
   mountAdmin(app,{config,store,limit,commerce});
   app.get('/js/cart.js',(req,res)=>{res.type('application/javascript').send(cartScript);});
   app.get(['/sucesso','/sucesso.html'],(req,res)=>res.sendFile(join(config.frontendPath,'sucesso.html')));
