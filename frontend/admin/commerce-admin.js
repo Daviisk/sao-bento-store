@@ -13,8 +13,8 @@ function editProduct(p,isNew=false){
  let mainImage=isNew?'':(p.image||'');
  let galleryOrder=isNew?[]:(p.gallery||[]).filter(src=>src!==p.image);
  const removedGallery=new Set();
- const photoPreview='<div id="product-photo-preview-wrap" class="product-photo-preview-wrap">'+(mainImage?'<img id="product-photo-preview" src="'+esc(mainImage)+'" alt="Prévia da foto principal" width="150" height="150" loading="eager">':'<span id="product-photo-placeholder">Selecione uma foto principal</span>')+'</div>';
- const renderMainPreview=()=>{const wrap=$('#product-photo-preview-wrap');if(!wrap)return;wrap.innerHTML=mainImage?'<img id="product-photo-preview" src="'+esc(mainImage)+'" alt="Prévia da foto principal" width="150" height="150" loading="eager">':'<span id="product-photo-placeholder">Selecione uma foto principal</span>';};
+ const photoPreview='<div id="product-photo-preview-wrap" class="product-photo-preview-wrap">'+(mainImage?'<img id="product-photo-preview" src="'+esc(mainImage)+'" alt="Prévia da foto principal" width="150" height="150" loading="eager">':'<span id="product-photo-placeholder">Selecione uma foto principal</span>')+'</div><button type="button" id="remove-main-photo" class="gallery-remove-button" '+(!mainImage?'hidden':'')+'>Remover foto principal</button>';
+ const renderMainPreview=()=>{const wrap=$('#product-photo-preview-wrap');if(!wrap)return;wrap.innerHTML=mainImage?'<img id="product-photo-preview" src="'+esc(mainImage)+'" alt="Prévia da foto principal" width="150" height="150" loading="eager">':'<span id="product-photo-placeholder">Selecione uma foto principal</span>';const remove=$('#remove-main-photo');if(remove)remove.hidden=!mainImage;};
  const drawGallery=()=>{
   const container=formGallery();
   if(!container)return;
@@ -70,6 +70,12 @@ function editProduct(p,isNew=false){
   refreshFinishVisibility();
  });
  $('#back-catalog').onclick=()=>load('catalog');
+ $('#remove-main-photo').onclick=()=>{
+  if(!mainImage||!confirm('Remover a foto principal?'+(galleryOrder.some(src=>!removedGallery.has(src))?' A primeira foto adicional será promovida.':' Será necessário enviar outra foto antes de salvar.')))return;
+  const next=galleryOrder.findIndex(src=>!removedGallery.has(src));
+  if(next>=0)mainImage=galleryOrder.splice(next,1)[0];else mainImage='';
+  form.elements.upload.value='';renderMainPreview();drawGallery();
+ };
  drawGallery();
  form.elements.upload.addEventListener('change',()=>{
   const file=form.elements.upload.files[0],wrap=$('#product-photo-preview-wrap');
@@ -83,6 +89,7 @@ function editProduct(p,isNew=false){
    let main=mainImage,gallery=galleryOrder.filter(src=>!removedGallery.has(src));
    const mainFile=await image(form.elements.upload);
    if(mainFile)main=(await mutate('/api/admin/media',mainFile,'POST')).url;
+   if(!main)throw Error('Selecione uma foto principal para o produto.');
    for(const file of form.elements.galleryUpload.files){const encoded=await image({files:[file]});gallery.push((await mutate('/api/admin/media',encoded,'POST')).url);}
    gallery=[...new Set([main,...gallery].filter(Boolean))];if(gallery.length>10)throw Error('A galeria aceita no máximo 10 imagens.');
    if(isNew&&!mainFile)throw Error('Selecione uma foto principal para cadastrar o produto.');
