@@ -57,7 +57,8 @@ export function createApp({config,catalog,store,gateway,shipping=createShipping(
       const latest=await store.get(order.orderId);
       if(latest&&!latest.emailConfirmationSentAt){latest.emailConfirmationSentAt=new Date().toISOString();latest.emailConfirmationId=result.id;await store.save(latest);}
     }catch(error){logger.error(JSON.stringify({event:'order_confirmation_email_failed',orderId:order.orderId,statusCode:Number(error?.statusCode)||0,code:String(error?.code||'resend_error').slice(0,80)}));}
-  }app.disable('x-powered-by');app.set('trust proxy',config.trustProxy||false);app.set('query parser','simple');
+  }
+  app.disable('x-powered-by');app.set('trust proxy',config.trustProxy||false);app.set('query parser','simple');
   const html=readFileSync(join(config.frontendPath,'index.html'),'utf8');
   const cartScript=readFileSync(join(config.frontendPath,'js','cart.js'),'utf8');
   const cardPaymentScript=readFileSync(join(config.frontendPath,'js','card-payment.js'),'utf8');
