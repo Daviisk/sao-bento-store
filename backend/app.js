@@ -128,7 +128,8 @@ export function createApp({config,catalog,store,gateway,shipping=createShipping(
     try{
       const order=await commerce.db.get('orders',orderId);
       if(!order?.paymentConfirmed||order.emailConfirmationSentAt||!order.customer?.email)return;
-      const emailOrder={...order,status:'paid',shipping:order.shipping||{name:'Entrega',priceCents:order.shippingCents||0}};
+      const trackingUrl=await commerce.trackingUrl(orderId);
+      const emailOrder={...order,status:'paid',trackingUrl,shipping:order.shipping||{name:'Entrega',priceCents:order.shippingCents||0}};
       const result=await sendConfirmation(emailOrder);
       if(result?.id)await commerce.markEmailConfirmationSent(orderId,result.id);
     }catch(error){
