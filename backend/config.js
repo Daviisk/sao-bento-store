@@ -21,8 +21,8 @@ export function readConfig(env=process.env){
   const databaseUrl=String(env.DATABASE_URL||'').trim();
   const resendApiKey=String(env.RESEND_API_KEY||'').trim();
   const resendFromEmail=String(env.RESEND_FROM_EMAIL||'São Bento Dobrões <pedidos@saobentodobroes.com>').trim();
-  const resendReplyToCandidate=String(env.RESEND_REPLY_TO||'contato@saobentodobroes.com').trim().toLowerCase();
-  const resendReplyTo=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(resendReplyToCandidate)?resendReplyToCandidate:'contato@saobentodobroes.com';
+  const resendReplyTo=String(env.RESEND_REPLY_TO||'').trim().toLowerCase();
+  if(resendReplyTo&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(resendReplyTo))throw Error('RESEND_REPLY_TO inválido.');
   if(databaseUrl){const db=new URL(databaseUrl);if(!['postgres:','postgresql:'].includes(db.protocol)||!db.hostname||!db.username||!db.password)throw Error('DATABASE_URL PostgreSQL inválida.');}
   return {storeIdentity:{name:String(env.STORE_LEGAL_NAME||''),document:String(env.STORE_DOCUMENT||''),address:String(env.STORE_ADDRESS||''),email:/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(env.STORE_SUPPORT_EMAIL||'')?env.STORE_SUPPORT_EMAIL:'',phone:String(env.STORE_SUPPORT_PHONE||'')},privacyController:String(env.PRIVACY_CONTROLLER||""),privacyEmail:/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(env.PRIVACY_EMAIL||"")?env.PRIVACY_EMAIL:"",production,port,baseURL,mode,trustProxy,accessToken:env.MERCADO_PAGO_ACCESS_TOKEN||'',publicKey:env.MERCADO_PAGO_PUBLIC_KEY||'',webhookSecret:env.WEBHOOK_SECRET||'',resendApiKey,resendFromEmail,resendReplyTo,sellerId:env.MERCADO_PAGO_SELLER_ID||'',applicationId:env.MERCADO_PAGO_APPLICATION_ID||'',adminEmail,adminPassword,adminSessionSecret,adminConfigured,databaseUrl,databaseSchema:env.DATABASE_SCHEMA||'public',databasePath:resolve(env.DATABASE_PATH||'backend/data/shop.sqlite'),frontendPath:resolve('frontend'),checkoutLimit:10,webhookLimit:120,sessionLimit:30};
 }
