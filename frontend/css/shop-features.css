@@ -558,3 +558,15 @@
   padding-bottom:max(4px,env(safe-area-inset-bottom))!important;
  }
 }
+
+
+/* Tighten the space below the product purchase buttons on mobile and desktop */
+#veil .drawer>.sheet-scroll-content{padding-bottom:0!important}
+#veil .drawer .detail-purchase-actions{
+  margin-bottom:0!important;
+  padding-bottom:max(4px,env(safe-area-inset-bottom))!important;
+}
+@media(max-width:800px){
+  #veil .drawer>.sheet-scroll-content{padding-bottom:0!important}
+  #veil .drawer .detail-purchase-actions{padding-bottom:max(4px,env(safe-area-inset-bottom))!important}
+}
