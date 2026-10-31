@@ -215,7 +215,6 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config}){
   if(typeof serviceCode!=='string'||serviceCode.length>40)fail(400,'invalid_shipping','Escolha uma modalidade de frete.');
   const order=await commerce.db.get('orders',req.params.id);
   if(!order||order.owner!==req.shopSession.id)fail(404,'order_not_found','Pedido não encontrado.');
-  if(order.paymentConfirmed||order.status!=='requested')fail(409,'order_unavailable','Pedido indisponível para cobrança.');
   const gateway=createOrdersGateway({accessToken:config.accessToken});
   if(order.mercadoPagoOrderId){
    const remote=await gateway.getOrder(order.mercadoPagoOrderId);
@@ -223,6 +222,7 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config}){
    await notifyPaidOrder(order.orderId);
    return res.json({orderId:order.orderId,providerStatus:remote.status,pix:extractOrdersPix(remote)});
   }
+  if(order.paymentConfirmed||order.status!=='requested')fail(409,'order_unavailable','Pedido indisponível para cobrança.');
   const provider=createShippingProvider();
   if(!provider.configured)fail(503,'shipping_not_configured','Frete indisponível.');
   const options=await provider.quote(order.items.map(i=>({productId:i.productId,quantity:i.quantity})),postalCode(cep));
