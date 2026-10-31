@@ -2,7 +2,7 @@
 export function createCommerceStore(store,schema='public'){
  const parse=v=>typeof v==='string'?JSON.parse(v):v;
  if(store.kind==='postgres'){
-  const sql=store.sql,table=sql(schema+'.commerce_documents');
+  const sql=store.sql,table=sql(schema+'.medalhas_commerce_documents');
   const adapter=db=>({async get(kind,id){const r=await db`SELECT document FROM ${table} WHERE kind=${kind} AND id=${id}`;return r[0]?parse(r[0].document):null;},async put(kind,id,v){await db`INSERT INTO ${table} (kind,id,document) VALUES (${kind},${id},${JSON.stringify(v)}::jsonb) ON CONFLICT (kind,id) DO UPDATE SET document=excluded.document,updated_at=now()`;},async list(kind){return (await db`SELECT document FROM ${table} WHERE kind=${kind} ORDER BY updated_at DESC`).map(r=>parse(r.document));}});
   return {...adapter(sql),transaction(fn){return sql.begin(async tx=>{await tx`SELECT pg_advisory_xact_lock(109384,78301)`;return fn(adapter(tx));});}};
  }
