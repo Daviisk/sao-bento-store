@@ -14,6 +14,7 @@ export function canonicalCart(body,catalog){
     if(typeof productId!=='string'||!/^produto_0[1-5]$/.test(productId)||seen.has(productId)) fail(400,'invalid_product','Produto inválido ou repetido.');
     const product=catalog.find(p=>p.productId===productId);if(!product)fail(400,'invalid_product','Produto não encontrado.');
     if(!Number.isSafeInteger(quantity)||quantity<1||quantity>product.maxQuantity)fail(400,'invalid_quantity','Quantidade fora do limite permitido.');
+    if(Number.isSafeInteger(product.stock)&&product.stock>=0&&quantity>product.stock&&product.allowBackorder!==true)fail(409,'out_of_stock','Estoque insuficiente: '+product.name+'.');
     if(!product.enabled)fail(409,'unavailable_product','Um produto está indisponível. Remova-o do carrinho.');
     seen.add(productId);units+=quantity;return {productId,quantity};
   }).sort((a,b)=>a.productId.localeCompare(b.productId));
