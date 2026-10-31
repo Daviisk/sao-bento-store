@@ -144,7 +144,8 @@ export function createCommerce({store,config}){
  async function updateOrder(id,raw){return db.transaction(async tx=>{
   const o=await tx.get('orders',id);if(!o)fail(404,'order_not_found','Pedido não encontrado.');
   if(!plain(raw)||!Object.hasOwn(statusLabels,raw.status)||typeof raw.paymentConfirmed!=='boolean')fail(400,'invalid_status','Atualização inválida.');
-  if(['production','shipped','delivered'].includes(raw.status)&&!raw.paymentConfirmed)fail(409,'payment_required','Confirme o pagamento recebido antes da produção ou envio.');
+  if(raw.paymentConfirmed!==o.paymentConfirmed)fail(409,'payment_provider_required','A confirmação do pagamento só pode ser registrada após validação do Mercado Pago.');
+  if(['production','shipped','delivered'].includes(raw.status)&&!o.paymentConfirmed)fail(409,'payment_required','Aguarde a confirmação automática do Mercado Pago antes da produção ou envio.');
   if(o.status==='cancelled'&&raw.status!=='cancelled')fail(409,'terminal_order','Pedido cancelado não pode ser reaberto.');
   if(o.status==='delivered'&&raw.status==='cancelled')fail(409,'delivered_order','Pedido entregue exige atendimento para devolução.');
   const products=await catalog(tx);
@@ -169,7 +170,7 @@ export function createCommerce({store,config}){
    o.inventoryCommitted=false;await tx.put('settings','catalog',products);
   }
   if(o.status!==raw.status)o.history.push({status:raw.status,at:new Date().toISOString()});
-  o.status=raw.status;o.paymentConfirmed=raw.paymentConfirmed;o.trackingCode=cleanText(raw.trackingCode||'',100);o.adminNotes=cleanText(raw.adminNotes||'',1000);
+  o.status=raw.status;o.trackingCode=cleanText(raw.trackingCode||'',100);o.adminNotes=cleanText(raw.adminNotes||'',1000);
   if(raw.shippingCents!==null&&(!Number.isSafeInteger(raw.shippingCents)||raw.shippingCents<0||raw.shippingCents>1000000))fail(400,'invalid_shipping','Frete inválido.');
   o.shippingCents=raw.shippingCents;o.total=o.productsTotal+(o.shippingCents||0);o.updatedAt=new Date().toISOString();await tx.put('orders',id,o);return o;
  });}
