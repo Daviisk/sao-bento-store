@@ -334,3 +334,75 @@ html[data-theme=dark] .footerContact,html[data-theme=dark] .footerBottom{border-
   #categories .category{font-size:10px;padding-inline:0}
   #products .grid{gap:8px}
 }
+
+
+/* Final mobile alignment: category circles and product grid centered consistently. */
+@media(max-width:800px){
+  #categories.categories{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    width:100%!important;
+    max-width:520px!important;
+    margin:0 auto!important;
+    padding:10px 0 16px!important;
+    gap:8px!important;
+    justify-items:stretch!important;
+    align-items:start!important;
+    box-sizing:border-box!important;
+  }
+  #categories.categories>.category{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    justify-self:stretch!important;
+    width:100%!important;
+    min-width:0!important;
+    margin:0!important;
+    padding:5px 2px!important;
+    text-align:center!important;
+    box-sizing:border-box!important;
+  }
+  #categories.categories>.category>.circle{
+    display:grid!important;
+    place-items:center!important;
+    flex:0 0 36px!important;
+    width:36px!important;
+    height:36px!important;
+    margin:0 auto 5px!important;
+    padding:0!important;
+    box-sizing:border-box!important;
+  }
+  #categories.categories>.category>.circle>svg{
+    display:block!important;
+    width:19px!important;
+    height:19px!important;
+    margin:0!important;
+  }
+  #products #grid.grid{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    width:100%!important;
+    max-width:760px!important;
+    margin:0 auto!important;
+    padding:0!important;
+    justify-content:center!important;
+    justify-items:stretch!important;
+    align-items:start!important;
+    gap:12px!important;
+    box-sizing:border-box!important;
+  }
+  #products #grid.grid>.card{
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    margin:0!important;
+    justify-self:stretch!important;
+    box-sizing:border-box!important;
+  }
+}
+@media(max-width:380px){
+  #categories.categories{gap:4px!important}
+  #categories.categories>.category{font-size:11px!important}
+  #products #grid.grid{gap:9px!important}
+}
