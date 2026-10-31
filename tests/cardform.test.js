@@ -16,7 +16,7 @@ const address={cep:'01001-000',street:'Praça da Sé',number:'1',complement:'',d
 const customer={name:'Cliente Teste',phone:'11999999999',email:'buyer@example.com'};
 const card={token:'test_card_token_1234567890',issuerId:'123',paymentMethodId:'master',installments:1,email:customer.email,identificationType:'CPF',identificationNumber:'12345678909'};
 
-async function fixture(t,{paymentStatus='approved',paymentDetail='accredited',challenge=false,quoteExpiresAt=Date.now()+600000}={}){
+async function fixture(t,{paymentStatus='approved',paymentDetail='accredited',challenge=false,quoteExpiresAt=Date.now()+600000,emailSender}={}){
  const config={...readConfig({}),frontendPath:resolve('frontend'),baseURL:'https://loja.example',publicKey:'TEST-public-key',webhookSecret:'test-webhook-secret',sellerId:'123',applicationId:'456',checkoutLimit:100};
  const store=openStore(':memory:');t.after(()=>store.close());
  const real=createGateway({accessToken:'test-access',sellerId:'123',applicationId:'456',baseURL:config.baseURL,mode:'test',fetchImpl:async()=>{throw Error('unexpected network');}});
@@ -25,7 +25,7 @@ async function fixture(t,{paymentStatus='approved',paymentDetail='accredited',ch
  const gateway={configured:true,cardConfigured:true,verifyCardPaymentIdentity:real.verifyCardPaymentIdentity,
   async createCardPayment(order,_card,key){createCalls++;lastKey=key;latestRemote={id:'12345678901',external_reference:order.orderId,transaction_amount:order.total/100,currency_id:'BRL',collector_id:123,application_id:456,live_mode:false,status:paymentStatus,status_detail:paymentDetail,date_created:new Date().toISOString(),date_last_updated:new Date().toISOString(),...(challenge?{three_ds_info:{external_resource_url:'https://acs.example/challenge',creq:'challenge-request-data'}}:{})};return structuredClone(latestRemote);},
   async getPayment(){getCalls++;return structuredClone(latestRemote);}};
- const app=createApp({config,catalog,store,gateway,shipping,logger:{error(){}}});
+ const app=createApp({config,catalog,store,gateway,shipping,emailSender,logger:{error(){}}});
  const agent=request.agent(app);const session=await agent.get('/api/session').expect(200);const csrf=session.body.csrfToken;
  const prepare=(key=randomUUID(),extra={})=>agent.post('/api/card/prepare').set('Origin',config.baseURL).set('X-CSRF-Token',csrf).set('Idempotency-Key',key).send({items:[{productId:'produto_01',quantity:1}],customer,address,quoteId:'quote-1',...extra});
  const pay=(orderId,key=randomUUID(),bodyCard=card)=>agent.post('/api/card/pay').set('Origin',config.baseURL).set('X-CSRF-Token',csrf).set('Idempotency-Key',key).send({orderId,card:bodyCard});
@@ -42,6 +42,21 @@ test('CardForm approved payment uses stable idempotency key and server order amo
  const f=await fixture(t);const prepared=await f.prepare().expect(200);const paymentKey=randomUUID();const paid=await f.pay(prepared.body.orderId,paymentKey).expect(200);
  assert.equal(f.createCalls,1);assert.equal(f.lastKey,paymentKey);assert.equal(paid.body.status,'paid');assert.equal(paid.body.providerOrderId,'12345678901');assert.equal(paid.body.paymentId,'12345678901');assert.equal(f.store.db.prepare('SELECT count(*) n FROM outbox').get().n,1);
  const repeated=await f.pay(prepared.body.orderId,paymentKey).expect(200);assert.equal(repeated.body.status,'paid');assert.equal(f.createCalls,1);
+});
+
+test('Resend confirmation waits for payment approval and sends once',async t=>{
+ const sent=[];
+ const f=await fixture(t,{paymentStatus:'pending',paymentDetail:'pending_waiting_payment',emailSender:async order=>{sent.push(structuredClone(order));return {id:'email_test_123'};}});
+ const prepared=await f.prepare().expect(200);
+ await f.pay(prepared.body.orderId).expect(200);
+ assert.equal(sent.length,0);
+ f.latestRemote={...f.latestRemote,status:'approved',status_detail:'accredited',date_last_updated:new Date(Date.now()+1000).toISOString()};
+ await f.agent.get('/api/orders/'+prepared.body.orderId).expect(200);
+ assert.equal(sent.length,1);
+ assert.equal(sent[0].customer.email,customer.email);
+ assert.ok(f.store.get(prepared.body.orderId).emailConfirmationSentAt);
+ await f.agent.get('/api/orders/'+prepared.body.orderId).expect(200);
+ assert.equal(sent.length,1);
 });
 
 test('approved payment with partially_refunded detail becomes partially_refunded and blocks fulfillment',async t=>{
