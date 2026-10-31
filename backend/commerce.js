@@ -180,13 +180,14 @@ export function createCommerce({store,config}){
  const selected=ids.map(id=>list.find(p=>p.productId===id));
  if(selected.some(p=>!p))fail(404,'product_not_found','Um dos produtos selecionados não foi encontrado.');
  if(action==='deactivate'){for(const product of selected)product.enabled=false;await tx.put('settings','catalog',list);return {updated:true,productIds:ids};}
+ const customOrders=await tx.list('orders'),archivedProductIds=[],deletedProductIds=[];
  for(const product of selected){
   const referenced=await store.hasProductInOrders?.(product.productId);
-  const customOrders=await tx.list('orders');
-  if(referenced||customOrders.some(order=>(order.items||[]).some(item=>item.productId===product.productId)))fail(409,'product_in_orders',product.name+' aparece em pedidos existentes. Use “Remover da loja” para preservar o histórico.');
+  const hasCustomOrder=customOrders.some(order=>(order.items||[]).some(item=>item.productId===product.productId));
+  if(referenced||hasCustomOrder){product.enabled=false;archivedProductIds.push(product.productId);}else deletedProductIds.push(product.productId);
  }
- await tx.put('settings','catalog',list.filter(product=>!ids.includes(product.productId)));
- return {deleted:true,productIds:ids};
+ await tx.put('settings','catalog',list.filter(product=>!deletedProductIds.includes(product.productId)));
+ return {deleted:true,productIds:ids,deletedProductIds,archivedProductIds};
  });},async reorderProducts(ids){return db.transaction(async tx=>{
  const list=await catalog(tx),known=new Set(list.map(product=>product.productId));
  if(!Array.isArray(ids)||ids.length!==list.length||new Set(ids).size!==ids.length||ids.some(id=>!known.has(id)))fail(400,'invalid_product_order','A ordem dos produtos é inválida.');
