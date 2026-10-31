@@ -46,8 +46,18 @@ function pixInput(raw){
 }
 function checkoutHash(cart,address,quote,customer){return createHash('sha256').update(deliveryHash(cart.hash,address,quote)+':'+quote.quoteId+':'+customer.customerId+':'+JSON.stringify([customer.name,customer.email,customer.phone])).digest('hex');}
 
-export function createApp({config,catalog,store,gateway,shipping=createShipping(store,createShippingProvider()),logger=console}){
-  const app=express();app.disable('x-powered-by');app.set('trust proxy',config.trustProxy||false);app.set('query parser','simple');
+export function createApp({config,catalog,store,gateway,shipping=createShipping(store,createShippingProvider()),logger=console,emailSender}={}){
+  const app=express();
+  const sendConfirmation=emailSender||createOrderConfirmationSender({apiKey:config.resendApiKey,from:config.resendFromEmail,replyTo:config.resendReplyTo});
+  async function notifyPaidOrder(order){
+    if(!sendConfirmation||order?.status!=='paid'||order.emailConfirmationSentAt||!order.customer?.email)return;
+    try{
+      const result=await sendConfirmation(order);
+      if(!result?.id)return;
+      const latest=await store.get(order.orderId);
+      if(latest&&!latest.emailConfirmationSentAt){latest.emailConfirmationSentAt=new Date().toISOString();latest.emailConfirmationId=result.id;await store.save(latest);}
+    }catch(error){logger.error(JSON.stringify({event:'order_confirmation_email_failed',orderId:order.orderId,statusCode:Number(error?.statusCode)||0,code:String(error?.code||'resend_error').slice(0,80)}));}
+  }app.disable('x-powered-by');app.set('trust proxy',config.trustProxy||false);app.set('query parser','simple');
   const html=readFileSync(join(config.frontendPath,'index.html'),'utf8');
   const cartScript=readFileSync(join(config.frontendPath,'js','cart.js'),'utf8');
   const cardPaymentScript=readFileSync(join(config.frontendPath,'js','card-payment.js'),'utf8');
