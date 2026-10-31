@@ -123,6 +123,15 @@ export function createApp({config,catalog,store,gateway,shipping=createShipping(
   app.post('/api/webhooks/mercadopago',limit(config.webhookLimit),async(req,res)=>{if(!req.is('application/json'))fail(415,'json_required','Use JSON.');const providerId=authenticateWebhook(req,config.webhookSecret);if(req.body.application_id!==undefined&&String(req.body.application_id)!==String(config.applicationId))fail(409,'webhook_application_mismatch','Aplicação da notificação não corresponde à loja.');if(req.body.user_id!==undefined&&String(req.body.user_id)!==String(config.sellerId))fail(409,'webhook_seller_mismatch','Vendedor da notificação não corresponde à loja.');if(req.body.live_mode!==undefined&&req.body.live_mode!==(config.mode==='production'))fail(409,'webhook_mode_mismatch','Ambiente da notificação não corresponde à loja.');const remote=await gateway.getPayment(providerId);if(!uuid(remote.external_reference))fail(409,'unknown_order','Pedido não reconhecido.');const order=await store.get(remote.external_reference);if(!order)fail(409,'unknown_order','Pedido não reconhecido.');if(order.providerOrderId&&String(order.providerOrderId)!==String(remote.id))fail(409,'provider_id_mismatch','Pagamento não associado a este pedido.');await store.applySnapshot(order.orderId,cardPaymentSnapshot(remote,order,gateway));await notifyPaidOrder(await store.get(order.orderId));res.status(200).json({received:true});});
 
   const commerce=createCommerce({store,config});
+  async function notifyPaidCommerceOrder(order){
+    if(!sendConfirmation||order?.paymentConfirmed!==true||order.emailConfirmationSentAt||!order.customer?.email)return;
+    try{
+      const result=await sendConfirmation({...order,status:'paid',shipping:{name:'Entrega',priceCents:Number(order.shippingCents)||0}});
+      if(!result?.id)return;
+      const latest=await commerce.db.get('orders',order.orderId);
+      if(latest&&!latest.emailConfirmationSentAt){latest.emailConfirmationSentAt=new Date().toISOString();latest.emailConfirmationId=result.id;await commerce.db.put('orders',latest.orderId,latest);}
+    }catch(error){logger.error(JSON.stringify({event:'order_confirmation_email_failed',orderId:order.orderId,statusCode:Number(error?.statusCode)||0,code:String(error?.code||'resend_error').slice(0,80)}));}
+  }
   // Separate Orders webhook: existing /api/webhooks/mercadopago remains for Payments API.
   app.post('/api/webhooks/mercadopago-orders',limit(config.webhookLimit),async(req,res)=>{
     if(!req.is('application/json'))fail(415,'json_required','Use JSON.');
@@ -137,7 +146,8 @@ export function createApp({config,catalog,store,gateway,shipping=createShipping(
     try{WebhookSignatureValidator.validate({xSignature:req.get('x-signature')||'',xRequestId:req.get('x-request-id')||'',dataId:id,secret:config.webhookSecret.trim()});}
     catch(error){if(error instanceof InvalidWebhookSignatureError||error?.name==='InvalidWebhookSignatureError')fail(401,'invalid_signature','Assinatura inválida.');throw error;}
     const remote=await createOrdersGateway({accessToken:config.accessToken}).getOrder(id);
-    await commerce.reconcileMercadoPagoOrder(remote);
+    const reconciled=await commerce.reconcileMercadoPagoOrder(remote);
+    await notifyPaidCommerceOrder(await commerce.db.get('orders',reconciled.orderId));
     res.status(200).json({received:true});
   });
   mountCommerce(app,{commerce,config,session,mutation,limit});
