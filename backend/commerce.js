@@ -28,6 +28,9 @@ function validateProduct(raw,old){
  if(!/^[a-zA-Z0-9_-]{3,40}$/.test(productId))fail(400,'invalid_product','Identificador inválido.');
  const name=cleanText(raw.name,100,true),description=cleanText(raw.description||'',1000);
  const material=cleanText(raw.material??old?.material??'',80),dimensions=cleanText(raw.dimensions??old?.dimensions??'',120);
+ const optionInput=raw.customOptions??old?.customOptions??[];
+ if(!Array.isArray(optionInput)||optionInput.length>5)fail(400,'invalid_custom_options','Configure até 5 opções por produto.');
+ const optionIds=new Set(),customOptions=optionInput.map(option=>{if(!plain(option))fail(400,'invalid_custom_options','Confira as opções personalizadas.');const name=cleanText(option.name,40,true),id=cleanText(option.id,40,true);if(!/^[a-z0-9_-]+$/.test(id)||optionIds.has(id)||!Array.isArray(option.values)||option.values.length<1||option.values.length>20)fail(400,'invalid_custom_options','Confira os nomes e valores das opções.');optionIds.add(id);const values=[...new Set(option.values.map(value=>cleanText(value,40,true)))];if(values.length!==option.values.length)fail(400,'invalid_custom_options','Remova valores repetidos.');return {id,name,values};});
  if(!Number.isSafeInteger(raw.priceCents)||raw.priceCents<1||raw.priceCents>10000000||typeof raw.enabled!=='boolean')fail(400,'invalid_product','Confira preço e disponibilidade.');
  if(!validPhoto(raw.image)||!Array.isArray(raw.gallery)||raw.gallery.length>10||raw.gallery.some(v=>!validPhoto(v)))fail(400,'invalid_photo','Selecione imagens da loja ou envie uma foto.');
  if(!Array.isArray(raw.variants)||raw.variants.length<1||raw.variants.length>8)fail(400,'invalid_variants','Informe os acabamentos disponíveis.');
@@ -43,7 +46,7 @@ function validateProduct(raw,old){
  if(stock!==null&&(!Number.isSafeInteger(stock)||stock<0||stock>100000)||typeof allowBackorder!=='boolean')fail(400,'invalid_stock','Informe um estoque válido para o produto.');
  const productionDays=raw.productionDays===null?null:Number(raw.productionDays);
  if(productionDays!==null&&(!Number.isSafeInteger(productionDays)||productionDays<0||productionDays>365))fail(400,'invalid_days','Prazo inválido.');
- return {productId,name,category:cleanText(raw.category||old?.category||'',60,true),description,material,dimensions,priceCents:raw.priceCents,enabled:raw.enabled,image:raw.image,gallery:raw.gallery,variants,stock,allowBackorder,productionDays,maxQuantity:10};
+ return {productId,name,category:cleanText(raw.category||old?.category||'',60,true),description,material,dimensions,priceCents:raw.priceCents,enabled:raw.enabled,image:raw.image,gallery:raw.gallery,variants,customOptions,stock,allowBackorder,productionDays,maxQuantity:10};
 }
 export function createCommerce({store,config}){
  const db=createCommerceStore(store,config.databaseSchema||'public');
@@ -99,12 +102,13 @@ export function createCommerce({store,config}){
    const used=(units.get(p.productId)||0)+raw.quantity;units.set(p.productId,used);
    if(p.stock!==null&&used>p.stock&&!p.allowBackorder)fail(409,'out_of_stock','Estoque insuficiente: '+p.name+'.');
    let engravingNotes=cleanText(raw.engravingNotes||'',500),front=validateImage(raw.front),back=validateImage(raw.back);
+   const selectedOptions=plain(raw.options)?raw.options:{};const options=(p.customOptions||[]).map(option=>{const value=cleanText(selectedOptions[option.id]||'',40,true);if(!option.values.includes(value))fail(400,'invalid_custom_option','Selecione uma opção válida para '+option.name+'.');return {id:option.id,name:option.name,value};});if(Object.keys(selectedOptions).some(id=>!(p.customOptions||[]).some(option=>option.id===id)))fail(400,'invalid_custom_option','Opção de produto inválida.');
    if(raw.engraving||raw.art)fail(400,'invalid_customization','Gravação somente por imagens; use observações para instruções.');
    const supportsEngraving=['gravado','lapidado'].includes(v.id);
    if(!supportsEngraving&&(front||back||engravingNotes&&engravingNotes!=='Sem gravação'))fail(400,'invalid_customization','Personalização disponível somente nos dobrões.');
    if(v.id==='sem_gravacao'){if(front||back)fail(400,'invalid_customization','Sem gravação não aceita arquivos.');engravingNotes='Sem gravação';}
    const subtotal=p.priceCents*raw.quantity;total+=subtotal;
-   return {productId:p.productId,name:p.name,variantId:v.id,variantLabel:v.label,quantity:raw.quantity,unitPrice:p.priceCents,subtotal,engravingNotes,front,back,backorder:p.stock!==null&&used>p.stock,productionDays:p.productionDays};
+   return {productId:p.productId,name:p.name,variantId:v.id,variantLabel:v.label,options,quantity:raw.quantity,unitPrice:p.priceCents,subtotal,engravingNotes,front,back,backorder:p.stock!==null&&used>p.stock,productionDays:p.productionDays};
   });
   if(total>100000000)fail(400,'total_limit','Valor acima do limite.');
   return {items,total};

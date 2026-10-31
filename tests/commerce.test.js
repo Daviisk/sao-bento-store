@@ -15,3 +15,11 @@ test('product material and dimensions are retained in the catalog',async t=>{
  assert.equal(stored.material,'Bronze fundido');
  assert.equal(stored.dimensions,'Diâmetro: 38 mm');
 });
+
+test('custom product options are required, validated and preserved in customer tracking',async t=>{
+ const c=setup(t),p=(await c.catalog())[0];p.customOptions=[{id:'cor',name:'Cor',values:['Branca','Preta','Verde']}];await c.productMutation(p,p.productId);
+ const input=payload();input.items[0].options={cor:'Verde'};const order=await c.createOrder(input,'owner',randomUUID());assert.deepEqual(order.items[0].options,[{id:'cor',name:'Cor',value:'Verde'}]);
+ const token=new URLSearchParams(new URL(order.trackingUrl).hash.slice(1)).get('token');const tracked=await c.track(order.orderId,token).catch(error=>error);assert.equal(tracked.code,'payment_required');
+ const invalid=payload();invalid.items[0].options={cor:'Azul'};await assert.rejects(c.createOrder(invalid,'owner',randomUUID()),{code:'invalid_custom_option'});
+ const missing=payload();await assert.rejects(c.createOrder(missing,'owner',randomUUID()),{code:'invalid_text'});
+});
