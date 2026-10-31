@@ -563,3 +563,6 @@
 /* Do not expose the HTML fallback prices before the authoritative catalog is ready. */
 #grid[aria-busy="true"]>.piece{visibility:hidden}
 #grid[aria-busy="true"]::after{content:"Atualizando produtos e preços…";grid-column:1/-1;align-self:center;padding:28px 16px;text-align:center;color:#78674f;font-size:14px;font-weight:650}
+
+#grid .catalog-load-error{grid-column:1/-1;margin:0;padding:20px 12px;text-align:center;color:#765b38;line-height:1.5}
+#grid .catalog-retry{grid-column:1/-1;justify-self:center;min-width:180px}
