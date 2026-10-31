@@ -268,9 +268,5 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config}){
  });
 
  app.get('/api/commerce/orders/:id',limit(30),async(req,res)=>res.json(await commerce.track(req.params.id,String(req.get('authorization')||'').replace(/^Bearer /,''))));
- app.get('/api/commerce/reviews/:productId',async(req,res)=>res.json({reviews:await commerce.reviews(req.params.productId)}));
- app.post('/api/commerce/reviews',limit(5),durable,session,mutation,async(req,res)=>res.status(201).json(await commerce.review(req.body)));
- app.post('/api/commerce/groups',limit(5),durable,session,mutation,async(req,res)=>res.status(201).json(await commerce.group(req.body)));
  app.get('/api/commerce/media/:id',async(req,res)=>{const media=await commerce.db.get('media',req.params.id);if(!media)fail(404,'not_found','Imagem não encontrada.');const [head,data]=media.data.split(',');res.type(head.slice(5).split(';')[0]).send(Buffer.from(data,'base64'));});
- app.get('/api/commerce/review-photo/:id',async(req,res)=>{const r=await commerce.db.get('reviews',req.params.id);if(!r?.approved||!r.photo)fail(404,'not_found','Imagem não encontrada.');const [head,data]=r.photo.data.split(',');res.type(head.slice(5).split(';')[0]).send(Buffer.from(data,'base64'));});
 }
