@@ -17,7 +17,7 @@ const customer={name:'Cliente Teste',phone:'11999999999',email:'buyer@example.co
 const card={token:'test_card_token_1234567890',issuerId:'123',paymentMethodId:'master',installments:1,email:customer.email,identificationType:'CPF',identificationNumber:'12345678909'};
 
 async function fixture(t,{paymentStatus='approved',paymentDetail='accredited',challenge=false,quoteExpiresAt=Date.now()+600000,emailSender}={}){
- const config={...readConfig({}),frontendPath:resolve('frontend'),baseURL:'https://loja.example',publicKey:'TEST-public-key',webhookSecret:'test-webhook-secret',sellerId:'123',applicationId:'456',checkoutLimit:100};
+ const config={...readConfig({ADMIN_PASSWORD:'audit-test-password',ADMIN_SESSION_SECRET:'s'.repeat(40),ADMIN_EMAIL:'admin@example.com'}),frontendPath:resolve('frontend'),baseURL:'https://loja.example',publicKey:'TEST-public-key',webhookSecret:'test-webhook-secret',sellerId:'123',applicationId:'456',checkoutLimit:100};
  const store=openStore(':memory:');t.after(()=>store.close());
  const real=createGateway({accessToken:'test-access',sellerId:'123',applicationId:'456',baseURL:config.baseURL,mode:'test',fetchImpl:async()=>{throw Error('unexpected network');}});
  let latestRemote=null,createCalls=0,getCalls=0,lastKey='';
@@ -32,9 +32,36 @@ async function fixture(t,{paymentStatus='approved',paymentDetail='accredited',ch
  return {app,agent,config,store,gateway,csrf,prepare,pay,get createCalls(){return createCalls;},get getCalls(){return getCalls;},get latestRemote(){return latestRemote;},set latestRemote(v){latestRemote=v;},get lastKey(){return lastKey;}};
 }
 
+test('CardForm checkout respects live catalog price, stock and availability',async t=>{
+ const f=await fixture(t),admin=request.agent(f.app);
+ await admin.post('/api/admin/login').set('Origin',f.config.baseURL).send({password:'audit-test-password'}).expect(200);
+ let product=(await admin.get('/api/admin/catalog').expect(200)).body.products.find(p=>p.productId==='produto_01');
+ product.priceCents=17500;
+ await admin.patch('/api/admin/catalog/produto_01').set('Origin',f.config.baseURL).send(product).expect(200);
+ const priced=await f.prepare().expect(200);
+ assert.equal(priced.body.productsTotal,17500);
+ assert.equal(priced.body.total,18691);
+ product=(await admin.get('/api/admin/catalog').expect(200)).body.products.find(p=>p.productId==='produto_01');
+ product.priceCents=19000;
+ await admin.patch('/api/admin/catalog/produto_01').set('Origin',f.config.baseURL).send(product).expect(200);
+ const repriced=await f.prepare().expect(200);
+ assert.notEqual(repriced.body.orderId,priced.body.orderId);
+ assert.equal(repriced.body.productsTotal,19000);
+ assert.equal(repriced.body.total,20191);
+ product=(await admin.get('/api/admin/catalog').expect(200)).body.products.find(p=>p.productId==='produto_01');
+ product.stock=0;product.allowBackorder=false;
+ await admin.patch('/api/admin/catalog/produto_01').set('Origin',f.config.baseURL).send(product).expect(200);
+ const outOfStock=await f.prepare(randomUUID()).expect(409);
+ assert.equal(outOfStock.body.error,'out_of_stock');
+ product=(await admin.get('/api/admin/catalog').expect(200)).body.products.find(p=>p.productId==='produto_01');
+ product.stock=null;product.allowBackorder=true;product.enabled=false;
+ await admin.patch('/api/admin/catalog/produto_01').set('Origin',f.config.baseURL).send(product).expect(200);
+ const unavailable=await f.agent.post('/api/shipping/quote').set('Origin',f.config.baseURL).set('X-CSRF-Token',f.csrf).send({items:[{productId:'produto_01',quantity:1}],cep:'01001000'}).expect(409);
+ assert.equal(unavailable.body.error,'unavailable_product');
+});
 test('CardForm prepare returns server-authoritative products + shipping total',async t=>{
  const f=await fixture(t);const result=await f.prepare().expect(200);
- assert.equal(result.body.productsTotal,15000);assert.equal(result.body.shipping.priceCents,1191);assert.equal(result.body.total,16191);assert.equal(result.body.amount,'161.91');assert.equal(result.body.status,'pending');assert.equal(result.body.customer.email,customer.email);assert.match(result.body.orderId,/^[0-9a-f-]{36}$/i);assert.ok(result.body.quoteExpiresAt>Date.now());
+ assert.equal(result.body.productsTotal,10000);assert.equal(result.body.shipping.priceCents,1191);assert.equal(result.body.total,11191);assert.equal(result.body.amount,'111.91');assert.equal(result.body.status,'pending');assert.equal(result.body.customer.email,customer.email);assert.match(result.body.orderId,/^[0-9a-f-]{36}$/i);assert.ok(result.body.quoteExpiresAt>Date.now());
  await f.prepare(randomUUID(),{amount:1}).expect(400);
 });
 
