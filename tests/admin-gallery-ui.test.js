@@ -38,7 +38,7 @@ test('new product preview contains no example image element or inherited gallery
  assert.ok(admin.includes("let mainImage=isNew?'':(p.image||'');"));
  assert.ok(admin.includes("let galleryOrder=isNew?[]:"));
  assert.ok(admin.includes("(mainImage?'<img id=\"product-photo-preview\""));
- assert.ok(admin.includes("'<span id=\"product-photo-placeholder\">Selecione uma foto principal</span>')+'</div>'"));
+ assert.ok(admin.includes("'<span id=\"product-photo-placeholder\">Selecione uma foto principal</span>')+'</div><button type=\"button\" id=\"remove-main-photo\""));
  assert.ok(admin.includes("const renderMainPreview=()=>"));
  assert.ok(admin.includes("if(file&&wrap){const url=URL.createObjectURL(file);wrap.innerHTML="));
  assert.ok(admin.includes("image:'',gallery:[],variants},true)"));
@@ -49,4 +49,14 @@ test('product editor exposes material and dimensions for the product detail page
  assert.match(admin,/name="material" maxlength="80"/);
  assert.match(admin,/name="dimensions" maxlength="120"/);
  assert.match(admin,/material:form\.elements\.material\.value,dimensions:form\.elements\.dimensions\.value/);
+});
+
+
+test('product form validates all selected photos and gallery capacity before uploading',()=>{
+ const admin=readFileSync('frontend/admin/commerce-admin.js','utf8');
+ assert.match(admin,/function validateImageFile\(f\)/);
+ assert.match(admin,/selectedGallery=Array\.from\(form\.elements\.galleryUpload\.files\)/);
+ assert.match(admin,/gallery aceita no máximo 10 fotos contando a foto principal/);
+ assert.match(admin,/selectedGallery\.forEach\(validateImageFile\)/);
+ assert.match(admin,/for\(const file of selectedGallery\)/);
 });
