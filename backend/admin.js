@@ -85,10 +85,6 @@ export function mountAdmin(app,{config,store,limit,commerce}){
     app.post('/api/admin/media',requireAdmin,adminMutation,async(req,res)=>{const media=validateImage(req.body);if(!media)fail(400,'invalid_photo','Envie uma imagem.');const id=randomUUID();await commerce.db.put('media',id,media);res.status(201).json({url:'/api/commerce/media/'+id});});
     app.get('/api/admin/custom-orders',requireAdmin,async(req,res)=>res.json({orders:(await commerce.db.list('orders')).map(({tokenHash,owner,...o})=>o),statusLabels}));
     app.patch('/api/admin/custom-orders/:id',requireAdmin,adminMutation,async(req,res)=>{const {tokenHash,owner,...o}=await commerce.updateOrder(req.params.id,req.body);res.json(o);});
-    app.get('/api/admin/reviews',requireAdmin,async(req,res)=>res.json({reviews:await commerce.db.list('reviews')}));
-    app.patch('/api/admin/reviews/:id',requireAdmin,adminMutation,async(req,res)=>{if(typeof req.body?.approved!=='boolean')fail(400,'invalid_review','Moderação inválida.');const r=await commerce.db.get('reviews',req.params.id);if(!r)fail(404,'not_found','Avaliação não encontrada.');r.approved=req.body.approved;await commerce.db.put('reviews',r.id,r);res.json({approved:r.approved});});
-    app.get('/api/admin/group-requests',requireAdmin,async(req,res)=>res.json({requests:await commerce.db.list('groups')}));
-    app.patch('/api/admin/group-requests/:id',requireAdmin,adminMutation,async(req,res)=>{if(!['new','contacted','quoted','closed'].includes(req.body?.status))fail(400,'invalid_status','Selecione um status válido.');const r=await commerce.db.get('groups',req.params.id);if(!r)fail(404,'not_found','Solicitação não encontrada.');r.status=req.body.status;await commerce.db.put('groups',r.id,r);res.json({saved:true});});
   }
   app.get('/api/admin/customers',requireAdmin,async(req,res)=>res.json({customers:await store.listCustomers({q:String(req.query.q||''),limit:Math.min(500,Math.max(1,Number(req.query.limit)||200))})}));
 }
