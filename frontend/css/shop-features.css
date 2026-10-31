@@ -569,6 +569,23 @@
  #veil.detailView .drawer .detail-purchase-actions{margin-bottom:0!important}
 }
 
+/* Product detail drawer: remove empty trailing paragraph and duplicated bottom spacing at every viewport. */
+#veil.detailView .drawer>.sheet-scroll-content{
+ padding-bottom:0!important;
+}
+#veil.detailView .drawer .detailLayout{
+ padding-bottom:0!important;
+ margin-bottom:0!important;
+}
+#veil.detailView .drawer #custom-message:empty{
+ display:none!important;
+ margin:0!important;
+ padding:0!important;
+}
+#veil.detailView .drawer .detail-purchase-actions{
+ margin-bottom:0!important;
+}
+
 /* Catalog loading: reserve one centered area and remove fallback cards from grid flow. */
 #grid[aria-busy="true"]{min-height:190px;display:grid;grid-template-columns:minmax(0,1fr);align-content:center;justify-items:center;gap:0}
 #grid[aria-busy="true"]>.piece{display:none!important}
