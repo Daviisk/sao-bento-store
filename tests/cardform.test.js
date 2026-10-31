@@ -44,6 +44,16 @@ test('CardForm approved payment uses stable idempotency key and server order amo
  const repeated=await f.pay(prepared.body.orderId,paymentKey).expect(200);assert.equal(repeated.body.status,'paid');assert.equal(f.createCalls,1);
 });
 
+test('Resend confirmation is sent after immediate approval and not duplicated by webhook or polling',async t=>{
+ const sent=[];
+ const f=await fixture(t,{emailSender:async order=>{sent.push(order.orderId);return {id:'email_immediate_123'};}});
+ const prepared=await f.prepare().expect(200);
+ await f.pay(prepared.body.orderId).expect(200);
+ assert.deepEqual(sent,[prepared.body.orderId]);
+ await f.agent.get('/api/orders/'+prepared.body.orderId).expect(200);
+ assert.deepEqual(sent,[prepared.body.orderId]);
+});
+
 test('Resend confirmation waits for payment approval and sends once',async t=>{
  const sent=[];
  const f=await fixture(t,{paymentStatus:'pending',paymentDetail:'pending_waiting_payment',emailSender:async order=>{sent.push(structuredClone(order));return {id:'email_test_123'};}});
