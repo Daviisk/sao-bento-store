@@ -566,29 +566,3 @@
 #grid[aria-busy="true"]::before{content:"Produtos carregando…";display:grid;place-items:center;grid-column:1/-1;width:100%;min-height:190px;padding:24px 16px;text-align:center;color:#78674f;font-size:14px;font-weight:650;line-height:1.5}
 #grid .catalog-load-error{grid-column:1/-1;width:100%;margin:0;padding:24px 16px;text-align:center;color:#765b38;line-height:1.5}
 #grid .catalog-retry{grid-column:1/-1;justify-self:center;min-width:180px;margin:0 auto 20px}
-
-
-/* Keep product purchase actions in normal document flow; prevent floating over product details. */
-#veil .drawer .detail-purchase-actions{
- position:static!important;
- inset:auto!important;
- z-index:auto!important;
- display:grid!important;
- grid-template-columns:repeat(2,minmax(0,1fr));
- gap:10px!important;
- width:100%;
- margin:18px 0 0!important;
- padding:0!important;
- background:transparent!important;
- border:0!important;
- box-shadow:none!important;
-}
-#veil .drawer .detail-purchase-actions button{
- position:static!important;
- transform:none;
- width:100%;
- min-width:0;
-}
-@media(max-width:390px){
- #veil .drawer .detail-purchase-actions{grid-template-columns:1fr}
-}
