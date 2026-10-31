@@ -44,8 +44,8 @@ test('commerce card retries reuse one provider idempotency key and send one paid
   MERCADO_PAGO_APPLICATION_ID:'456',WEBHOOK_SECRET:'test-webhook-secret'
  }),production:false,durableStorage:true,checkoutLimit:100};
  const store=openStore(':memory:');t.after(()=>store.close());
- const emails=[];
- const app=createApp({config,catalog:products,store,gateway:{},shipping:{configured:false},emailSender:async value=>{emails.push(value);return {id:'email_paid_123'};},logger:{error(){}}});
+ const emails=[],errors=[];
+ const app=createApp({config,catalog:products,store,gateway:{},shipping:{configured:false},emailSender:async value=>{emails.push(value);return {id:'email_paid_123'};},logger:{error(value){errors.push(value);}}});
  const agent=request.agent(app);
  const session=await agent.get('/api/session').expect(200);
  const headers={'Origin':config.baseURL,'X-CSRF-Token':session.body.csrfToken};
@@ -67,8 +67,9 @@ test('commerce card retries reuse one provider idempotency key and send one paid
  }};
  await agent.post('/api/commerce/orders/'+created.body.orderId+'/card')
   .set(headers).set('Idempotency-Key',randomUUID()).send(paymentBody).expect(502);
- await agent.post('/api/commerce/orders/'+created.body.orderId+'/card')
-  .set(headers).set('Idempotency-Key',randomUUID()).send(paymentBody).expect(200);
+ const retried=await agent.post('/api/commerce/orders/'+created.body.orderId+'/card')
+  .set(headers).set('Idempotency-Key',randomUUID()).send(paymentBody);
+ assert.equal(retried.status,200,JSON.stringify({body:retried.body,errors}));
  assert.equal(providerCreateCalls,2);
  assert.equal(providerKeys.length,2);
  assert.equal(providerKeys[0],providerKeys[1],'A mesma cobrança deve reutilizar a chave do pedido, mesmo se o navegador gerar outra chave.');
