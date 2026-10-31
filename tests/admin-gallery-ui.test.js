@@ -56,7 +56,7 @@ test('product form validates all selected photos and gallery capacity before upl
  const admin=readFileSync('frontend/admin/commerce-admin.js','utf8');
  assert.match(admin,/function validateImageFile\(f\)/);
  assert.match(admin,/selectedGallery=Array\.from\(form\.elements\.galleryUpload\.files\)/);
- assert.match(admin,/gallery aceita no máximo 10 fotos contando a foto principal/);
+ assert.match(admin,/galeria aceita no máximo 10 fotos contando a foto principal/);
  assert.match(admin,/selectedGallery\.forEach\(validateImageFile\)/);
  assert.match(admin,/for\(const file of selectedGallery\)/);
 });
