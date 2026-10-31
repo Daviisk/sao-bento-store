@@ -214,10 +214,13 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config,notify
   if(typeof serviceCode!=='string'||serviceCode.length>40)fail(400,'invalid_shipping','Escolha uma modalidade de frete.');
   const order=await commerce.db.get('orders',req.params.id);
   if(!order||order.owner!==req.shopSession.id)fail(404,'order_not_found','Pedido não encontrado.');
+  if(order.customer?.email&&order.customer.email!==email.trim().toLowerCase())fail(409,'customer_email_mismatch','Use o mesmo e-mail informado nos dados do pedido.');
   if(order.paymentConfirmed||order.status!=='requested')fail(409,'order_unavailable','Pedido indisponível para cobrança.');
   const gateway=createOrdersGateway({accessToken:config.accessToken});
   if(order.mercadoPagoOrderId){
    const remote=await gateway.getOrder(order.mercadoPagoOrderId);
+   const reconciled=await commerce.reconcileMercadoPagoOrder(remote);
+   await notifyPaidCommerceOrder(await commerce.db.get('orders',reconciled.orderId));
    return res.json({orderId:order.orderId,providerStatus:remote.status,pix:extractOrdersPix(remote)});
   }
   const provider=createShippingProvider();
@@ -230,7 +233,8 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config,notify
   if(!/^[0-9a-f-]{36}$/i.test(key||''))fail(400,'invalid_key','Atualize a página e tente novamente.');
   const paymentKey=hash('mercadopago-orders-pix:'+order.orderId).slice(0,8)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(8,12)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(12,16)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(16,20)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(20,32);const remote=await gateway.createPix({reference:order.orderId,totalCents,email,idempotencyKey:paymentKey});
   await commerce.bindMercadoPagoOrder(order.orderId,req.shopSession.id,remote,totalCents,shippingCents);
-  await commerce.reconcileMercadoPagoOrder(remote);
+  const reconciled=await commerce.reconcileMercadoPagoOrder(remote);
+  await notifyPaidCommerceOrder(await commerce.db.get('orders',reconciled.orderId));
   res.json({orderId:order.orderId,providerStatus:remote.status,pix:extractOrdersPix(remote)});
  });
  app.post('/api/commerce/orders/:id/card',limit(5),durable,session,mutation,async(req,res)=>{
@@ -241,6 +245,7 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config,notify
   if(!card||typeof card!=='object')fail(400,'invalid_card','Dados do cartão inválidos.');
   const order=await commerce.db.get('orders',req.params.id);
   if(!order||order.owner!==req.shopSession.id)fail(404,'order_not_found','Pedido não encontrado.');
+  if(order.customer?.email&&order.customer.email!==email.trim().toLowerCase())fail(409,'customer_email_mismatch','Use o mesmo e-mail informado nos dados do pedido.');
   if(order.paymentConfirmed||order.status!=='requested')fail(409,'order_unavailable','Pedido indisponível.');
   if(order.mercadoPagoOrderId)fail(409,'payment_in_progress','Já existe cobrança para este pedido. Consulte o status antes de tentar novamente.');
   const provider=createShippingProvider();
@@ -253,7 +258,8 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config,notify
   if(!/^[0-9a-f-]{36}$/i.test(key||''))fail(400,'invalid_key','Chave de tentativa inválida.');
   const remote=await createOrdersGateway({accessToken:config.accessToken}).createCard({reference:order.orderId,totalCents,email,cardToken:card.token,paymentMethodId:card.paymentMethodId,paymentMethodType:card.paymentMethodType||'credit_card',installments:card.installments,idempotencyKey:key});
   await commerce.bindMercadoPagoOrder(order.orderId,req.shopSession.id,remote,totalCents,shippingCents);
-  await commerce.reconcileMercadoPagoOrder(remote);
+  const reconciled=await commerce.reconcileMercadoPagoOrder(remote);
+  await notifyPaidCommerceOrder(await commerce.db.get('orders',reconciled.orderId));
   res.json({orderId:order.orderId,providerStatus:remote.status,paymentConfirmed:(await commerce.db.get('orders',order.orderId)).paymentConfirmed});
  });
  app.get('/api/commerce/payment-config',limit(30),session,(req,res)=>res.json({cardConfigured:Boolean(config.mode==='production'&&config.publicKey&&config.accessToken&&config.webhookSecret),publicKey:config.mode==='production'?config.publicKey:''}));
@@ -262,6 +268,7 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config,notify
   if(!order||order.owner!==req.shopSession.id)fail(404,'order_not_found','Pedido não encontrado.');
   if(order.mercadoPagoOrderId){const remote=await createOrdersGateway({accessToken:config.accessToken}).getOrder(order.mercadoPagoOrderId);await commerce.reconcileMercadoPagoOrder(remote);}
   const current=await commerce.db.get('orders',req.params.id);
+  await notifyPaidCommerceOrder(current);
   res.json({paymentConfirmed:current.paymentConfirmed,status:current.mercadoPagoStatus||'pending'});
  });
 
