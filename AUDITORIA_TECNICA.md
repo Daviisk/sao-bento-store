@@ -38,10 +38,11 @@ O arquivo frontend/images/bolsa-couro-aberta-prof-v2.webp existia com zero bytes
 
 ## Limitações e itens ainda não confirmados
 
-- A suíte completa ainda precisa ser executada em CI; não havia execução de GitHub Actions associada ao commit-base quando a auditoria começou.
+- GitHub Actions (execução #362): `npm test` concluído com **124 testes aprovados e 0 falhas**.
 - Não foram executadas transações reais com cartão/Pix nem envio real de e-mail; os testes novos usam respostas simuladas.
 - A auditoria de código não substitui teste de ponta a ponta em navegador, com credenciais reais e ambiente de homologação.
-- Nenhum deployment ou alteração na versão publicada foi realizado nesta auditoria.
+- A verificação de preview da Vercel foi bloqueada pelo limite diário de builds da conta; isso não é uma falha do código.
+- Nenhum deployment de produção ou alteração na versão publicada foi realizado nesta auditoria.
 
 ## Arquivos alterados
 
