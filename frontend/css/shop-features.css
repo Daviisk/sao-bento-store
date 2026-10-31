@@ -558,3 +558,8 @@
   padding-bottom:max(4px,env(safe-area-inset-bottom))!important;
  }
 }
+
+
+/* Do not expose the HTML fallback prices before the authoritative catalog is ready. */
+#grid[aria-busy="true"]>.piece{visibility:hidden}
+#grid[aria-busy="true"]::after{content:"Atualizando produtos e preços…";grid-column:1/-1;align-self:center;padding:28px 16px;text-align:center;color:#78674f;font-size:14px;font-weight:650}
