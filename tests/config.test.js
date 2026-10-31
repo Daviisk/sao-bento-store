@@ -19,3 +19,11 @@ test('missing HTTPS configuration outside Vercel and malformed domains still fai
  assert.equal(readConfig({}).baseURL,'http://localhost:3000');
 });
 
+
+test('Resend sender configuration remains server-side and optional',()=>{
+ const config=readConfig({RESEND_API_KEY:'re_test_key',RESEND_FROM_EMAIL:'Loja <pedidos@example.com>'});
+ assert.equal(config.resendApiKey,'re_test_key');
+ assert.equal(config.resendFromEmail,'Loja <pedidos@example.com>');
+ assert.equal(config.resendReplyTo,'');
+ assert.throws(()=>readConfig({RESEND_REPLY_TO:'not-an-email'}),/RESEND_REPLY_TO/);
+});
