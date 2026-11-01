@@ -29,11 +29,6 @@ function productSpecs(p){
  if(!material&&!dimensions)return '';
  return '<section class="product-specs"><h3>Características</h3><dl>'+(material?'<div><dt>Material</dt><dd>'+esc(material)+'</dd></div>':'')+(dimensions?'<div><dt>Dimensões</dt><dd>'+esc(dimensions)+'</dd></div>':'')+'</dl></section>';
 }
-function engravingInfo(p){
- if(!hasEngraving(p))return '';
- const options=enabledVariants(p).filter(v=>['gravado','lapidado'].includes(v.id)).map(v=>v.label);
- return '<section class="engraving-info"><h3>Acabamentos e gravação</h3><p>Disponível em '+esc(options.join(', '))+'.</p><ul><li>Gravado ou Lapidado: envie pelo menos uma imagem, para a frente ou para o verso.</li><li>O outro lado é opcional; use as observações para orientar a gravação.</li><li>Sem gravação: não precisa enviar arquivos.</li></ul></section>';
-}
 function gallery(p){
  const photos=[p.image,...(Array.isArray(p.gallery)?p.gallery:[])].filter((src,index,array)=>src&&array.indexOf(src)===index);
  const main=photos[0]||p.image;
@@ -49,7 +44,7 @@ async function detail(p,options={}){
  const personalized=hasEngraving(p);
  const detailMarkup='<div class="product-sheet-heading"><span>'+esc(p.name)+'</span><strong>'+cash(p.priceCents)+'</strong></div>'+
  '<div class="detailLayout">'+gallery(p)+'<div class="product-info-panel"><p class="eyebrow">SÃO BENTO · CAPOEIRA</p><h2>'+esc(p.name)+'</h2><p class="product-description">'+esc(p.description||'Produto São Bento Dobrões.')+'</p><div class="price">'+cash(p.priceCents)+'</div>'+
- productSpecs(p)+engravingInfo(p)+
+ productSpecs(p)+
  '<form id="custom-product">'+optionGroupsMarkup(p)+(personalized?customFields(p,'',true):(hasVariantChoice(p)?variants(p,'variant'):''))+
  '<div class="detail-quantity custom-step" data-personal-step="3" '+(personalized?'hidden':'')+'><label for="detail-quantity">Quantidade</label><div class="detail-quantity-control"><button type="button" data-detail-qty="-1" aria-label="Diminuir quantidade">−</button><input id="detail-quantity" name="quantity" type="number" inputmode="numeric" value="1" min="1" max="100" required><button type="button" data-detail-qty="1" aria-label="Aumentar quantidade">+</button></div></div>'+
  '<div class="detail-purchase-actions" data-personal-step="3" hidden><button class="primary full" type="submit" '+(!p.enabled?'disabled':'')+'>'+(personalized?'Adicionar ao pedido →':'Adicionar ao carrinho →')+'</button><button class="buy-now-direct" id="buy-now" type="button" '+(!p.enabled?'disabled':'')+'>Comprar agora →</button></div><p id="custom-message" role="status"></p></form></div></div>';
