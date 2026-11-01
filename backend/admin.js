@@ -75,6 +75,7 @@ export function mountAdmin(app,{config,store,limit,commerce}){
     app.get('/api/admin/catalog',requireAdmin,async(req,res)=>res.json({products:await commerce.catalog(),categories:await commerce.categories()}));
     app.get('/api/admin/categories',requireAdmin,async(req,res)=>res.json({categories:await commerce.categories()}));
     app.post('/api/admin/categories',requireAdmin,adminMutation,async(req,res)=>res.status(201).json({categories:await commerce.categoryMutation('create',req.body)}));
+    app.patch('/api/admin/categories/order',requireAdmin,adminMutation,async(req,res)=>res.json({categories:await commerce.reorderCategories(req.body?.categoryNames)}));
     app.patch('/api/admin/categories/:name',requireAdmin,adminMutation,async(req,res)=>res.json({categories:await commerce.categoryMutation('rename',req.body,req.params.name)}));
     app.delete('/api/admin/categories/:name',requireAdmin,adminMutation,async(req,res)=>res.json({categories:await commerce.categoryMutation('delete',{name:req.params.name},req.params.name)}));
     app.post('/api/admin/catalog',requireAdmin,adminMutation,async(req,res)=>res.status(201).json(await commerce.productMutation(req.body)));
