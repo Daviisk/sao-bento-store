@@ -107,7 +107,6 @@ body{background:#f7f3eb;color:#34291e}
 #commerce-admin-view .admin-product-copy{min-width:0}
 #commerce-admin-view .admin-product-copy h3{margin:0 0 4px;font-size:15px}
 #commerce-admin-view .admin-product-copy p{margin:3px 0;color:#756750;font-size:12px}
-#commerce-admin-view .admin-product-copy .product-stock-summary{font-weight:700;color:#493b29}
 #commerce-admin-view .admin-product-copy small{display:block;margin-top:3px}
 #commerce-admin-view .product-status{display:inline-block;margin-top:5px;padding:3px 7px;border-radius:7px;font-size:10px;font-weight:700}
 #commerce-admin-view .product-status.is-active{background:#e9f1e5;color:#3c6934}
@@ -118,14 +117,11 @@ body{background:#f7f3eb;color:#34291e}
 #commerce-admin-view .admin-empty{padding:25px;text-align:center;color:#756750}
 #commerce-admin-view .product-edit-form{max-width:900px;gap:15px}
 #commerce-admin-view .product-edit-form>label,#commerce-admin-view .product-edit-form .admin-grid>label{min-width:0}
-#commerce-admin-view .product-photo-editor,#commerce-admin-view .finish-manager,#commerce-admin-view .stock-manager,#commerce-admin-view .color-manager{display:grid;gap:12px;padding:16px;border:1px solid #e0d0b3;border-radius:14px;background:#fffcf6}
 #commerce-admin-view .finish-manager[hidden]{display:none}
 #commerce-admin-view .finish-options{display:flex;gap:9px;flex-wrap:wrap}
 #commerce-admin-view .finish-option{display:flex!important;align-items:center;gap:8px;padding:10px 13px;border:1px solid #decfb8;border-radius:10px;background:white;cursor:pointer}
 #commerce-admin-view .finish-option input{width:18px;height:18px;min-height:18px}
 #commerce-admin-view .finish-option span{font-size:13px}
-#commerce-admin-view .stock-backorder{align-self:end;padding:10px 0}
-#commerce-admin-view .stock-backorder input,#commerce-admin-view .product-enabled input{width:18px;height:18px;min-height:18px}
 #commerce-admin-view .product-enabled{display:flex!important;align-items:center;gap:9px}
 #commerce-admin-view .product-form-actions .secondary-action{background:#6e6253}
 #commerce-admin-view .gallery-thumb{min-width:105px;max-width:125px}
