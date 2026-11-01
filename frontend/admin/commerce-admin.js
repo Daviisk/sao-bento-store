@@ -1,5 +1,5 @@
 (()=>{
-'use strict';const $=s=>document.querySelector(s),view=$('#commerce-admin-view'),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),cash=n=>(n/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});let active='',products=[],orders=[],categories=[];
+'use strict';const $=s=>document.querySelector(s),view=$('#commerce-admin-view'),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),cash=n=>(n/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});let active='',products=[],orders=[],categories=[];const finishDefinitions=[{id:'gravado',label:'Gravado'},{id:'lapidado',label:'Lapidado'},{id:'sem_gravacao',label:'Sem gravação'}];
 const api=async(path,options={})=>{const r=await fetch(path,{credentials:'same-origin',cache:'no-store',...options,signal:AbortSignal.timeout(20000)}),d=await r.json();if(!r.ok)throw Error(d.message||'Falha ao carregar.');return d;};
 const mutate=(path,body,method='PATCH')=>api(path,{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
 function msg(t){$('#panel-message').textContent=t;}
@@ -85,7 +85,7 @@ function editProduct(p,isNew=false){
    const optionId=label=>{const normalized=label.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');if(/^gravado$/.test(normalized))return 'gravado';if(/^lapidado$/.test(normalized))return 'lapidado';if(/^sem_gravacao$/.test(normalized))return 'sem_gravacao';return (normalized||'opcao') .slice(0,22);};
    const usedIds=new Set();
    let nextVariants=optionLabels.map((label,index)=>{let id=optionId(label),base=id,n=2;while(usedIds.has(id))id=(base.slice(0,18)+'_'+n++);usedIds.add(id);const previous=oldVariants.find(v=>v.id===id);return {...(previous||{}),id,label,enabled:true};});
-   if(!nextVariants.length)nextVariants=[{id:'padrao',label:'Padrão',enabled:true,stock:null,allowBackorder:true}];
+   if(!nextVariants.length)nextVariants=[{id:'padrao',label:'Padrão',enabled:true,stock:null,allowBackorder:true}];nextVariants.push(...oldVariants.filter(v=>!usedIds.has(v.id)).map(v=>({...v,enabled:false})));
    const value={productId:isNew?'produto_'+crypto.randomUUID().replace(/-/g,'').slice(0,12):p.productId,name:form.elements.name.value,category:form.elements.category.value,description:form.elements.description.value,material:form.elements.material.value,dimensions:form.elements.dimensions.value,priceCents:Math.round(Number(form.elements.price.value)*100),productionDays:form.elements.days.value===''?null:Number(form.elements.days.value),enabled:form.elements.enabled.checked,image:main,gallery,stock:form.elements.stock.value===''?null:Number(form.elements.stock.value),allowBackorder:form.elements.allowBackorder.checked,variants:nextVariants.map(v=>({id:v.id,label:v.label,enabled:v.enabled!==false})),optionGroups};
    await mutate('/api/admin/catalog'+(isNew?'':'/'+encodeURIComponent(p.productId)),value,isNew?'POST':'PATCH');
    await load('catalog');msg(isNew?'Produto cadastrado.':'Produto atualizado.');
