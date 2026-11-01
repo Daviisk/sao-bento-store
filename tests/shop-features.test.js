@@ -5,8 +5,12 @@ test('custom area selects use only a disabled generic Selecione placeholder',asy
  const catalog=seedProducts.map((product,index)=>index===0?{...product,optionGroups:[{name:'Cor',options:['Preto','Dourado']},{name:'Material',options:['Bronze','Inox']}]}:product);
  const {w,d}=await page(t,catalog);
  d.querySelector('[data-commerce-detail="produto_01"]').click();await tick();
- const selects=[...d.querySelectorAll('#custom-product select[data-option-group]')];
+ const panels=[...d.querySelectorAll('#custom-product fieldset.custom-option-group')];
+ assert.equal(panels.length,2);
+ assert.deepEqual(panels.map(panel=>panel.querySelector('legend')?.textContent),['Cor','Material']);
+ const selects=panels.map(panel=>panel.querySelector('select[data-option-group]'));
  assert.equal(selects.length,2);
+ for(const panel of panels)assert(panel.classList.contains('custom-step'),'A área personalizada deve reutilizar o painel visual de acabamento');
  for(const select of selects){
   assert.equal(select.options[0].textContent,'Selecione');
   assert.equal(select.options[0].value,'');
