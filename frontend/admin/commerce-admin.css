@@ -225,3 +225,41 @@ body{background:#f7f3eb;color:#34291e}
  #commerce-admin-view .custom-financial-summary article{padding:14px 9px}
  #commerce-admin-view .custom-financial-summary strong{font-size:clamp(15px,4vw,20px)}
 }
+
+/* Valores, textos e cartões do painel de comércio: somente celular */
+@media(max-width:650px){
+ #commerce-admin-view{min-width:0;text-align:left}
+ #commerce-admin-view h2,#commerce-admin-view h3{line-height:1.3;overflow-wrap:anywhere}
+ #commerce-admin-view .admin-catalog-heading,#commerce-admin-view .admin-section-heading{align-items:center;text-align:center;justify-content:center}
+ #commerce-admin-view .admin-catalog-heading>div{width:100%;text-align:center}
+ #commerce-admin-view .admin-catalog-heading p,#commerce-admin-view .admin-section-heading p{line-height:1.45}
+ #commerce-admin-view .admin-catalog-heading>button{width:100%;min-height:46px}
+ #commerce-admin-view .custom-financial-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ #commerce-admin-view .custom-financial-summary article{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:104px;padding:12px 8px;text-align:center}
+ #commerce-admin-view .custom-financial-summary article:last-child{grid-column:1/-1}
+ #commerce-admin-view .custom-financial-summary small{width:100%;font-size:11px;line-height:1.35;text-align:center;overflow-wrap:anywhere}
+ #commerce-admin-view .custom-financial-summary strong{width:100%;margin-top:7px;font-size:clamp(19px,5.5vw,25px);line-height:1.2;text-align:center;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+ #commerce-admin-view .notice{font-size:12px;line-height:1.55;overflow-wrap:anywhere}
+ #commerce-admin-view .admin-record,#commerce-admin-view .admin-product{min-width:0;text-align:left}
+ #commerce-admin-view .admin-record h3,#commerce-admin-view .admin-record p{overflow-wrap:anywhere;line-height:1.45}
+ #commerce-admin-view .admin-record>button{width:100%;min-height:44px}
+ #commerce-admin-view .admin-product-row{min-width:0}
+ #commerce-admin-view .admin-product-copy{min-width:0;overflow-wrap:anywhere}
+ #commerce-admin-view .admin-product-copy h3{line-height:1.3}
+ #commerce-admin-view .admin-product-copy p{font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+ #commerce-admin-view .product-row-actions{justify-content:center}
+ #commerce-admin-view .product-row-actions button{min-height:42px}
+ #commerce-admin-view .product-edit-form .admin-grid{grid-template-columns:1fr}
+ #commerce-admin-view .product-form-actions{display:grid;grid-template-columns:1fr 1fr}
+ #commerce-admin-view .product-form-actions button{min-width:0;min-height:44px;padding:10px 8px}
+ #commerce-admin-view .custom-area-item{min-width:0;text-align:left}
+ #commerce-admin-view .custom-area-item button{width:100%;min-height:42px}
+ #commerce-admin-view .admin-art{min-width:0}
+ #commerce-admin-view .category-list .admin-record{text-align:left}
+}
+@media(max-width:380px){
+ #commerce-admin-view .custom-financial-summary{gap:7px}
+ #commerce-admin-view .custom-financial-summary article{padding:10px 6px}
+ #commerce-admin-view .custom-financial-summary strong{font-size:18px}
+ #commerce-admin-view .product-form-actions{grid-template-columns:1fr}
+}
