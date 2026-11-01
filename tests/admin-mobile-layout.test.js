@@ -6,11 +6,11 @@ const adminCss=readFileSync(new URL('../frontend/admin/admin.css',import.meta.ur
 const commerceCss=readFileSync(new URL('../frontend/admin/commerce-admin.css',import.meta.url),'utf8');
 
 test('mobile admin refinements are scoped to phone breakpoints',()=>{
-  assert.match(adminCss,/@media\(max-width:650px\)\{[\s\S]*?#app-view \.top\{/);
-  assert.match(adminCss,/@media\(max-width:650px\)\{[\s\S]*?#orders-view \.stats strong\{/);
-  assert.match(adminCss,/@media\(max-width:380px\)/);
+  assert.match(adminCss,/@media\(max-width:850px\)[\s\S]*?#app-view \.main>\.top\{/);
+  assert.match(adminCss,/@media\(max-width:850px\)[\s\S]*?#orders-view \.stats strong\{/);
+  assert.match(adminCss,/@media\(max-width:360px\)/);
   assert.match(commerceCss,/@media\(max-width:650px\)\{[\s\S]*?#commerce-admin-view \.custom-financial-summary strong\{/);
-  assert.match(commerceCss,/@media\(max-width:650px\)\{[\s\S]*?#commerce-admin-view \.admin-record/);
+  assert.match(commerceCss,/@media\(max-width:650px\)\{[\s\S]*?#commerce-admin-view #custom-orders-list \.admin-record/);
 });
 
 test('mobile financial values use tabular numerals and safe wrapping',()=>{
