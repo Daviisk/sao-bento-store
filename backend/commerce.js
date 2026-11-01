@@ -28,8 +28,9 @@ function validateProduct(raw,old){
  if(!/^[a-zA-Z0-9_-]{3,40}$/.test(productId))fail(400,'invalid_product','Identificador inválido.');
  const name=cleanText(raw.name,100,true),description=cleanText(raw.description||'',1000);
  const material=cleanText(raw.material??old?.material??'',80),dimensions=cleanText(raw.dimensions??old?.dimensions??'',120);
-  const colors=raw.colors===undefined?(old?.colors||[]):raw.colors;
-  if(!Array.isArray(colors)||colors.length>30||new Set(colors).size!==colors.length||colors.some(color=>typeof color!=='string'||!color.trim()||color.length>40||cleanText(color,40)!==color))fail(400,'invalid_colors','Informe até 30 opções de cores válidas, com até 40 caracteres cada.');
+  const optionGroups=raw.optionGroups===undefined?(old?.optionGroups||[]):raw.optionGroups;
+  if(!Array.isArray(optionGroups)||optionGroups.length>8)fail(400,'invalid_option_groups','Cadastre até 8 áreas personalizadas.');
+  const groupIds=new Set(),optionGroupsClean=optionGroups.map((group,index)=>{if(!plain(group))fail(400,'invalid_option_groups','Confira as áreas personalizadas.');const name=cleanText(group.name,40,true),id=cleanText(group.id||('area_'+(index+1)),30,true),options=group.options;if(!/^[a-z0-9_-]{1,30}$/.test(id)||groupIds.has(id)||!Array.isArray(options)||!options.length||options.length>30)fail(400,'invalid_option_groups','Cada área precisa ter até 30 opções.');groupIds.add(id);const cleaned=options.map(value=>cleanText(value,40,true));if(new Set(cleaned.map(v=>v.toLocaleLowerCase('pt-BR'))).size!==cleaned.length)fail(400,'invalid_option_groups','Não repita opções na mesma área.');return {id,name,options:cleaned};});
  if(!Number.isSafeInteger(raw.priceCents)||raw.priceCents<1||raw.priceCents>10000000||typeof raw.enabled!=='boolean')fail(400,'invalid_product','Confira preço e disponibilidade.');
  if(!validPhoto(raw.image)||!Array.isArray(raw.gallery)||raw.gallery.length>10||raw.gallery.some(v=>!validPhoto(v)))fail(400,'invalid_photo','Selecione imagens da loja ou envie uma foto.');
  if(!Array.isArray(raw.variants)||raw.variants.length<1||raw.variants.length>8)fail(400,'invalid_variants','Informe de 1 a 8 opções disponíveis.');
@@ -45,7 +46,7 @@ function validateProduct(raw,old){
  if(stock!==null&&(!Number.isSafeInteger(stock)||stock<0||stock>100000)||typeof allowBackorder!=='boolean')fail(400,'invalid_stock','Informe um estoque válido para o produto.');
  const productionDays=raw.productionDays===null?null:Number(raw.productionDays);
  if(productionDays!==null&&(!Number.isSafeInteger(productionDays)||productionDays<0||productionDays>365))fail(400,'invalid_days','Prazo inválido.');
- return {productId,name,category:cleanText(raw.category||old?.category||'',60,true),description,material,dimensions,colors,priceCents:raw.priceCents,enabled:raw.enabled,image:raw.image,gallery:raw.gallery,variants,stock,allowBackorder,productionDays,maxQuantity:10};
+ return {productId,name,category:cleanText(raw.category||old?.category||'',60,true),description,material,dimensions,optionGroups:optionGroupsClean,priceCents:raw.priceCents,enabled:raw.enabled,image:raw.image,gallery:raw.gallery,variants,stock,allowBackorder,productionDays,maxQuantity:10};
 }
 export function createCommerce({store,config}){
  const db=createCommerceStore(store,config.databaseSchema||'public');
@@ -105,10 +106,11 @@ export function createCommerce({store,config}){
    const supportsEngraving=['gravado','lapidado'].includes(v.id);
    if(!supportsEngraving&&(front||back||engravingNotes&&engravingNotes!=='Sem gravação'))fail(400,'invalid_customization','Personalização disponível somente nos dobrões.');
    if(v.id==='sem_gravacao'){if(front||back)fail(400,'invalid_customization','Sem gravação não aceita arquivos.');engravingNotes='Sem gravação';}
-   const color=raw.color===undefined?'':cleanText(raw.color,30);
-   if((p.colors||[]).length?!(p.colors||[]).includes(color):Boolean(color))fail(400,'invalid_color','Escolha uma cor disponível para o produto.');
+   const rawOptions=raw.options===undefined?{}:raw.options;if(!plain(rawOptions))fail(400,'invalid_options','Opções do produto inválidas.');
+   const options={};for(const group of p.optionGroups||[]){const selected=rawOptions[group.name];if(typeof selected!=='string'||!group.options.includes(selected))fail(400,'invalid_options','Escolha uma opção válida em '+group.name+'.');options[group.name]=selected;}
+   if(Object.keys(rawOptions).some(name=>!(p.optionGroups||[]).some(group=>group.name===name)))fail(400,'invalid_options','Uma opção enviada não pertence ao produto.');
    const subtotal=p.priceCents*raw.quantity;total+=subtotal;
-   return {productId:p.productId,name:p.name,variantId:v.id,variantLabel:v.label,color,quantity:raw.quantity,unitPrice:p.priceCents,subtotal,engravingNotes,front,back,backorder:p.stock!==null&&used>p.stock,productionDays:p.productionDays};
+   return {productId:p.productId,name:p.name,variantId:v.id,variantLabel:v.label,options,quantity:raw.quantity,unitPrice:p.priceCents,subtotal,engravingNotes,front,back,backorder:p.stock!==null&&used>p.stock,productionDays:p.productionDays};
   });
   if(total>100000000)fail(400,'total_limit','Valor acima do limite.');
   return {items,total};
