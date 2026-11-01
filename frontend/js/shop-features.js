@@ -13,7 +13,7 @@ function close(){const veil=$('#veil'),drawer=$('#drawer');if(veil.hidden||closi
 $('#drawer').addEventListener('touchstart',e=>{const t=e.touches[0],drawer=$('#drawer');swipeStart={y:t.clientY,x:t.clientX,scroll:drawer.querySelector('.sheet-scroll-content')?.scrollTop||0,handle:!!e.target.closest('.sheet-handle'),time:Date.now()};},{passive:true});
 $('#drawer').addEventListener('touchend',e=>{if(!swipeStart)return;const dy=e.changedTouches[0].clientY-swipeStart.y,dx=Math.abs(e.changedTouches[0].clientX-swipeStart.x);if(dy>95&&dy>dx*1.5&&(swipeStart.handle||swipeStart.scroll<=1&&($('#drawer .sheet-scroll-content')?.scrollTop||0)<=1)&&!e.target.closest('input,textarea,select,button,a'))close();swipeStart=null;},{passive:true});
 function enabledVariants(p){return p.variants.filter(v=>v.enabled!==false);}
-function availableVariants(p){const options=enabledVariants(p);return /dourado/i.test(p?.name||'')?options.filter(v=>v.id!=='gravado'):options;}
+function availableVariants(p){return enabledVariants(p);}
 function optionGroupsMarkup(p){return (Array.isArray(p.optionGroups)?p.optionGroups:[]).filter(g=>g&&g.name&&Array.isArray(g.options)&&g.options.length).map((g,i)=>'<label class="product-option-group">'+esc(g.name)+'<select name="customOption_'+i+'" data-option-group="'+i+'" required><option value="">Selecione '+esc(g.name.toLocaleLowerCase('pt-BR'))+'</option>'+g.options.map(v=>'<option value="'+esc(v)+'">'+esc(v)+'</option>').join('')+'</select></label>').join('');}
 function hasEngraving(p){return enabledVariants(p).some(v=>['gravado','lapidado'].includes(v.id));}
 function hasVariantChoice(p){const options=enabledVariants(p);return options.length>1||options.some(v=>v.id!=='padrao');}
