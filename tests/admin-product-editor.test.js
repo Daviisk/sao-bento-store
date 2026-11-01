@@ -60,6 +60,11 @@ test('new product editor opens and saves custom areas such as Cor',async()=>{
  assert.deepEqual(saved.optionGroups,[{id:'area_1',name:'Cor',options:['Azul','Vermelho']}]);
  assert.equal(saved.image,'/api/commerce/media/12345678-1234-4234-8234-123456789012');
  assert.equal(window.document.querySelector('#panel-message').textContent,'Produto cadastrado.');
+ assert.equal(Object.hasOwn(saved,'stock'),false);
+ assert.equal(Object.hasOwn(saved,'allowBackorder'),false);
+ assert.equal(Object.hasOwn(saved,'productionDays'),false);
+ assert.ok(saved.variants.every(v=>!Object.hasOwn(v,'stock')&&!Object.hasOwn(v,'allowBackorder')));
+ assert.doesNotMatch(window.document.querySelector('#catalog-products').textContent,/Estoque|unidades|Sem estoque|Não controlado/);
  window.close();
 });
 
