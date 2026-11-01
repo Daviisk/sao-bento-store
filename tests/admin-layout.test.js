@@ -25,5 +25,5 @@ test('financial amounts are centered and do not wrap across dashboard tables and
 
 test('catalog price is displayed separately from category text',()=>{
  assert.match(commerceJs,/class="admin-product-price">\'\+cash\(p\.priceCents\)\+'<\/strong>/);
- assert.match(adminHtml,/admin\.css\?v=admin-layout-values-center-20261101/);
+ assert.match(adminHtml,/admin\.css\?v=mobile-admin-layout-polish-20261101/);
 });
