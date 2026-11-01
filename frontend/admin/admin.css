@@ -119,3 +119,43 @@ html:has(#login-view:not([hidden])),body:has(#login-view:not([hidden])){min-heig
 
 #orders-view .toolbar .filter-field{display:grid;gap:7px;min-width:0;font-size:12px;font-weight:750;color:#67543c}
 #orders-view .toolbar .filter-field select{width:100%;min-width:0}
+
+/* Refinamento exclusivo do painel administrativo em telas de celular */
+@media(max-width:650px){
+ #app-view .sidebar{align-items:center;text-align:center;padding:12px 12px 10px;gap:7px}
+ #app-view .sidebar>div{display:flex;flex-direction:column;align-items:center;width:100%;gap:8px}
+ #app-view .sidebar .brand{width:100%;margin:0;text-align:center;font-size:16px;line-height:1.35}
+ #app-view .sidebar nav{width:100%;justify-content:center;gap:7px;padding:2px 0 7px}
+ #app-view .sidebar nav .nav{flex:0 1 auto;min-width:0;padding:10px 12px;text-align:center}
+ #app-view .sidebar .sidebar-bottom{width:100%;align-self:stretch;display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+ #app-view .sidebar .sidebar-bottom .logout{width:auto;min-width:76px;min-height:40px;text-align:center}
+ #app-view .sidebar .admin-credit{max-width:none;margin:0;padding:0;text-align:right;line-height:1.4}
+ #app-view .main{padding:16px 12px 96px}
+ #app-view .top{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;margin:0 0 16px;padding:14px 12px;border:1px solid #e4d7c3;border-radius:16px;background:#fffdf8;text-align:center;box-shadow:0 3px 12px rgba(73,51,24,.05)}
+ #app-view .top>div:first-child{width:100%;display:grid;justify-items:center;gap:4px}
+ #app-view .top .eyebrow{margin:0;text-align:center}
+ #app-view .top h1{margin:0;font-size:clamp(22px,6vw,27px);line-height:1.2;text-align:center;overflow-wrap:anywhere}
+ #app-view .top .panel-message{width:100%;margin:2px 0 0;text-align:center;line-height:1.4}
+ #app-view .admin-top-actions{width:100%;justify-content:center}
+ #app-view .admin-top-actions .secondary{width:100%;max-width:260px;min-height:44px}
+ #orders-view .stats article{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:104px;padding:13px 9px;text-align:center}
+ #orders-view .stats article::before{top:10px;right:10px}
+ #orders-view .stats span{width:100%;max-width:100%;font-size:11px;line-height:1.35;text-align:center;overflow-wrap:anywhere}
+ #orders-view .stats strong{width:100%;margin-top:8px;font-size:clamp(18px,5.2vw,24px);line-height:1.2;letter-spacing:-.025em;text-align:center;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;word-break:normal}
+ #orders-view .toolbar{justify-items:stretch}
+ #orders-view .toolbar .filter-field,#orders-view .toolbar .date-field{width:100%;text-align:left}
+ #orders-view .table-wrap{max-width:100%;overscroll-behavior-x:contain}
+ #orders-view table{min-width:820px}
+ #order-detail{padding:14px}
+ #order-detail .progress-head{align-items:center;text-align:center}
+ #order-detail .detail-card{text-align:left}
+ #order-detail .detail-card p{overflow-wrap:anywhere}
+ #order-detail .detail-form button{width:100%;min-height:44px}
+}
+@media(max-width:380px){
+ #app-view .sidebar nav{justify-content:flex-start}
+ #app-view .sidebar nav .nav{flex:1 1 0;padding:9px 7px;font-size:12px}
+ #orders-view .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #orders-view .stats article{min-height:98px;padding:11px 7px}
+ #orders-view .stats strong{font-size:18px}
+}
