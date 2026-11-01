@@ -1,6 +1,6 @@
-# São Bento Dobrões
+# São Bento Dobrões Personalizados
 
-Loja de dobrões para capoeira. Mantém o layout, os temas claro/escuro, catálogo, filtros, carrinho, frete, checkout e administração da base original.
+Loja de dobrões personalizados e acessórios. Mantém o layout, os temas claro/escuro, catálogo, filtros, carrinho, frete, checkout e administração da base original.
 
 ## Executar
 
