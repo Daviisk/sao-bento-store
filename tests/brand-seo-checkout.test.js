@@ -12,6 +12,13 @@ test('storefront uses the approved brand and complete social metadata',()=>{
   assert.ok(html.includes('rel="canonical" href="https://saobentodobroes.com/"'));
 });
 
+test('storefront cache-busts updated checkout and brand assets',()=>{
+  assert.ok(html.includes('css/cart.css?v=checkout-trust-20261101'));
+  assert.ok(html.includes('js/cart.js?v=checkout-trust-20261101'));
+  assert.ok(html.includes('js/storefront.js?v=brand-copy-20261101'));
+  assert.ok(html.includes('js/shop-features.js?v=brand-copy-20261101'));
+});
+
 test('storefront exposes organization and website structured data',()=>{
   const start=html.indexOf('<script type="application/ld+json">');
   const end=html.indexOf('</script>',start);
