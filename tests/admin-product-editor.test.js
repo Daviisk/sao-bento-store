@@ -23,5 +23,5 @@ test('editing a product can deactivate old variants without breaking order histo
 });
 
 test('new and existing product forms submit to their matching admin catalog endpoints',()=>{
- assert.match(admin,/mutate\('\/api\/admin\/catalog'\+\(isNew\?'':'\/'+encodeURIComponent\(p\.productId\)\),value,isNew\?'POST':'PATCH'\)/);
+ assert.ok(admin.includes("await mutate('/api/admin/catalog'+(isNew?'':'/'+encodeURIComponent(p.productId)),value,isNew?'POST':'PATCH');"));
 });
