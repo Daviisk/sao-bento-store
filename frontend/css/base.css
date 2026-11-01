@@ -265,3 +265,55 @@ html[data-theme=dark] .footerContact,html[data-theme=dark] .footerBottom{border-
 
 /* São Bento is always displayed in its original light palette. */
 :root{color-scheme:only light}
+
+
+/* Categorias centralizadas e distribuídas igualmente em todas as telas. */
+#categories.categories{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  width:100%!important;
+  max-width:520px!important;
+  margin:0 auto!important;
+  padding:12px 0 16px!important;
+  gap:8px!important;
+  justify-items:stretch!important;
+  align-items:start!important;
+  overflow:visible!important;
+  mask-image:none!important;
+  box-sizing:border-box!important;
+}
+#categories.categories>.category{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  justify-self:stretch!important;
+  flex:initial!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:5px 2px!important;
+  text-align:center!important;
+  box-sizing:border-box!important;
+}
+#categories.categories>.category>.circle{
+  display:grid!important;
+  place-items:center!important;
+  flex:0 0 36px!important;
+  width:36px!important;
+  height:36px!important;
+  margin:0 auto 5px!important;
+  padding:0!important;
+  box-sizing:border-box!important;
+}
+#categories.categories>.category>.circle>svg{
+  display:block!important;
+  width:19px!important;
+  height:19px!important;
+  margin:0!important;
+}
+@media(max-width:380px){
+  #categories.categories{gap:4px!important}
+  #categories.categories>.category{font-size:11px!important}
+}
