@@ -28,9 +28,8 @@ function validateProduct(raw,old){
  if(!/^[a-zA-Z0-9_-]{3,40}$/.test(productId))fail(400,'invalid_product','Identificador inválido.');
  const name=cleanText(raw.name,100,true),description=cleanText(raw.description||'',1000);
  const material=cleanText(raw.material??old?.material??'',80),dimensions=cleanText(raw.dimensions??old?.dimensions??'',120);
-  const allowedColors=['Preto','Marrom','Marrom escuro','Caramelo','Creme','Branco','Dourado','Prata','Bronze','Vermelho','Azul','Verde'];
   const colors=raw.colors===undefined?(old?.colors||[]):raw.colors;
-  if(!Array.isArray(colors)||colors.length>allowedColors.length||new Set(colors).size!==colors.length||colors.some(color=>!allowedColors.includes(color)))fail(400,'invalid_colors','Confira as cores disponíveis.');
+  if(!Array.isArray(colors)||colors.length>30||new Set(colors).size!==colors.length||colors.some(color=>typeof color!=='string'||!color.trim()||color.length>40||cleanText(color,40)!==color))fail(400,'invalid_colors','Informe até 30 opções de cores válidas, com até 40 caracteres cada.');
  if(!Number.isSafeInteger(raw.priceCents)||raw.priceCents<1||raw.priceCents>10000000||typeof raw.enabled!=='boolean')fail(400,'invalid_product','Confira preço e disponibilidade.');
  if(!validPhoto(raw.image)||!Array.isArray(raw.gallery)||raw.gallery.length>10||raw.gallery.some(v=>!validPhoto(v)))fail(400,'invalid_photo','Selecione imagens da loja ou envie uma foto.');
  if(!Array.isArray(raw.variants)||raw.variants.length<1||raw.variants.length>8)fail(400,'invalid_variants','Informe os acabamentos disponíveis.');
