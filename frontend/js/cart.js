@@ -127,7 +127,7 @@
    if(!result.checkoutUrl)throw Error('Este pedido não está mais disponível para pagamento.');
    const url=new URL(result.checkoutUrl);if(url.protocol!=='https:'||url.hostname!=='www.mercadopago.com.br'||!url.pathname.startsWith('/checkout/')||url.username||url.password)throw Error('Não foi possível abrir um checkout válido.');
    review=result;try{sessionStorage.setItem('jewelry.pendingOrder',result.orderId);}catch{}
-   notice('Pedido criado. Confira os valores confirmados pela loja antes de continuar.');
+   notice('Pedido criado. Você seguirá para o ambiente de pagamento do Mercado Pago. A compra só será confirmada após a aprovação do pagamento.');
   }catch(e){notice(e.message||'Falha ao criar checkout. Você pode tentar novamente.');}finally{busy=false;render();}
  });
  window.addEventListener('storage',event=>{if(event.key===KEY&&!busy){cart.items=clean(event.newValue);cart.save();changed();}});

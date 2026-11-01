@@ -43,7 +43,7 @@ async function detail(p,options={}){
  activeProduct=p.productId;
  const personalized=hasEngraving(p);
  const detailMarkup='<div class="product-sheet-heading"><span>'+esc(p.name)+'</span><strong>'+cash(p.priceCents)+'</strong></div>'+
- '<div class="detailLayout">'+gallery(p)+'<div class="product-info-panel"><p class="eyebrow">SÃO BENTO · CAPOEIRA</p><h2>'+esc(p.name)+'</h2><p class="product-description">'+esc(p.description||'Produto São Bento Dobrões.')+'</p><div class="price">'+cash(p.priceCents)+'</div>'+
+ '<div class="detailLayout">'+gallery(p)+'<div class="product-info-panel"><p class="eyebrow">SÃO BENTO · DOBRÕES PERSONALIZADOS</p><h2>'+esc(p.name)+'</h2><p class="product-description">'+esc(p.description||'Produto São Bento Dobrões Personalizados.')+'</p><div class="price">'+cash(p.priceCents)+'</div>'+
  productSpecs(p)+
  '<form id="custom-product">'+optionGroupsMarkup(p)+(personalized?customFields(p,'',true):(hasVariantChoice(p)?variants(p,'variant'):''))+
  '<div class="detail-quantity custom-step" data-personal-step="3" '+(personalized?'hidden':'')+'><label for="detail-quantity">Quantidade</label><div class="detail-quantity-control"><button type="button" data-detail-qty="-1" aria-label="Diminuir quantidade">−</button><input id="detail-quantity" name="quantity" type="number" inputmode="numeric" value="1" min="1" max="100" required><button type="button" data-detail-qty="1" aria-label="Aumentar quantidade">+</button></div></div>'+
