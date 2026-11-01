@@ -94,6 +94,9 @@ test('product editor exposes three independent finish checkboxes and custom area
  const {window}=setup();openCatalog(window);await wait();window.document.querySelector('#new-product').click();
  for(const id of ['gravado','lapidado','sem_gravacao'])assert.ok(window.document.querySelector('[name="finish_'+id+'"]'));
  assert.equal(window.document.querySelector('[name="productOptions"]'),null);
+ assert.equal(window.document.querySelector('[name="stock"]'),null);
+ assert.equal(window.document.querySelector('[name="allowBackorder"]'),null);
+ assert.equal(window.document.querySelector('[name="days"]'),null);
  assert.match(admin,/const finishDefinitions=\[\{id:'gravado',label:'Gravado'\}/);
  assert.match(admin,/id="add-custom-area"/);
  assert.match(admin,/name="areaTitle"/);
