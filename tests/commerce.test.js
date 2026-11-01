@@ -15,3 +15,16 @@ test('product material and dimensions are retained in the catalog',async t=>{
  assert.equal(stored.material,'Bronze fundido');
  assert.equal(stored.dimensions,'Diâmetro: 38 mm');
 });
+
+test('category order is persisted and invalid reorder requests are rejected',async t=>{
+ const c=setup(t);
+ const initial=await c.categories();
+ assert.deepEqual(initial,['Dobrões','Bolsas','Acessórios']);
+ const reordered=['Acessórios','Dobrões','Bolsas'];
+ assert.deepEqual(await c.reorderCategories(reordered),reordered);
+ assert.deepEqual(await c.categories(),reordered);
+ await assert.rejects(c.reorderCategories(['Dobrões','Dobrões','Bolsas']),{code:'invalid_category_order'});
+ await assert.rejects(c.reorderCategories(['Dobrões','Bolsas']),{code:'invalid_category_order'});
+ await assert.rejects(c.reorderCategories(['Dobrões','Bolsas','Outra']),{code:'invalid_category_order'});
+ assert.deepEqual(await c.categories(),reordered);
+});
