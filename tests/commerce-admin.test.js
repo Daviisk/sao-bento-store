@@ -17,7 +17,7 @@ test('admin can create, rename, filter and delete unused dynamic categories safe
  await agent.delete('/api/admin/categories/Acessórios%20de%20Capoeira').set('Origin',config.baseURL).expect(200);
 });
 
-test('product deletion preserves products already referenced by orders',async t=>{
+test('product deletion archives products already referenced by orders',async t=>{
  const config=readConfig({APP_URL:'http://localhost:3000',ADMIN_PASSWORD:'valid-password-for-test',ADMIN_SESSION_SECRET:'s'.repeat(40)}),store=openStore(':memory:');t.after(()=>store.close());
  const app=createApp({config,store,catalog:products,gateway:{}}),agent=request.agent(app);
  await agent.post('/api/admin/login').set('Origin',config.baseURL).send({password:config.adminPassword}).expect(200);
@@ -54,7 +54,7 @@ test('admin catalog returns finishes without stock tracking, supports ordering a
  await agent.post('/api/admin/catalog/bulk').set('Origin',config.baseURL).send({action:'delete',productIds:['produto_04']}).expect(200);
  assert.equal((await agent.get('/api/admin/catalog')).body.products.some(p=>p.productId==='produto_04'),false);
 });
-test('bulk product deletion is atomic when a selected product already has orders',async t=>{
+test('bulk product deletion removes unused products and archives referenced products atomically',async t=>{
  const config=readConfig({APP_URL:'http://localhost:3000',ADMIN_PASSWORD:'valid-password-for-test',ADMIN_SESSION_SECRET:'s'.repeat(40)}),store=openStore(':memory:');t.after(()=>store.close());
  const app=createApp({config,store,catalog:products,gateway:{}}),agent=request.agent(app);
  await agent.post('/api/admin/login').set('Origin',config.baseURL).send({password:config.adminPassword}).expect(200);
