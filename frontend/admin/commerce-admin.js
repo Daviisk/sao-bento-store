@@ -95,7 +95,7 @@ function editProduct(p,isNew=false){
 async function catalog(){
  const d=await api('/api/admin/catalog');products=d.products;categories=d.categories||[];
  view.innerHTML='<div class="admin-catalog-heading"><div><h2>Produtos</h2><p>Selecione, organize e atualize o catálogo.</p></div><button id="new-product" type="button">+ Novo produto</button></div>'+
- '<section class="category-manager"><div class="admin-section-heading"><div><h3>Categorias da loja</h3><p>Organize os produtos por tipo.</p></div><form id="category-create" class="category-create"><input name="name" maxlength="60" required placeholder="Nova categoria" aria-label="Nome da nova categoria"><button type="submit">Adicionar</button></form></div><div class="category-list">'+categories.map(cat=>'<article class="category-chip"><strong>'+esc(cat)+'</strong><button type="button" data-category-edit="'+esc(cat)+'" aria-label="Renomear '+esc(cat)+'">Renomear</button><button type="button" data-category-delete="'+esc(cat)+'" aria-label="Excluir '+esc(cat)+'">×</button></article>').join('')+'</div></section>'+
+ '<section class="category-manager"><div class="admin-section-heading"><div><h3>Categorias da loja</h3><p>Organize os produtos por tipo.</p></div><form id="category-create" class="category-create"><input name="name" maxlength="60" required placeholder="Nova categoria" aria-label="Nome da nova categoria"><button type="submit">Adicionar</button></form></div><div class="category-list">'+categories.map((cat,index)=>'<article class="category-chip"><strong>'+esc(cat)+'</strong><div class="category-chip-actions"><button type="button" data-move-category="'+index+'" data-direction="-1" '+(index===0?'disabled':'')+' aria-label="Mover '+esc(cat)+' para cima">↑</button><button type="button" data-move-category="'+index+'" data-direction="1" '+(index===categories.length-1?'disabled':'')+' aria-label="Mover '+esc(cat)+' para baixo">↓</button><button type="button" data-category-edit="'+esc(cat)+'" aria-label="Renomear '+esc(cat)+'">Renomear</button><button type="button" data-category-delete="'+esc(cat)+'" aria-label="Excluir '+esc(cat)+'">×</button></div></article>').join('')+'</div></section>'+
  '<div class="catalog-toolbar"><label>Categoria<select id="catalog-filter"><option value="">Todas as categorias</option>'+categories.map(cat=>'<option value="'+esc(cat)+'">'+esc(cat)+'</option>').join('')+'</select></label><label class="show-removed-toggle"><input id="show-removed" type="checkbox"> Mostrar removidos da loja</label><label class="select-visible"><input id="select-visible" type="checkbox"> Selecionar exibidos</label><div class="bulk-actions"><span id="selected-count">0 selecionados</span><button id="bulk-deactivate" type="button" disabled>Remover da loja</button><button id="bulk-delete" type="button" disabled>Apagar</button></div></div>'+
  '<div id="catalog-products" aria-live="polite"></div>';
  const selectedIds=()=>Array.from(view.querySelectorAll('[data-select-product]:checked')).map(input=>input.value);
@@ -143,6 +143,14 @@ async function catalog(){
   const old=button.dataset.categoryEdit,name=prompt('Novo nome da categoria:',old);if(!name||name.trim()===old)return;
   try{await mutate('/api/admin/categories/'+encodeURIComponent(old),{name:name.trim()});await load('catalog');msg('Categoria renomeada.');}
   catch(error){msg(error.message);}
+ });
+ view.querySelectorAll('[data-move-category]').forEach(button=>button.onclick=async()=>{
+  const index=Number(button.dataset.moveCategory),next=index+Number(button.dataset.direction);
+  if(!Number.isInteger(index)||next<0||next>=categories.length)return;
+  const ordered=[...categories];[ordered[index],ordered[next]]=[ordered[next],ordered[index]];
+  view.querySelectorAll('[data-move-category]').forEach(control=>control.disabled=true);
+  try{const result=await mutate('/api/admin/categories/order',{categoryNames:ordered});categories=result.categories;await load('catalog');msg('Ordem das categorias atualizada.');}
+  catch(error){msg(error.message);view.querySelectorAll('[data-move-category]').forEach(control=>control.disabled=false);}
  });
  view.querySelectorAll('[data-category-delete]').forEach(button=>button.onclick=async()=>{
   const name=button.dataset.categoryDelete;if(!confirm('Excluir a categoria "'+name+'"? Ela precisa estar sem produtos associados.'))return;
