@@ -97,6 +97,10 @@ body:has(#cart-toast:not([hidden])) #cart-toggle .cart-count{
 .cart-totals{display:flex;align-items:center;justify-content:space-between;gap:15px;margin:24px 0 9px;font-size:14px}
 .cart-totals strong{font:400 25px var(--display);text-align:right}
 .cart-small{font-size:11px;line-height:1.7}
+.checkout-assurance{margin:16px 0;padding:13px 14px;border:1px solid rgba(174,137,99,.55);border-radius:12px;background:rgba(174,137,99,.08);color:var(--muted)}
+.checkout-assurance p{margin:0 0 7px;font-size:11px;line-height:1.7}
+.checkout-assurance p:last-child{margin-bottom:0}
+.checkout-assurance strong{color:var(--text)}
 .cart-actions{display:grid;gap:12px;margin-top:20px}
 .cart-actions .button{width:100%;min-height:44px}
 .cart-clear{border:0;background:none;color:#b6a398;padding:8px;font-size:11px;text-decoration:underline}
