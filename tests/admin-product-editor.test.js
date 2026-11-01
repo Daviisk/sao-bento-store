@@ -71,7 +71,9 @@ test('existing product can edit price and add Cor while preserving removed varia
  const form=window.document.querySelector('#product-edit');
  form.elements.name.value='Dobrão atualizado';
  form.elements.price.value='125';
- form.elements.productOptions.value='Lapidado';
+ form.elements.finish_gravado.checked=false;
+ form.elements.finish_lapidado.checked=true;
+ form.elements.finish_sem_gravacao.checked=false;
  window.document.querySelector('#add-custom-area').click();
  const area=window.document.querySelector('.custom-area-item');
  area.querySelector('[name="areaTitle"]').value='Cor';
@@ -88,12 +90,15 @@ test('existing product can edit price and add Cor while preserving removed varia
  window.close();
 });
 
-test('product editor keeps category, options and area controls available',()=>{
+test('product editor exposes three independent finish checkboxes and custom areas',async()=>{
+ const {window}=setup();openCatalog(window);await wait();window.document.querySelector('#new-product').click();
+ for(const id of ['gravado','lapidado','sem_gravacao'])assert.ok(window.document.querySelector('[name="finish_'+id+'"]'));
+ assert.equal(window.document.querySelector('[name="productOptions"]'),null);
  assert.match(admin,/const finishDefinitions=\[\{id:'gravado',label:'Gravado'\}/);
  assert.match(admin,/id="add-custom-area"/);
  assert.match(admin,/name="areaTitle"/);
  assert.match(admin,/name="areaOptions"/);
- assert.match(admin,/optionGroups\};/);
+ assert.match(admin,/optionGroups\};/);window.close();
 });
 
 test('admin category controls reorder and persist the sequence',async()=>{
