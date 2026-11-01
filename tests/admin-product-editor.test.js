@@ -95,6 +95,12 @@ test('product editor exposes three independent finish checkboxes and custom area
  for(const id of ['gravado','lapidado','sem_gravacao'])assert.ok(window.document.querySelector('[name="finish_'+id+'"]'));
  assert.equal(window.document.querySelector('[name="productOptions"]'),null);
  assert.equal(window.document.querySelector('[name="stock"]'),null);
+ const category=window.document.querySelector('[name="category"]');
+ assert.equal(category.options[0].textContent,'Selecione');
+ assert.equal(category.options[0].value,'');
+ assert.equal(category.options[0].disabled,true);
+ assert.equal(category.options[0].hidden,true);
+ assert.equal(category.required,true);
  assert.equal(window.document.querySelector('[name="allowBackorder"]'),null);
  assert.equal(window.document.querySelector('[name="days"]'),null);
  assert.match(admin,/const finishDefinitions=\[\{id:'gravado',label:'Gravado'\}/);
