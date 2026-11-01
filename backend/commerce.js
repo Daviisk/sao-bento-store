@@ -32,7 +32,7 @@ function validateProduct(raw,old){
   if(!Array.isArray(colors)||colors.length>30||new Set(colors).size!==colors.length||colors.some(color=>typeof color!=='string'||!color.trim()||color.length>40||cleanText(color,40)!==color))fail(400,'invalid_colors','Informe até 30 opções de cores válidas, com até 40 caracteres cada.');
  if(!Number.isSafeInteger(raw.priceCents)||raw.priceCents<1||raw.priceCents>10000000||typeof raw.enabled!=='boolean')fail(400,'invalid_product','Confira preço e disponibilidade.');
  if(!validPhoto(raw.image)||!Array.isArray(raw.gallery)||raw.gallery.length>10||raw.gallery.some(v=>!validPhoto(v)))fail(400,'invalid_photo','Selecione imagens da loja ou envie uma foto.');
- if(!Array.isArray(raw.variants)||raw.variants.length<1||raw.variants.length>8)fail(400,'invalid_variants','Informe os acabamentos disponíveis.');
+ if(!Array.isArray(raw.variants)||raw.variants.length<1||raw.variants.length>8)fail(400,'invalid_variants','Informe de 1 a 8 opções disponíveis.');
  const ids=new Set(),variants=raw.variants.map(v=>{
   if(!plain(v)||!/^[a-z0-9_-]{1,30}$/.test(v.id)||ids.has(v.id)||v.enabled!==undefined&&typeof v.enabled!=='boolean')fail(400,'invalid_variants','Confira os acabamentos disponíveis.');
   ids.add(v.id);
