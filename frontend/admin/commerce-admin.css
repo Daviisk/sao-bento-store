@@ -197,3 +197,15 @@ body{background:#f7f3eb;color:#34291e}
 #commerce-admin-view .custom-area-item input,#commerce-admin-view .custom-area-item textarea{width:100%;min-width:0}
 #commerce-admin-view .product-option-group{display:grid;gap:7px;margin:12px 0}
 @media(max-width:640px){#commerce-admin-view .custom-area-item{grid-template-columns:1fr}#commerce-admin-view .custom-area-item button{justify-self:start}}
+
+/* Reordenação de categorias no painel */
+#commerce-admin-view .category-chip{align-items:center;gap:10px}
+#commerce-admin-view .category-chip-actions{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+#commerce-admin-view .category-chip-actions button{min-width:36px;min-height:36px;padding:6px 9px}
+#commerce-admin-view .category-chip-actions button:disabled{opacity:.35;cursor:not-allowed}
+@media(max-width:600px){
+ #commerce-admin-view .category-chip{align-items:flex-start;flex-direction:column}
+ #commerce-admin-view .category-chip strong{width:100%}
+ #commerce-admin-view .category-chip-actions{width:100%}
+ #commerce-admin-view .category-chip-actions button{flex:1}
+}

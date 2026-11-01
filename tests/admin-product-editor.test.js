@@ -16,10 +16,11 @@ function setup(initialProducts=[]){
  window.AbortSignal=AbortSignal;
  window.confirm=()=>true;
  window.crypto.randomUUID=()=> '12345678-1234-4234-8234-123456789012';
- let products=structuredClone(initialProducts),savedPayload=null;
+ let products=structuredClone(initialProducts),categories=['Dobrões','Bolsas'],savedPayload=null;
  window.fetch=async(path,options={})=>{
   const url=String(path),method=options.method||'GET';
-  if(url==='/api/admin/catalog'&&method==='GET')return response({products,categories:['Dobrões','Bolsas']});
+  if(url==='/api/admin/catalog'&&method==='GET')return response({products,categories});
+  if(url==='/api/admin/categories/order'&&method==='PATCH'){categories=JSON.parse(options.body).categoryNames;return response({categories});}
   if(url==='/api/admin/media'&&method==='POST')return response({url:'/api/commerce/media/12345678-1234-4234-8234-123456789012'});
   if(url.startsWith('/api/admin/catalog')&&['POST','PATCH'].includes(method)){
    savedPayload=JSON.parse(options.body);
@@ -93,4 +94,17 @@ test('product editor keeps category, options and area controls available',()=>{
  assert.match(admin,/name="areaTitle"/);
  assert.match(admin,/name="areaOptions"/);
  assert.match(admin,/optionGroups\};/);
+});
+
+test('admin category controls reorder and persist the sequence',async()=>{
+ const {window}=setup();
+ openCatalog(window);await wait();
+ const moveUp=window.document.querySelector('[data-move-category="1"][data-direction="-1"]');
+ assert.ok(moveUp,'second category should have a move-up control');
+ moveUp.click();await wait();await wait();
+ const names=[...window.document.querySelectorAll('.category-chip strong')].map(el=>el.textContent);
+ assert.deepEqual(names,['Bolsas','Dobrões']);
+ assert.ok(window.document.querySelector('[data-move-category="0"][data-direction="-1"]').disabled);
+ assert.ok(window.document.querySelector('[data-move-category="1"][data-direction="1"]').disabled);
+ window.close();
 });
