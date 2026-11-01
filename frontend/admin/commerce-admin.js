@@ -81,7 +81,7 @@ function editProduct(p,isNew=false){
    const selectedFinishes=finishDefinitions.filter(option=>form.elements['finish_'+option.id].checked);
    let nextVariants=selectedFinishes.map(option=>{const previous=oldVariants.find(v=>v.id===option.id);return {...(previous||{}),...option,enabled:true};});
    if(!nextVariants.length)nextVariants=[{id:'padrao',label:'Padrão',enabled:true,stock:null,allowBackorder:true}];
-   nextVariants.push(...oldVariants.filter(v=>v.id!=='padrao'&&!finishDefinitions.some(option=>option.id===v.id)).map(v=>({...v,enabled:false})));
+   const selectedIds=new Set(selectedFinishes.map(option=>option.id));\n   nextVariants.push(...oldVariants.filter(v=>v.id!=='padrao'&&!selectedIds.has(v.id)).map(v=>({...v,enabled:false})));
    const value={productId:isNew?'produto_'+crypto.randomUUID().replace(/-/g,'').slice(0,12):p.productId,name:form.elements.name.value,category:form.elements.category.value,description:form.elements.description.value,material:form.elements.material.value,dimensions:form.elements.dimensions.value,priceCents:Math.round(Number(form.elements.price.value)*100),productionDays:form.elements.days.value===''?null:Number(form.elements.days.value),enabled:form.elements.enabled.checked,image:main,gallery,stock:form.elements.stock.value===''?null:Number(form.elements.stock.value),allowBackorder:form.elements.allowBackorder.checked,variants:nextVariants.map(v=>({id:v.id,label:v.label,enabled:v.enabled!==false})),optionGroups};
    await mutate('/api/admin/catalog'+(isNew?'':'/'+encodeURIComponent(p.productId)),value,isNew?'POST':'PATCH');
    await load('catalog');msg(isNew?'Produto cadastrado.':'Produto atualizado.');
