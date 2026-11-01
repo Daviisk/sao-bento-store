@@ -16,7 +16,7 @@ function extractOrdersPix(remote){
 export const statusLabels={requested:'Pedido recebido',awaiting_art:'Aguardando arte',art_approved:'Arte aprovada',production:'Em produção',shipped:'Enviado',delivered:'Entregue',cancelled:'Cancelado'};
 const images=['dobrao-bronze-prof-v2.webp','dobrao-inox-prof-v2.webp','bolsa-couro-prof-v2.webp','bolsa-trio-prof-v2.webp'];
 const galleries=[[],[],['bolsa-couro-lateral-prof-v2.webp','bolsa-couro-verso-prof-v2.webp','bolsa-couro-aberta-prof-v2.webp','bolsa-couro-perspectiva-prof-v2.webp'],['bolsa-trio-aberta-prof-v2.webp','bolsa-trio-verso-prof-v2.webp']];
-export const seedProducts=defaults.map((p,i)=>({...p,category:i<2?'Dobrões':'Bolsas',description:i<2?'Dobrão para berimbau, gravado ou lapidado.':'Bolsa de couro para guardar e transportar seus dobrões.',material:['Bronze','Aço inoxidável','Couro','Couro'][i],dimensions:i===1?'Diâmetro: 38 mm · Espessura: 8 mm':'',image:'/images/'+images[i],gallery:['/images/'+images[i],...galleries[i].map(n=>'/images/'+n)],variants:(i<2?['gravado','lapidado','sem_gravacao']:['padrao']).map(id=>({id,label:id==='padrao'?'Padrão':id==='gravado'?'Gravado':id==='lapidado'?'Lapidado':'Sem gravação',enabled:true,stock:null,allowBackorder:true})),stock:null,allowBackorder:true,productionDays:null}));
+export const seedProducts=defaults.map((p,i)=>({...p,category:i<2?'Dobrões':'Bolsas',description:i<2?'Dobrão para berimbau, gravado ou lapidado.':'Bolsa de couro para guardar e transportar seus dobrões.',material:['Bronze','Aço inoxidável','Couro','Couro'][i],dimensions:i===1?'Diâmetro: 38 mm · Espessura: 8 mm':'',image:'/images/'+images[i],gallery:['/images/'+images[i],...galleries[i].map(n=>'/images/'+n)],variants:(i<2?['gravado','lapidado','sem_gravacao']:['padrao']).map(id=>({id,label:id==='padrao'?'Padrão':id==='gravado'?'Gravado':id==='lapidado'?'Lapidado':'Sem gravação',enabled:true,stock:null,allowBackorder:true}))}));
 const plain=v=>v&&typeof v==='object'&&!Array.isArray(v);
 export function cleanText(v,max=100,required=false){if(typeof v!=='string'||v.length>max||/[<>\x00-\x1f\x7f]/.test(v)||required&&!v.trim())fail(400,'invalid_text','Confira os campos preenchidos.');return v.trim();}
 function contact(raw){if(!plain(raw))fail(400,'invalid_contact','Informe seu contato.');const name=cleanText(raw.name,100,true),phone=cleanText(raw.phone,30,true).replace(/\D/g,'');if(name.length<2||!/^\d{10,13}$/.test(phone))fail(400,'invalid_contact','Informe nome e telefone com DDD.');return {name,phone};}
@@ -38,15 +38,10 @@ function validateProduct(raw,old){
   if(!plain(v)||!/^[a-z0-9_-]{1,30}$/.test(v.id)||ids.has(v.id)||v.enabled!==undefined&&typeof v.enabled!=='boolean')fail(400,'invalid_variants','Confira os acabamentos disponíveis.');
   ids.add(v.id);
   const previous=old?.variants?.find(item=>item.id===v.id);
-  return {id:v.id,label:cleanText(v.label,50,true),enabled:v.enabled===undefined?previous?.enabled!==false:v.enabled,stock:previous?.stock??null,allowBackorder:previous?.allowBackorder??true};
+  return {id:v.id,label:cleanText(v.label,50,true),enabled:v.enabled===undefined?previous?.enabled!==false:v.enabled};
  });
  if(!variants.some(v=>v.enabled))fail(400,'invalid_variants','Mantenha pelo menos um acabamento disponível.');
- const stock=Object.hasOwn(raw,'stock')?raw.stock:(old?.stock??null);
- const allowBackorder=typeof raw.allowBackorder==='boolean'?raw.allowBackorder:(old?.allowBackorder??true);
- if(stock!==null&&(!Number.isSafeInteger(stock)||stock<0||stock>100000)||typeof allowBackorder!=='boolean')fail(400,'invalid_stock','Informe um estoque válido para o produto.');
- const productionDays=raw.productionDays===null?null:Number(raw.productionDays);
- if(productionDays!==null&&(!Number.isSafeInteger(productionDays)||productionDays<0||productionDays>365))fail(400,'invalid_days','Prazo inválido.');
- return {productId,name,category:cleanText(raw.category||old?.category||'',60,true),description,material,dimensions,optionGroups:optionGroupsClean,priceCents:raw.priceCents,enabled:raw.enabled,image:raw.image,gallery:raw.gallery,variants,stock,allowBackorder,productionDays,maxQuantity:10};
+ return {productId,name,category:cleanText(raw.category||old?.category||'',60,true),description,material,dimensions,optionGroups:optionGroupsClean,priceCents:raw.priceCents,enabled:raw.enabled,image:raw.image,gallery:raw.gallery,variants,maxQuantity:10};
 }
 export function createCommerce({store,config}){
  const db=createCommerceStore(store,config.databaseSchema||'public');
@@ -62,12 +57,8 @@ export function createCommerce({store,config}){
    if(!p.category){p.category=p.productId==='produto_01'||p.productId==='produto_02'?'Dobrões':categories.includes('Bolsas')?'Bolsas':categories[0];catalogChanged=true;}
    if(!Object.hasOwn(p,'material')){p.material=p.productId==='produto_01'?'Bronze':p.productId==='produto_02'?'Aço inoxidável':/bolsa/i.test(p.name)?'Couro':'';catalogChanged=true;}
    if(!Object.hasOwn(p,'dimensions')){p.dimensions=p.productId==='produto_02'?'Diâmetro: 38 mm · Espessura: 8 mm':'';catalogChanged=true;}
-   if(!Object.hasOwn(p,'stock')){
-    const stockValues=(p.variants||[]).map(v=>v.stock);
-    p.stock=stockValues.length&&stockValues.every(Number.isSafeInteger)?stockValues.reduce((sum,value)=>sum+value,0):null;
-    catalogChanged=true;
-   }
-   if(typeof p.allowBackorder!=='boolean'){p.allowBackorder=(p.variants||[]).some(v=>v.allowBackorder===true);catalogChanged=true;}
+   if(Object.hasOwn(p,'stock')||Object.hasOwn(p,'allowBackorder')){delete p.stock;delete p.allowBackorder;catalogChanged=true;}
+   for(const v of p.variants||[]){if(Object.hasOwn(v,'stock')||Object.hasOwn(v,'allowBackorder')){delete v.stock;delete v.allowBackorder;catalogChanged=true;}}
    for(const v of p.variants||[])if(typeof v.enabled!=='boolean'){v.enabled=true;catalogChanged=true;}
    if(p.category==='Dobrões'&&!(p.variants||[]).some(v=>v.id==='sem_gravacao')){
     p.variants.push({id:'sem_gravacao',label:'Sem gravação',enabled:true,stock:null,allowBackorder:true});
@@ -92,15 +83,13 @@ export function createCommerce({store,config}){
  function safeOrder(o){const {tokenHash,customer,adminNotes,owner,...v}=o;v.items=o.items.map(({art,...i})=>({...i,art:art?{name:art.name}:null}));return v;}
  function lines(input,products){
   if(!Array.isArray(input)||!input.length||input.length>20)fail(400,'invalid_cart','Escolha de 1 a 20 itens.');
-  let total=0;const units=new Map(),items=input.map(raw=>{
+  let total=0;const items=input.map(raw=>{
    if(!plain(raw))fail(400,'invalid_item','Item inválido.');
    const p=products.find(p=>p.productId===raw.productId);
    if(!p?.enabled)fail(409,'unavailable_product','Produto indisponível.');
    const v=p.variants.find(v=>v.id===raw.variantId&&v.enabled!==false);
    if(!v)fail(400,'invalid_variant','Escolha um acabamento válido.');
    if(!Number.isSafeInteger(raw.quantity)||raw.quantity<1||raw.quantity>100)fail(400,'invalid_quantity','Quantidade inválida.');
-   const used=(units.get(p.productId)||0)+raw.quantity;units.set(p.productId,used);
-   if(p.stock!==null&&used>p.stock&&!p.allowBackorder)fail(409,'out_of_stock','Estoque insuficiente: '+p.name+'.');
    let engravingNotes=cleanText(raw.engravingNotes||'',500),front=validateImage(raw.front),back=validateImage(raw.back);
    if(raw.engraving||raw.art)fail(400,'invalid_customization','Gravação somente por imagens; use observações para instruções.');
    const supportsEngraving=['gravado','lapidado'].includes(v.id);
@@ -110,7 +99,7 @@ export function createCommerce({store,config}){
    const options={};for(const group of p.optionGroups||[]){const selected=rawOptions[group.name];if(typeof selected!=='string'||!group.options.includes(selected))fail(400,'invalid_options','Escolha uma opção válida em '+group.name+'.');options[group.name]=selected;}
    if(Object.keys(rawOptions).some(name=>!(p.optionGroups||[]).some(group=>group.name===name)))fail(400,'invalid_options','Uma opção enviada não pertence ao produto.');
    const subtotal=p.priceCents*raw.quantity;total+=subtotal;
-   return {productId:p.productId,name:p.name,variantId:v.id,variantLabel:v.label,options,quantity:raw.quantity,unitPrice:p.priceCents,subtotal,engravingNotes,front,back,backorder:p.stock!==null&&used>p.stock,productionDays:p.productionDays};
+   return {productId:p.productId,name:p.name,variantId:v.id,variantLabel:v.label,options,quantity:raw.quantity,unitPrice:p.priceCents,subtotal,engravingNotes,front,back};
   });
   if(total>100000000)fail(400,'total_limit','Valor acima do limite.');
   return {items,total};
@@ -154,27 +143,6 @@ export function createCommerce({store,config}){
   if(['production','shipped','delivered'].includes(raw.status)&&!o.paymentConfirmed)fail(409,'payment_required','Aguarde a confirmação automática do Mercado Pago antes da produção ou envio.');
   if(o.status==='cancelled'&&raw.status!=='cancelled')fail(409,'terminal_order','Pedido cancelado não pode ser reaberto.');
   if(o.status==='delivered'&&raw.status==='cancelled')fail(409,'delivered_order','Pedido entregue exige atendimento para devolução.');
-  const products=await catalog(tx);
-  if(raw.paymentConfirmed&&!o.inventoryCommitted&&raw.status!=='cancelled'){
-   const demand=new Map();for(const item of o.items)demand.set(item.productId,(demand.get(item.productId)||0)+item.quantity);
-   o.stockDeductions=[];
-   for(const [pid,quantity] of demand){
-    const product=products.find(item=>item.productId===pid);if(!product)fail(409,'product_removed','Um produto deste pedido não está mais disponível.');
-    if(product.stock!==null){
-     if(product.stock<quantity&&!product.allowBackorder)fail(409,'out_of_stock','Estoque insuficiente: '+product.name+'.');
-     const deducted=Math.min(quantity,product.stock);product.stock-=deducted;o.stockDeductions.push({pid,quantity:deducted});
-    }
-   }
-   o.inventoryCommitted=true;await tx.put('settings','catalog',products);
-  }
-  if(raw.status==='cancelled'&&o.inventoryCommitted){
-   for(const deduction of o.stockDeductions||[]){
-    const product=products.find(item=>item.productId===deduction.pid);
-    if(product&&Number.isSafeInteger(product.stock))product.stock+=deduction.quantity;
-    else if(product&&deduction.vid){const variant=product.variants.find(item=>item.id===deduction.vid);if(variant&&Number.isSafeInteger(variant.stock))variant.stock+=deduction.quantity;}
-   }
-   o.inventoryCommitted=false;await tx.put('settings','catalog',products);
-  }
   if(o.status!==raw.status)o.history.push({status:raw.status,at:new Date().toISOString()});
   o.status=raw.status;o.trackingCode=cleanText(raw.trackingCode||'',100);o.adminNotes=cleanText(raw.adminNotes||'',1000);
   if(raw.shippingCents!==null&&(!Number.isSafeInteger(raw.shippingCents)||raw.shippingCents<0||raw.shippingCents>1000000))fail(400,'invalid_shipping','Frete inválido.');
