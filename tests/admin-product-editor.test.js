@@ -1,27 +1,96 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {JSDOM} from 'jsdom';
 
 const admin=readFileSync('frontend/admin/commerce-admin.js','utf8');
+const html=`<!doctype html><html><body>
+<div id="commerce-admin-view" hidden></div><div id="orders-view"></div><div id="customers-view"></div>
+<p id="panel-message"></p><h1 id="page-title"></h1><button id="refresh"></button>
+<nav><button class="nav" data-view="orders"></button><button class="nav" data-view="customers"></button><button class="nav" data-view="catalog"></button></nav>
+</body></html>`;
 
-test('new product editor has its default finish definitions in scope',()=>{
- assert.match(admin,/const finishDefinitions=\[\{id:'gravado',label:'Gravado'\},\{id:'lapidado',label:'Lapidado'\},\{id:'sem_gravacao',label:'Sem gravação'\}\]/);
- assert.match(admin,/const variants=isDobrao\?finishDefinitions\.map/);
+function setup(initialProducts=[]){
+ const dom=new JSDOM(html,{url:'https://store.test/admin',runScripts:'outside-only'});
+ const {window}=dom;
+ window.AbortSignal=AbortSignal;
+ window.confirm=()=>true;
+ window.crypto.randomUUID=()=> '12345678-1234-4234-8234-123456789012';
+ let products=structuredClone(initialProducts),savedPayload=null;
+ window.fetch=async(path,options={})=>{
+  const url=String(path),method=options.method||'GET';
+  if(url==='/api/admin/catalog'&&method==='GET')return response({products,categories:['Dobrões','Bolsas']});
+  if(url==='/api/admin/media'&&method==='POST')return response({url:'/api/commerce/media/12345678-1234-4234-8234-123456789012'});
+  if(url.startsWith('/api/admin/catalog')&&['POST','PATCH'].includes(method)){
+   savedPayload=JSON.parse(options.body);
+   if(method==='POST')products=[...products,savedPayload];
+   else products=products.map(p=>p.productId===savedPayload.productId?savedPayload:p);
+   return response(savedPayload);
+  }
+  throw new Error('Unexpected request: '+method+' '+url);
+ };
+ function response(data){return {ok:true,status:200,json:async()=>data};}
+ window.eval(admin);
+ return {window,dom,getSaved:()=>savedPayload};
+}
+const wait=()=>new Promise(resolve=>setTimeout(resolve,30));
+function openCatalog(window){window.document.querySelector('[data-view="catalog"]').click();}
+
+test('new product editor opens and saves custom areas such as Cor',async()=>{
+ const {window,getSaved}=setup();
+ openCatalog(window);await wait();
+ window.document.querySelector('#new-product').click();
+ assert.ok(window.document.querySelector('#product-edit'),'new product form should open');
+ window.document.querySelector('#add-custom-area').click();
+ const area=window.document.querySelector('.custom-area-item');
+ area.querySelector('[name="areaTitle"]').value='Cor';
+ area.querySelector('[name="areaOptions"]').value='Azul\nVermelho';
+ const form=window.document.querySelector('#product-edit');
+ form.elements.name.value='Dobrão de teste';
+ form.elements.category.value='Dobrões';
+ form.elements.price.value='100';
+ const file=new window.File([new Uint8Array([1,2,3])],'produto.png',{type:'image/png'});
+ Object.defineProperty(form.elements.upload,'files',{configurable:true,value:[file]});
+ form.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
+ await wait();await wait();
+ const saved=getSaved();
+ assert.ok(saved,'new product should be sent to the API');
+ assert.equal(saved.name,'Dobrão de teste');
+ assert.deepEqual(saved.optionGroups,[{id:'area_1',name:'Cor',options:['Azul','Vermelho']}]);
+ assert.equal(saved.image,'/api/commerce/media/12345678-1234-4234-8234-123456789012');
+ assert.equal(window.document.querySelector('#panel-message').textContent,'Produto cadastrado.');
+ window.close();
 });
 
-test('admin can add and remove custom option areas such as color',()=>{
- assert.match(admin,/Nome da área<input name="areaTitle"/);
- assert.match(admin,/Opções \(uma por linha\)<textarea name="areaOptions"/);
+test('existing product can edit price and add Cor while preserving removed variants as disabled',async()=>{
+ const existing={productId:'produto_teste',name:'Dobrão antigo',category:'Dobrões',description:'',material:'Bronze',dimensions:'',priceCents:10000,enabled:true,image:'/images/test.webp',gallery:[],stock:null,allowBackorder:true,productionDays:null,variants:[{id:'gravado',label:'Gravado',enabled:true},{id:'lapidado',label:'Lapidado',enabled:true}],optionGroups:[]};
+ const {window,getSaved}=setup([existing]);
+ openCatalog(window);await wait();
+ window.document.querySelector('[data-edit-product="produto_teste"]').click();
+ const form=window.document.querySelector('#product-edit');
+ form.elements.name.value='Dobrão atualizado';
+ form.elements.price.value='125';
+ form.elements.productOptions.value='Lapidado';
+ window.document.querySelector('#add-custom-area').click();
+ const area=window.document.querySelector('.custom-area-item');
+ area.querySelector('[name="areaTitle"]').value='Cor';
+ area.querySelector('[name="areaOptions"]').value='Dourado\nPrateado';
+ form.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
+ await wait();await wait();
+ const saved=getSaved();
+ assert.ok(saved,'edited product should be sent to the API');
+ assert.equal(saved.name,'Dobrão atualizado');
+ assert.equal(saved.priceCents,12500);
+ assert.deepEqual(saved.optionGroups,[{id:'area_1',name:'Cor',options:['Dourado','Prateado']}]);
+ assert.ok(saved.variants.some(v=>v.id==='gravado'&&v.enabled===false),'removed option must remain stored but disabled');
+ assert.ok(saved.variants.some(v=>v.id==='lapidado'&&v.enabled===true));
+ window.close();
+});
+
+test('product editor keeps category, options and area controls available',()=>{
+ assert.match(admin,/const finishDefinitions=\[\{id:'gravado',label:'Gravado'\}/);
  assert.match(admin,/id="add-custom-area"/);
- assert.match(admin,/\$\('#add-custom-area'\)\.addEventListener\('click',addArea\)/);
- assert.match(admin,/data-remove-area/);
+ assert.match(admin,/name="areaTitle"/);
+ assert.match(admin,/name="areaOptions"/);
  assert.match(admin,/optionGroups\};/);
-});
-
-test('editing a product can deactivate old variants without breaking order history',()=>{
- assert.match(admin,/nextVariants\.push\(\.\.\.oldVariants\.filter\(v=>!usedIds\.has\(v\.id\)\)\.map\(v=>\(\{\.\.\.v,enabled:false\}\)\)\)/);
-});
-
-test('new and existing product forms submit to their matching admin catalog endpoints',()=>{
- assert.ok(admin.includes("await mutate('/api/admin/catalog'+(isNew?'':'/'+encodeURIComponent(p.productId)),value,isNew?'POST':'PATCH');"));
 });
