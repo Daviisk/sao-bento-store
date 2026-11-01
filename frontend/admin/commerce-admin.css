@@ -118,7 +118,7 @@ body{background:#f7f3eb;color:#34291e}
 #commerce-admin-view .admin-empty{padding:25px;text-align:center;color:#756750}
 #commerce-admin-view .product-edit-form{max-width:900px;gap:15px}
 #commerce-admin-view .product-edit-form>label,#commerce-admin-view .product-edit-form .admin-grid>label{min-width:0}
-#commerce-admin-view .product-photo-editor,#commerce-admin-view .finish-manager,#commerce-admin-view .stock-manager{display:grid;gap:12px;padding:16px;border:1px solid #e0d0b3;border-radius:14px;background:#fffcf6}
+#commerce-admin-view .product-photo-editor,#commerce-admin-view .finish-manager,#commerce-admin-view .stock-manager,#commerce-admin-view .color-manager{display:grid;gap:12px;padding:16px;border:1px solid #e0d0b3;border-radius:14px;background:#fffcf6}
 #commerce-admin-view .finish-manager[hidden]{display:none}
 #commerce-admin-view .finish-options{display:flex;gap:9px;flex-wrap:wrap}
 #commerce-admin-view .finish-option{display:flex!important;align-items:center;gap:8px;padding:10px 13px;border:1px solid #decfb8;border-radius:10px;background:white;cursor:pointer}
