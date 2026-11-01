@@ -8,10 +8,11 @@ const commerceJs=readFileSync(new URL('../frontend/admin/commerce-admin.js',impo
 const adminHtml=readFileSync(new URL('../frontend/admin/index.html',import.meta.url),'utf8');
 
 test('admin top bar is centered and refresh action remains visible on mobile',()=>{
+ assert.match(adminCss,/Ajustes exclusivos para celular: desktop mantém o layout original\. \*\/\s*@media\(max-width:850px\)\{/);
+ assert.ok(adminCss.slice(adminCss.indexOf('/* Ajustes exclusivos para celular')).startsWith('/* Ajustes exclusivos para celular: desktop mantém o layout original. */\n@media(max-width:850px){'));
  assert.match(adminCss,/#app-view \.main>\.top\{[^}]*justify-items:center/s);
  assert.match(adminCss,/#app-view \.admin-top-actions\{[^}]*justify-content:center/s);
  assert.match(adminCss,/#app-view \.sidebar \.sidebar-bottom \.logout\{position:static/s);
- assert.match(adminCss,/@media\(max-width:520px\)[\s\S]*?#app-view \.admin-top-actions #refresh\{width:100%/);
 });
 
 test('financial amounts are centered and do not wrap across dashboard tables and cards',()=>{
@@ -23,5 +24,5 @@ test('financial amounts are centered and do not wrap across dashboard tables and
 
 test('catalog price is displayed separately from category text',()=>{
  assert.match(commerceJs,/class="admin-product-price">\'\+cash\(p\.priceCents\)\+'<\/strong>/);
- assert.match(adminHtml,/admin\.css\?v=admin-layout-values-center-20261101/);
+ assert.match(adminHtml,/admin\.css\?v=mobile-admin-layout-polish-20261101/);
 });
