@@ -186,5 +186,5 @@ body{background:#f7f3eb;color:#34291e}
 #commerce-admin-view .product-spec-fields{margin:2px 0 0}
 #commerce-admin-view .product-spec-fields+small{display:block;margin:-6px 0 12px;color:#786b59;font-size:12px;line-height:1.5}
 
-#commerce-admin-view .custom-colors-field{display:grid;gap:8px;font-weight:600}
-#commerce-admin-view .custom-colors-field textarea{width:100%;min-height:112px;resize:vertical;line-height:1.5}
+#commerce-admin-view .custom-options-field{display:grid;gap:8px;font-weight:600}
+#commerce-admin-view .custom-options-field textarea{width:100%;min-height:112px;resize:vertical;line-height:1.5}
