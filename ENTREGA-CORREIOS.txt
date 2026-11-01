@@ -39,7 +39,7 @@ backend da loja; esses campos são tokenizados pelo MercadoPago.js.
 
 PRAZO E EXPEDIÇÃO
 O prazo retornado pelo provedor é estimativa de transporte após a postagem.
-Separação, compra de etiqueta, postagem, rastreamento e baixa de estoque ainda
+Separação, compra de etiqueta, postagem e rastreamento ainda
 precisam ser tratados pela operação da loja. A tabela outbox do backend bloqueia
 expedição pendente em reembolso, reembolso parcial, mediação, cancelamento ou
 chargeback, mas não existe consumidor automático de expedição neste projeto.
