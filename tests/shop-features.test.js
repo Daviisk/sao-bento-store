@@ -75,13 +75,11 @@ test('products removed from the store are not rendered in the public product gri
  assert.equal([...d.querySelectorAll('#grid .piece')].some(card=>card.textContent.includes('Indisponível')),false);
 });
 
-test('product detail displays material, verified dimensions and clear engraving instructions without reviews',async t=>{
+test('product detail displays material and verified dimensions without extra engraving guidance or reviews',async t=>{
  const {w,d,calls}=await page(t);
  d.querySelector('[data-commerce-detail="produto_01"]').click();await tick();
  assert.match(d.querySelector('.product-specs').textContent,/Bronze/);
- assert.match(d.querySelector('.engraving-info').textContent,/Gravado/);
- assert.match(d.querySelector('.engraving-info').textContent,/Lapidado/);
- assert.match(d.querySelector('.engraving-info').textContent,/Sem gravação/);
+ assert.equal(d.querySelector('.engraving-info'),null);
  assert.equal(d.querySelector('.reviews'),null);
  assert.equal(d.querySelector('.product-delivery-note'),null,'production and availability note must not appear');
  assert.equal(calls.some(call=>String(call.path).includes('/reviews/')),false);
