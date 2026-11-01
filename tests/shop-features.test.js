@@ -82,6 +82,7 @@ test('product detail displays material, verified dimensions and clear engraving 
  assert.match(d.querySelector('.engraving-info').textContent,/Lapidado/);
  assert.match(d.querySelector('.engraving-info').textContent,/Sem gravação/);
  assert.equal(d.querySelector('.reviews'),null);
+ assert.equal(d.querySelector('.product-delivery-note'),null,'production and availability note must not appear');
  assert.equal(calls.some(call=>String(call.path).includes('/reviews/')),false);
  await w.SBFeatures.detailByIndex(1);await tick();
  assert.match(d.querySelector('.product-specs').textContent,/Aço inoxidável/);
