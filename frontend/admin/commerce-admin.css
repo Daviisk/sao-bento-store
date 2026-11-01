@@ -220,7 +220,7 @@ body{background:#f7f3eb;color:#34291e}
 #commerce-admin-view #custom-orders-list .admin-record h3{line-height:1.4}
 #commerce-admin-view #custom-orders-list .admin-record p{line-height:1.55;overflow-wrap:anywhere}
 @media(max-width:650px){
- #commerce-admin-view .admin-product-copy .admin-product-price{font-size:16px}
+ #commerce-admin-view .admin-product-copy .admin-product-price{font-size:16px;font-variant-numeric:tabular-nums}
  #commerce-admin-view .custom-financial-summary{gap:9px}
  #commerce-admin-view .custom-financial-summary article{padding:14px 9px}
  #commerce-admin-view .custom-financial-summary strong{font-size:clamp(15px,4vw,20px)}
