@@ -106,8 +106,10 @@ export function createCommerce({store,config}){
    const supportsEngraving=['gravado','lapidado'].includes(v.id);
    if(!supportsEngraving&&(front||back||engravingNotes&&engravingNotes!=='Sem gravação'))fail(400,'invalid_customization','Personalização disponível somente nos dobrões.');
    if(v.id==='sem_gravacao'){if(front||back)fail(400,'invalid_customization','Sem gravação não aceita arquivos.');engravingNotes='Sem gravação';}
+   const color=raw.color===undefined?'':cleanText(raw.color,30);
+   if((p.colors||[]).length?!(p.colors||[]).includes(color):Boolean(color))fail(400,'invalid_color','Escolha uma cor disponível para o produto.');
    const subtotal=p.priceCents*raw.quantity;total+=subtotal;
-   return {productId:p.productId,name:p.name,variantId:v.id,variantLabel:v.label,quantity:raw.quantity,unitPrice:p.priceCents,subtotal,engravingNotes,front,back,backorder:p.stock!==null&&used>p.stock,productionDays:p.productionDays};
+   return {productId:p.productId,name:p.name,variantId:v.id,variantLabel:v.label,color,quantity:raw.quantity,unitPrice:p.priceCents,subtotal,engravingNotes,front,back,backorder:p.stock!==null&&used>p.stock,productionDays:p.productionDays};
   });
   if(total>100000000)fail(400,'total_limit','Valor acima do limite.');
   return {items,total};
