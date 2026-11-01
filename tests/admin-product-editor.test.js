@@ -71,7 +71,9 @@ test('existing product can edit price and add Cor while preserving removed varia
  const form=window.document.querySelector('#product-edit');
  form.elements.name.value='Dobrão atualizado';
  form.elements.price.value='125';
- form.elements.finish_gravado.checked=false;\n form.elements.finish_lapidado.checked=true;\n form.elements.finish_sem_gravacao.checked=false;
+ form.elements.finish_gravado.checked=false;
+ form.elements.finish_lapidado.checked=true;
+ form.elements.finish_sem_gravacao.checked=false;
  window.document.querySelector('#add-custom-area').click();
  const area=window.document.querySelector('.custom-area-item');
  area.querySelector('[name="areaTitle"]').value='Cor';
@@ -96,7 +98,7 @@ test('product editor exposes three independent finish checkboxes and custom area
  assert.match(admin,/id="add-custom-area"/);
  assert.match(admin,/name="areaTitle"/);
  assert.match(admin,/name="areaOptions"/);
- assert.match(admin,/optionGroups\};/);
+ assert.match(admin,/optionGroups\};/);window.close();
 });
 
 test('admin category controls reorder and persist the sequence',async()=>{
