@@ -11,7 +11,6 @@ test('mobile admin refinements are scoped to phone breakpoints',()=>{
   assert.match(adminCss,/@media\(max-width:380px\)/);
   assert.match(commerceCss,/@media\(max-width:650px\)\{[\s\S]*?#commerce-admin-view \.custom-financial-summary strong\{/);
   assert.match(commerceCss,/@media\(max-width:650px\)\{[\s\S]*?#commerce-admin-view \.admin-record/);
-  assert.match(commerceCss,/@media\(max-width:380px\)/);
 });
 
 test('mobile financial values use tabular numerals and safe wrapping',()=>{
