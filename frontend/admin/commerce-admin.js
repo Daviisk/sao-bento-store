@@ -5,11 +5,8 @@ const mutate=(path,body,method='PATCH')=>api(path,{method,headers:{'Content-Type
 function msg(t){$('#panel-message').textContent=t;}
 async function image(input){const f=input.files[0];if(!f)return null;if(f.size>1048576||!['image/png','image/jpeg','image/webp'].includes(f.type))throw Error('Use JPG, PNG ou WebP até 1 MB.');return {name:f.name,data:await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(f);})};}
 const finishDefinitions=[{id:'gravado',label:'Gravado'},{id:'lapidado',label:'Lapidado'},{id:'sem_gravacao',label:'Sem gravação'}];
-function productColorsMarkup(p){const colors=Array.isArray(p.colors)?p.colors.join('\n'):'';return '<label class="custom-colors-field">Opções de cores (uma por linha)<textarea name="productColors" rows="5" maxlength="1000" placeholder="Ex.:\nPreto\nBranco\nAzul">'+esc(colors)+'</textarea></label>';}
-function finishVariantsMarkup(p){
- const current=new Map((p.variants||[]).map(v=>[v.id,v]));
- return finishDefinitions.map(option=>'<label class="finish-option"><input type="checkbox" name="finish" value="'+option.id+'" '+(current.has(option.id)&&current.get(option.id).enabled!==false?'checked':'')+'><span>'+option.label+'</span></label>').join('');
-}
+function productOptionsMarkup(p){const options=Array.isArray(p.variants)?p.variants.filter(v=>v.id!=='padrao'||p.category!=='Dobrões').map(v=>v.label):[];return '<label class="custom-options-field">Opções disponíveis (uma por linha)<textarea name="productOptions" rows="5" maxlength="500" placeholder="Ex.:\nGravado\nLapidado\nSem gravação">'+esc(options.join('\n'))+'</textarea></label>';}
+function finishVariantsMarkup(p){return productOptionsMarkup(p);}
 function editProduct(p,isNew=false){
  let mainImage=isNew?'':(p.image||'');
  let galleryOrder=isNew?[]:(p.gallery||[]).filter(src=>src!==p.image);
@@ -43,7 +40,7 @@ function editProduct(p,isNew=false){
  };
  const formGallery=()=>$('#product-gallery-list');
  const defaultFinish=[{id:'gravado',label:'Gravado',enabled:true},{id:'lapidado',label:'Lapidado',enabled:true},{id:'sem_gravacao',label:'Sem gravação',enabled:true}];
- const initialVariants=p.variants?.length?p.variants:defaultFinish;
+ const initialVariants=p.variants?.length?p.variants:(p.category==='Dobrões'?defaultFinish:[{id:'padrao',label:'Padrão',enabled:true}]);
  view.innerHTML='<div class="admin-editor-head"><div><h2>'+(isNew?'Novo produto':'Editar produto')+'</h2><p>Dados, fotos, acabamentos e estoque em um só lugar.</p></div></div><form id="product-edit" class="product-edit-form">'+
  '<div class="admin-grid"><label>Nome do produto<input name="name" required maxlength="100" value="'+esc(p.name)+'" placeholder="Ex.: Dobrão de Bronze"></label><label>Categoria<select name="category" required>'+categories.map(cat=>'<option value="'+esc(cat)+'" '+(p.category===cat?'selected':'')+'>'+esc(cat)+'</option>').join('')+'</select></label></div>'+
  '<div class="admin-grid"><label>Preço (R$)<input name="price" type="number" inputmode="decimal" min="0.01" max="100000" step="0.01" required value="'+(p.priceCents/100).toFixed(2)+'"></label><label>Prazo de produção (dias úteis)<input name="days" type="number" min="0" max="365" value="'+(p.productionDays??'')+'" placeholder="A confirmar"></label></div>'+
@@ -51,26 +48,11 @@ function editProduct(p,isNew=false){
  '<div class="admin-grid product-spec-fields"><label>Material<input name="material" maxlength="80" value="'+esc(p.material||'')+'" placeholder="Ex.: Bronze, aço inoxidável, couro"></label><label>Dimensões<input name="dimensions" maxlength="120" value="'+esc(p.dimensions||'')+'" placeholder="Ex.: Diâmetro: 38 mm · Espessura: 8 mm"></label></div>'+
  '<small>Informe somente medidas e materiais confirmados para este produto. Campos vazios não aparecem na loja.</small>'+
  '<section class="product-photo-editor"><div class="admin-section-heading"><div><h3>Fotos e arquivos</h3><p>A foto principal aparece primeiro. Use ↑ / ↓ para mudar a sequência; ao subir a primeira foto adicional, ela vira a capa.</p></div></div><label>Substituir foto principal '+(isNew?'(obrigatória)':'(opcional)')+'<input name="upload" type="file" accept="image/png,image/jpeg,image/webp" '+(isNew?'required':'')+'></label>'+photoPreview+'<label>Adicionar fotos à galeria<input name="galleryUpload" type="file" accept="image/png,image/jpeg,image/webp" multiple></label><div id="product-gallery-list" class="product-gallery-preview"></div><small>JPG, PNG ou WebP · até 1 MB por arquivo · máximo de 10 fotos. A sequência só é salva ao salvar o produto.</small></section>'+
- '<section class="finish-manager" id="finish-manager"><div class="admin-section-heading"><div><h3>Acabamentos disponíveis</h3><p>Escolha o que o cliente poderá selecionar no dobrão.</p></div></div><div class="finish-options">'+finishVariantsMarkup({...p,variants:initialVariants})+'</div><small>Gravado e Lapidado permitem enviar arte. Sem gravação não solicita arquivos.</small></section>'+
- '<section class="color-manager"><div class="admin-section-heading"><div><h3>Cores disponíveis</h3><p>Selecione as cores que o cliente poderá escolher ao comprar.</p></div></div><div class="finish-options color-options">'+productColorsMarkup(p)+'</div><small>Se nenhuma cor for marcada, a seleção de cores não aparecerá na página do produto.</small></section>'+
+ '<section class="finish-manager" id="finish-manager"><div class="admin-section-heading"><div><h3>Opções do produto</h3><p>Escreva as opções que o cliente poderá escolher, uma por linha.</p></div></div><div class="finish-options">'+finishVariantsMarkup({...p,variants:initialVariants})+'</div><small>Ex.: Gravado, Lapidado, Sem gravação, Dourado, Prateado. Deixe em branco para não exibir esse campo na loja. Máximo de 8 opções.</small></section>'+
  '<section class="stock-manager"><div class="admin-section-heading"><div><h3>Estoque do produto</h3><p>Uma quantidade total, compartilhada entre todos os acabamentos.</p></div></div><div class="admin-grid"><label>Quantidade em estoque<input name="stock" type="number" min="0" max="100000" step="1" value="'+(p.stock??'')+'" placeholder="Em branco: não controlar"></label><label class="check stock-backorder"><input name="allowBackorder" type="checkbox" '+(p.allowBackorder!==false?'checked':'')+'>Permitir encomenda quando zerar</label></div><small>O estoque não é dividido entre Gravado, Lapidado ou Sem gravação. O sistema soma todos os itens do mesmo produto no pedido.</small></section>'+
  '<label class="check product-enabled"><input name="enabled" type="checkbox" '+(p.enabled?'checked':'')+'>Produto ativo na loja</label>'+
  '<div class="product-form-actions"><button type="submit">Salvar</button><button type="button" id="back-catalog" class="secondary-action">Cancelar</button></div><p id="save-message" role="status"></p></form>';
- const form=$('#product-edit'),finishManager=$('#finish-manager'),finishOptions=form.querySelector('.finish-options');
- const hasExistingFinishes=initialVariants.some(v=>finishDefinitions.some(option=>option.id===v.id));
- const refreshFinishVisibility=()=>{finishManager.hidden=!(form.elements.category.value==='Dobrões'||(form.elements.category.value===p.category&&hasExistingFinishes));};
- if(form.elements.category.value!=='Dobrões'&&isNew){
-  initialVariants.splice(0,initialVariants.length,{id:'padrao',label:'Padrão',enabled:true});
- }
- refreshFinishVisibility();
- form.elements.category.addEventListener('change',()=>{
-  if(form.elements.category.value==='Dobrões'){
-   finishOptions.innerHTML=finishVariantsMarkup({variants:finishDefinitions.map(item=>({id:item.id,enabled:true}))});
-  }else{
-   finishOptions.replaceChildren();
-  }
-  refreshFinishVisibility();
- });
+ const form=$('#product-edit');
  $('#back-catalog').onclick=()=>load('catalog');
  drawGallery();
  form.elements.upload.addEventListener('change',()=>{
@@ -89,18 +71,14 @@ function editProduct(p,isNew=false){
    gallery=[...new Set([main,...gallery].filter(Boolean))];if(gallery.length>10)throw Error('A galeria aceita no máximo 10 imagens.');
    if(isNew&&!mainFile)throw Error('Selecione uma foto principal para cadastrar o produto.');
    const oldVariants=p.variants||[];
-   let nextVariants;
-   if(form.elements.category.value==='Dobrões'){
-    const selected=new Set(Array.from(form.querySelectorAll('input[name="finish"]:checked')).map(input=>input.value));
-    if(!selected.size)throw Error('Selecione pelo menos um acabamento.');
-    nextVariants=oldVariants.map(v=>({...v,enabled:selected.has(v.id)}));
-    for(const option of finishDefinitions)if(selected.has(option.id)&&!nextVariants.some(v=>v.id===option.id))nextVariants.push({...option,enabled:true,stock:null,allowBackorder:true});
-    if(!nextVariants.some(v=>v.enabled))throw Error('Selecione pelo menos um acabamento.');
-   }else{
-    nextVariants=oldVariants.map(v=>({...v,enabled:v.id==='padrao'}));
-    if(!nextVariants.some(v=>v.id==='padrao'))nextVariants.push({id:'padrao',label:'Padrão',enabled:true});
-   }
-   const value={productId:isNew?'produto_'+crypto.randomUUID().replace(/-/g,'').slice(0,12):p.productId,name:form.elements.name.value,category:form.elements.category.value,description:form.elements.description.value,material:form.elements.material.value,dimensions:form.elements.dimensions.value,priceCents:Math.round(Number(form.elements.price.value)*100),productionDays:form.elements.days.value===''?null:Number(form.elements.days.value),enabled:form.elements.enabled.checked,image:main,gallery,stock:form.elements.stock.value===''?null:Number(form.elements.stock.value),allowBackorder:form.elements.allowBackorder.checked,variants:nextVariants.map(v=>({id:v.id,label:v.label,enabled:v.enabled!==false})),colors:(form.elements.productColors.value||'').split(/\r?\n/).map(color=>color.trim()).filter(Boolean)};
+   const optionLabels=(form.elements.productOptions.value||'').split(/\r?\n/).map(value=>value.trim()).filter(Boolean);
+   if(optionLabels.length>8)throw Error('Cadastre no máximo 8 opções.');
+   if(new Set(optionLabels.map(value=>value.toLocaleLowerCase('pt-BR'))).size!==optionLabels.length)throw Error('Não repita o nome de uma opção.');
+   const optionId=label=>{const normalized=label.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');if(/^gravado$/.test(normalized))return 'gravado';if(/^lapidado$/.test(normalized))return 'lapidado';if(/^sem_gravacao$/.test(normalized))return 'sem_gravacao';return (normalized||'opcao') .slice(0,22);};
+   const usedIds=new Set();
+   let nextVariants=optionLabels.map((label,index)=>{let id=optionId(label),base=id,n=2;while(usedIds.has(id))id=(base.slice(0,18)+'_'+n++);usedIds.add(id);const previous=oldVariants.find(v=>v.id===id);return {...(previous||{}),id,label,enabled:true};});
+   if(!nextVariants.length)nextVariants=[{id:'padrao',label:'Padrão',enabled:true,stock:null,allowBackorder:true}];
+   const value={productId:isNew?'produto_'+crypto.randomUUID().replace(/-/g,'').slice(0,12):p.productId,name:form.elements.name.value,category:form.elements.category.value,description:form.elements.description.value,material:form.elements.material.value,dimensions:form.elements.dimensions.value,priceCents:Math.round(Number(form.elements.price.value)*100),productionDays:form.elements.days.value===''?null:Number(form.elements.days.value),enabled:form.elements.enabled.checked,image:main,gallery,stock:form.elements.stock.value===''?null:Number(form.elements.stock.value),allowBackorder:form.elements.allowBackorder.checked,variants:nextVariants.map(v=>({id:v.id,label:v.label,enabled:v.enabled!==false}))};
    await mutate('/api/admin/catalog'+(isNew?'':'/'+encodeURIComponent(p.productId)),value,isNew?'POST':'PATCH');
    await load('catalog');msg(isNew?'Produto cadastrado.':'Produto atualizado.');
   }catch(err){$('#save-message').textContent=err.message;button.disabled=false;button.textContent='Salvar';}
