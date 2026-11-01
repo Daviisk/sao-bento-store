@@ -209,7 +209,7 @@ body{background:#f7f3eb;color:#34291e}
 }
 
 
-/* Valores do catálogo e resumo financeiro com hierarquia e alinhamento consistentes. */
+@media(max-width:650px){
 #commerce-admin-view .admin-product-copy{text-align:center}
 #commerce-admin-view .admin-product-copy>p{margin:3px 0;color:#756750;font-size:12px;line-height:1.45}
 #commerce-admin-view .admin-product-copy .admin-product-price{display:block;margin:6px 0;color:#62431c;font-size:17px;line-height:1.3;font-weight:850;font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -224,4 +224,6 @@ body{background:#f7f3eb;color:#34291e}
  #commerce-admin-view .custom-financial-summary{gap:9px}
  #commerce-admin-view .custom-financial-summary article{padding:14px 9px}
  #commerce-admin-view .custom-financial-summary strong{font-size:clamp(15px,4vw,20px)}
+}
+
 }
