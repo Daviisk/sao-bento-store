@@ -188,3 +188,12 @@ body{background:#f7f3eb;color:#34291e}
 
 #commerce-admin-view .custom-options-field{display:grid;gap:8px;font-weight:600}
 #commerce-admin-view .custom-options-field textarea{width:100%;min-height:112px;resize:vertical;line-height:1.5}
+
+
+/* Editor de áreas personalizadas por produto */
+#commerce-admin-view .custom-area-manager{display:grid;gap:14px;margin:22px 0;padding:16px;border:1px solid #e4dac8;border-radius:14px;background:#fffdf7}
+#commerce-admin-view .custom-area-item{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) auto;align-items:end;gap:12px;padding:14px;border:1px solid #e4dac8;border-radius:12px;background:#fff}
+#commerce-admin-view .custom-area-item label{display:grid;gap:6px}
+#commerce-admin-view .custom-area-item input,#commerce-admin-view .custom-area-item textarea{width:100%;min-width:0}
+#commerce-admin-view .product-option-group{display:grid;gap:7px;margin:12px 0}
+@media(max-width:640px){#commerce-admin-view .custom-area-item{grid-template-columns:1fr}#commerce-admin-view .custom-area-item button{justify-self:start}}
