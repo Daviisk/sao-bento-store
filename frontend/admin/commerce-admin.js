@@ -4,7 +4,6 @@ const api=async(path,options={})=>{const r=await fetch(path,{credentials:'same-o
 const mutate=(path,body,method='PATCH')=>api(path,{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
 function msg(t){$('#panel-message').textContent=t;}
 async function image(input){const f=input.files[0];if(!f)return null;if(f.size>1048576||!['image/png','image/jpeg','image/webp'].includes(f.type))throw Error('Use JPG, PNG ou WebP até 1 MB.');return {name:f.name,data:await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(f);})};}
-const finishDefinitions=[{id:'gravado',label:'Gravado'},{id:'lapidado',label:'Lapidado'},{id:'sem_gravacao',label:'Sem gravação'}];
 function productOptionsMarkup(p){const options=Array.isArray(p.variants)?p.variants.filter(v=>v.id!=='padrao'||p.category!=='Dobrões').map(v=>v.label):[];return '<label class="custom-options-field">Opções disponíveis (uma por linha)<textarea name="productOptions" rows="5" maxlength="500" placeholder="Ex.:\nGravado\nLapidado\nSem gravação">'+esc(options.join('\n'))+'</textarea></label>';}
 function finishVariantsMarkup(p){return productOptionsMarkup(p);}
 function editProduct(p,isNew=false){
