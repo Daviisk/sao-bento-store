@@ -5,6 +5,9 @@ test('custom area selects use only a disabled generic Selecione placeholder',asy
  const catalog=seedProducts.map((product,index)=>index===0?{...product,optionGroups:[{name:'Cor',options:['Preto','Dourado']},{name:'Material',options:['Bronze','Inox']}]}:product);
  const {w,d}=await page(t,catalog);
  d.querySelector('[data-commerce-detail="produto_01"]').click();await tick();
+ const cards=[...d.querySelectorAll('#custom-product .product-option-card')];
+ assert.equal(cards.length,2,'each custom area should have its own bordered card');
+ assert.deepEqual(cards.map(card=>card.querySelector('.product-option-group')?.childNodes[0]?.textContent.trim()),['Cor','Material']);
  const selects=[...d.querySelectorAll('#custom-product select[data-option-group]')];
  assert.equal(selects.length,2);
  for(const select of selects){
