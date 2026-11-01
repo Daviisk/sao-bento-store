@@ -97,17 +97,9 @@ Atualizado após a rodada de implementação de numeração amigável, históric
 - ⬜ Mostrar histórico completo de pedidos por cliente.
 - ⬜ Mostrar endereços já utilizados.
 
-## 6. Estoque real — ⬜ Pendente
+## 6. Controle de estoque — removido
 
-- ⬜ Criar tabela de estoque por produto.
-- ⬜ Definir estoque atual e estoque mínimo.
-- ⬜ Reservar/decrementar de maneira transacional.
-- ⬜ Impedir venda acima do estoque disponível.
-- ⬜ Marcar produto sem estoque automaticamente.
-- ⬜ Alertar estoque baixo no admin.
-- ⬜ Definir regra de devolução de estoque em cancelamento/reembolso.
-
-> Observação: o controle de estoque não será ativado sem quantidades reais definidas para os produtos, para evitar bloquear vendas por configuração incompleta.
+A loja opera sem quantidades de estoque, sem bloqueios por disponibilidade e sem baixa automática após pagamento ou cancelamento. A disponibilidade comercial é administrada pela ativação/desativação do produto.
 
 ## 7. Carrinho — ✅ Implementado
 
@@ -317,7 +309,7 @@ Somente depois da homologação final:
 
 - ⬜ Conferir manualmente as primeiras vendas.
 - ⬜ Monitorar webhook e pagamentos.
-- ⬜ Monitorar estoque e frete.
+- ⬜ Monitorar catálogo e frete.
 - ⬜ Corrigir dúvidas recorrentes dos clientes.
 - ⬜ Depois considerar cupons, avaliações, favoritos, kits, recuperação de carrinho e campanhas.
 
@@ -326,7 +318,6 @@ Somente depois da homologação final:
 # Próximas prioridades recomendadas
 
 1. Homologação de uma compra completa em modo de teste.
-2. Estoque transacional, somente depois de definir quantidades reais por produto.
 3. Página individual de cliente com histórico de pedidos e endereços.
 4. Notificações por e-mail.
 5. Refinamento visual do pós-compra e timeline pública.

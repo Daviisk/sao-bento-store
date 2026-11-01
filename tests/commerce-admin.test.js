@@ -17,7 +17,7 @@ test('admin can create, rename, filter and delete unused dynamic categories safe
  await agent.delete('/api/admin/categories/Acessórios%20de%20Capoeira').set('Origin',config.baseURL).expect(200);
 });
 
-test('product deletion preserves products already referenced by orders',async t=>{
+test('product deletion archives products already referenced by orders',async t=>{
  const config=readConfig({APP_URL:'http://localhost:3000',ADMIN_PASSWORD:'valid-password-for-test',ADMIN_SESSION_SECRET:'s'.repeat(40)}),store=openStore(':memory:');t.after(()=>store.close());
  const app=createApp({config,store,catalog:products,gateway:{}}),agent=request.agent(app);
  await agent.post('/api/admin/login').set('Origin',config.baseURL).send({password:config.adminPassword}).expect(200);
@@ -26,8 +26,8 @@ test('product deletion preserves products already referenced by orders',async t=
  const session=(await agent.get('/api/session')).body;
  const order=await agent.post('/api/commerce/orders').set('Origin',config.baseURL).set('X-CSRF-Token',session.csrfToken).set('Idempotency-Key','22222222-2222-4222-8222-222222222222').send({customer:{name:'Cliente',phone:'62999999999'},items:[{productId:'produto_03',variantId:'padrao',quantity:1}]}).expect(201);
  assert.equal(order.body.items[0].productId,'produto_03');
- await agent.delete('/api/admin/catalog/produto_03').set('Origin',config.baseURL).expect(409);
- assert.equal((await agent.get('/api/admin/catalog')).body.products.some(p=>p.productId==='produto_03'),true);
+ await agent.delete('/api/admin/catalog/produto_03').set('Origin',config.baseURL).expect(200);
+ const archived=(await agent.get('/api/admin/catalog')).body.products.find(p=>p.productId==='produto_03');assert.ok(archived);assert.equal(archived.enabled,false);
 });
 
 test('standard checkout order records also protect product deletion',t=>{
@@ -54,14 +54,14 @@ test('admin catalog returns finishes without stock tracking, supports ordering a
  await agent.post('/api/admin/catalog/bulk').set('Origin',config.baseURL).send({action:'delete',productIds:['produto_04']}).expect(200);
  assert.equal((await agent.get('/api/admin/catalog')).body.products.some(p=>p.productId==='produto_04'),false);
 });
-test('bulk product deletion is atomic when a selected product already has orders',async t=>{
+test('bulk product deletion removes unused products and archives referenced products atomically',async t=>{
  const config=readConfig({APP_URL:'http://localhost:3000',ADMIN_PASSWORD:'valid-password-for-test',ADMIN_SESSION_SECRET:'s'.repeat(40)}),store=openStore(':memory:');t.after(()=>store.close());
  const app=createApp({config,store,catalog:products,gateway:{}}),agent=request.agent(app);
  await agent.post('/api/admin/login').set('Origin',config.baseURL).send({password:config.adminPassword}).expect(200);
  const session=(await agent.get('/api/session')).body;
  await agent.post('/api/commerce/orders').set('Origin',config.baseURL).set('X-CSRF-Token',session.csrfToken).set('Idempotency-Key','33333333-3333-4333-8333-333333333333').send({customer:{name:'Cliente',phone:'62999999999'},items:[{productId:'produto_03',variantId:'padrao',quantity:1}]}).expect(201);
- await agent.post('/api/admin/catalog/bulk').set('Origin',config.baseURL).send({action:'delete',productIds:['produto_01','produto_03']}).expect(409);
+ await agent.post('/api/admin/catalog/bulk').set('Origin',config.baseURL).send({action:'delete',productIds:['produto_01','produto_03']}).expect(200);
  const remaining=(await agent.get('/api/admin/catalog')).body.products;
- assert.ok(remaining.some(p=>p.productId==='produto_01'));
- assert.ok(remaining.some(p=>p.productId==='produto_03'));
+ assert.equal(remaining.some(p=>p.productId==='produto_01'),false);
+ assert.equal(remaining.find(p=>p.productId==='produto_03')?.enabled,false);
 });
