@@ -16,7 +16,7 @@ test('storefront cache-busts updated checkout and brand assets',()=>{
   assert.ok(html.includes('css/cart.css?v=cart-summary-bottom-20261102'));
   assert.ok(html.includes('js/cart.js?v=checkout-trust-20261101'));
   assert.ok(html.includes('js/storefront.js?v=brand-copy-20261101'));
-  assert.ok(html.includes('js/shop-features.js?v=buy-now-primary-20261102'));
+  assert.ok(html.includes('js/shop-features.js?v=paid-order-highlight-20261102'));
 });
 
 test('storefront exposes organization and website structured data',()=>{
@@ -38,13 +38,13 @@ test('checkout explains Mercado Pago confirmation and shipping before payment',(
 
 test('Pix checkout refreshes payment status from the backend and avoids stale script cache',()=>{
   const pix=readFileSync('frontend/js/pix-payment.js','utf8');
-  assert.ok(html.includes('js/pix-payment.js?v=pix-status-refresh-20261102'));
+  assert.ok(html.includes('js/pix-payment.js?v=pix-paid-email-20261102'));
   assert.ok(pix.includes('Já paguei — atualizar status'));
   assert.ok(pix.includes("api('/api/orders/'+encodeURIComponent(orderId))"));
   assert.ok(pix.includes("order.status==='paid'"));
   assert.ok(pix.includes("document.addEventListener('visibilitychange'"));
   const features=readFileSync('frontend/js/shop-features.js','utf8');
-  assert.ok(html.includes('js/shop-features.js?v=pix-auto-refresh-20261102'));
+  assert.ok(html.includes('js/shop-features.js?v=paid-order-highlight-20261102'));
   assert.ok(features.includes('setTimeout(check,5000)'));
   assert.ok(features.includes('Já fiz o Pix — atualizar status'));
   assert.ok(features.includes("st.paymentConfirmed"));
