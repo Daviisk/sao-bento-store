@@ -360,3 +360,22 @@ html[data-theme=dark] .footerContact,html[data-theme=dark] .footerBottom{border-
 }
 @media(max-width:360px){.bottom{min-height:70px}.bottom button{font-size:10px}.bottom button strong{width:34px;height:32px}}
 @media(prefers-reduced-motion:reduce){.bottom button{transition:none}}
+
+
+/* Footer brand lockup: allow the full name to wrap cleanly on narrow screens. */
+.footerGrid .footer-brand{display:flex;align-items:center;gap:10px;min-width:0;max-width:100%;white-space:normal;line-height:1.2;letter-spacing:-.025em;font-size:clamp(17px,2.2vw,23px);overflow-wrap:normal}
+.footerGrid .footer-brand>i{flex:0 0 auto;font-size:25px;line-height:1;color:#a87932}
+.footerGrid .footer-brand-name{display:block;min-width:0;white-space:normal;overflow-wrap:anywhere}
+.footerGrid .footer-brand-name>span{display:block}
+.footerContact{flex-wrap:wrap;min-width:0}
+.footerContact .footer-instagram{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:7px 12px;border:1px solid #b99a6b;border-radius:999px;background:#f7efdf;color:#533a1d;font-weight:600;text-decoration:none;overflow-wrap:anywhere}
+.footerContact .footer-instagram>span:first-child{font-size:21px;line-height:1;color:#9a6c2d}
+.footerContact .footer-instagram strong{font-weight:750;color:inherit;text-transform:none;letter-spacing:0}
+.footerContact .footer-instagram:hover{background:#ead9ba;border-color:#9f783f}
+@media(max-width:800px){
+ .footerGrid .footer-brand{font-size:clamp(17px,5vw,21px);align-items:flex-start;line-height:1.25}
+ .footerGrid .footer-brand>i{font-size:23px;margin-top:1px}
+ .footerGrid .footer-brand-name>span{margin-top:2px}
+ .footerContact{align-items:flex-start;flex-direction:column;flex-wrap:nowrap}
+ .footerContact .footer-instagram{max-width:100%;min-height:44px;padding:8px 13px}
+}
