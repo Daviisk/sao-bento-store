@@ -229,7 +229,8 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config,notify
   const key=req.get('idempotency-key');
   if(!/^[0-9a-f-]{36}$/i.test(key||''))fail(400,'invalid_key','Chave de tentativa inválida.');
   const remote=await createOrdersGateway({accessToken:config.accessToken}).createCard({reference:order.orderId,totalCents,email,cardToken:card.token,paymentMethodId:card.paymentMethodId,paymentMethodType:card.paymentMethodType||'credit_card',installments:card.installments,idempotencyKey:key});
-  await commerce.bindMercadoPagoOrder(order.orderId,req.shopSession.id,remote,totalCents,shippingCents);
+  await commerce.bindMercadoPagoOrder(order.orderId,req.shopSession.id,remote,totalCents,shippingCents,email.trim().toLowerCase());
+   const reconciled=await commerce.reconcileMercadoPagoOrder(remote);if(reconciled.paymentConfirmed)await notifyPaidOrder(order.orderId);
   await commerce.reconcileMercadoPagoOrder(remote);
   res.json({orderId:order.orderId,providerStatus:remote.status,paymentConfirmed:(await commerce.db.get('orders',order.orderId)).paymentConfirmed});
  });
