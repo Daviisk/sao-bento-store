@@ -375,3 +375,128 @@ html[data-theme=dark] .footerContact,html[data-theme=dark] .footerBottom{border-
 @media(max-width:800px){.footerSocial{align-items:flex-start;flex-direction:column;gap:9px;margin-top:4px;padding:17px 0 20px}.footerSocial .footer-instagram{max-width:100%;min-height:44px;padding:8px 13px;font-size:13px}}
 html[data-theme=dark] .footerSocial>strong{color:#d7b777}
 html[data-theme=dark] .footerSocial .footer-instagram{background:#292318;border-color:#806744;color:#e1d3bb}
+
+
+/* Home: spacing refinement only — preserve the existing visual identity. */
+@media (min-width:801px) {
+  main#home>.hero {
+    padding:48px clamp(42px,5vw,64px);
+    column-gap:clamp(28px,4vw,54px);
+  }
+  main#home>.hero .heroCopy {
+    max-width:470px;
+  }
+  main#home>.hero .hero h1,
+  main#home>.hero h1 {
+    margin:0 0 22px;
+  }
+  main#home>.hero .heroCta {
+    margin-top:4px;
+  }
+  main#home>.hero .heroVisual {
+    min-height:320px;
+  }
+  main#home>.categoryHeading {
+    margin:18px 0 12px;
+  }
+  main#home>#categories.categories {
+    padding:12px 0 28px;
+    gap:14px;
+  }
+  main#home>#products .sectionTitle {
+    margin:4px 0 14px;
+    gap:24px;
+  }
+  main#home>#products .sectionTitle h2 {
+    margin:0;
+  }
+  main#home>#products .catalogTools {
+    margin:0 0 20px;
+  }
+}
+@media (max-width:800px) {
+  main#home>.hero {
+    min-height:300px;
+    padding:28px 22px;
+    column-gap:12px;
+    align-items:center;
+  }
+  main#home>.hero .heroCopy {
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+    min-width:0;
+    padding:4px 0;
+  }
+  main#home>.hero h1 {
+    margin:0 0 20px;
+    line-height:1.14;
+  }
+  main#home>.hero .heroCta {
+    margin-top:2px;
+  }
+  main#home>.hero .heroVisual {
+    height:100%;
+    min-height:220px;
+    align-self:stretch;
+    margin:0 -10px 0 0;
+  }
+  main#home>.hero .heroVisual img {
+    width:min(100%,190px);
+    height:auto;
+    max-height:220px;
+    margin:auto;
+  }
+  main#home>.categoryHeading {
+    margin:18px 0 13px;
+    gap:12px;
+    line-height:1.4;
+  }
+  main#home>.categoryHeading small {
+    display:block;
+    white-space:nowrap;
+  }
+  main#home>#categories.categories {
+    padding:8px 0 26px;
+    gap:10px;
+  }
+  main#home>#categories .category {
+    min-height:76px;
+    padding:8px 10px;
+  }
+  main#home>#products .sectionTitle {
+    align-items:center;
+    gap:14px;
+    margin:0 0 12px;
+  }
+  main#home>#products .sectionTitle h2 {
+    margin:0;
+    line-height:1.25;
+  }
+  main#home>#products .catalogTools {
+    margin:0 0 18px;
+  }
+}
+@media (max-width:390px) {
+  main#home>.hero {
+    min-height:280px;
+    padding:22px 16px;
+    column-gap:6px;
+  }
+  main#home>.hero h1 {
+    margin-bottom:16px;
+  }
+  main#home>.hero .heroVisual img {
+    max-height:190px;
+  }
+  main#home>.categoryHeading {
+    align-items:flex-start;
+    flex-direction:column;
+    gap:3px;
+  }
+  main#home>#categories.categories {
+    padding-top:6px;
+    padding-bottom:22px;
+  }
+}
