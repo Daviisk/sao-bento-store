@@ -83,6 +83,10 @@
       "dest": "/frontend/clientes.html"
     },
     {
+      "src": "/clientes/?",
+      "dest": "/frontend/clientes.html"
+    },
+    {
       "src": "/",
       "dest": "/frontend/index.html"
     },
