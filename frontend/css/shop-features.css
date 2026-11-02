@@ -772,3 +772,52 @@
   #request-order .checkout-summary .cart-grand-total strong{font-size:17px!important}
   #request-order .checkout-summary #shipping-total{padding:10px!important}
 }
+
+
+/* Confirmação de pagamento: destaque inequívoco apenas após retorno confirmado do servidor. */
+#veil .payment-confirmed{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:9px!important;
+  margin:16px 0!important;
+  padding:22px 18px!important;
+  border:2px solid #27834d!important;
+  border-radius:16px!important;
+  background:#eaf7ee!important;
+  color:#155b32!important;
+  text-align:center!important;
+  font-size:15px!important;
+  line-height:1.45!important;
+  font-weight:600!important;
+}
+#veil .payment-confirmed-mark{
+  display:grid!important;
+  place-items:center!important;
+  width:48px!important;
+  height:48px!important;
+  border-radius:50%!important;
+  background:#27834d!important;
+  color:#fff!important;
+  font-size:30px!important;
+  font-weight:800!important;
+  line-height:1!important;
+}
+#veil .payment-confirmed strong{
+  display:block!important;
+  color:#155b32!important;
+  font-size:17px!important;
+  font-weight:850!important;
+  letter-spacing:.01em!important;
+}
+#veil .payment-confirmed span:last-child{display:block!important;max-width:34rem}
+#veil .payment-confirmed-intro{
+  margin:12px 0!important;
+  padding:12px 14px!important;
+  border-left:4px solid #27834d!important;
+  border-radius:8px!important;
+  background:#f1f8f2!important;
+  color:#155b32!important;
+  font-weight:700!important;
+}
