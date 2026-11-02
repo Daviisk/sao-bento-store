@@ -18,8 +18,8 @@ export function addressInput(value){
   return out;
 }
 export const deliveryHash=(cartHash,address,quote)=>createHash('sha256').update(JSON.stringify([cartHash,address,quote.serviceCode,quote.priceCents])).digest('hex');
-// Fixed R$5 addition per delivery quote, applied once on the server.
-const SHIPPING_SURCHARGE_CENTS=500;
+// Fixed promotional shipping price: R$ 0,01 per order, enforced on the server.
+const SHIPPING_FIXED_PRICE_CENTS=1;
 export function createShipping(store,provider){
   return {
     configured:provider.configured,
@@ -32,7 +32,7 @@ export function createShipping(store,provider){
       const result=[];
       for(const option of options){
         if(!Number.isSafeInteger(option.priceCents)||option.priceCents<=0||option.priceCents>10000000||!Number.isSafeInteger(option.days)||option.days<1||option.days>365||!(/^[A-Za-z0-9_-]{1,40}$/).test(option.serviceCode)||typeof option.name!=='string')fail(502,'shipping_invalid','Não foi possível confirmar o frete.');
-        const q={quoteId:randomUUID(),cartHash:cart.hash,cep,...option,priceCents:option.priceCents+SHIPPING_SURCHARGE_CENTS,expiresAt:Date.now()+10*60000};
+        const q={quoteId:randomUUID(),cartHash:cart.hash,cep,...option,priceCents:SHIPPING_FIXED_PRICE_CENTS,expiresAt:Date.now()+10*60000};
         await store.saveShippingQuote({quoteId:q.quoteId,owner,document:q,expiresAt:q.expiresAt});
         const {cartHash,...publicQuote}=q;result.push(publicQuote);
       }
