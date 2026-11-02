@@ -7,12 +7,12 @@ const js=readFileSync('frontend/js/shop-features.js','utf8');
 const css=readFileSync('frontend/css/shop-features.css','utf8');
 
 test('product details offer freight quote using only the destination CEP',()=>{
-  assert.ok(html.includes('js/shop-features.js?v=cep-added-cart-20261102'));
+  assert.ok(html.includes('js/shop-features.js?v=freight-after-quantity-20261102'));
   assert.ok(js.includes('id="product-shipping-cep"'));
   assert.ok(js.includes('id="product-shipping-check"'));
   assert.ok(js.includes("post('/api/commerce/shipping/quote',{cep,items:[{productId:p.productId,quantity}]})"));
   assert.ok(js.includes('Estimativa para este produto e quantidade.'));
-  assert.match(js,/Informe apenas o CEP para consultar preço e prazo estimados/);
+  assert.match(js,/Informe apenas o CEP para consultar preço e prazo estimados/);\n  assert.ok(js.indexOf('id="detail-quantity"') < js.indexOf('id="product-shipping-title"'),'freight calculator must appear after quantity');
 });
 
 test('adding an item opens a cart review with the new item highlighted',()=>{
