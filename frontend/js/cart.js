@@ -93,7 +93,7 @@
   }
   get('#cart-total').textContent=ready?cash(total):'Sob consulta';
   if(selectedQuote&&selectedQuote.expiresAt<=Date.now()){invalidateQuote();get('#shipping-message').textContent='A cotação expirou. Calcule o frete novamente.';}
-  get('#shipping-total').textContent=selectedQuote?cash(selectedQuote.priceCents):'A calcular';get('#grand-total').textContent=ready&&selectedQuote?cash(total+selectedQuote.priceCents):'A calcular';
+  get('#shipping-total').textContent=selectedQuote?cash(selectedQuote.priceCents):'A calcular pelo CEP';get('#grand-total').textContent=ready&&selectedQuote?cash(total+selectedQuote.priceCents):'Aguardando escolha do frete';
   get('#shipping-calculate').disabled=busy||quoteBusy||!ready;get('#shipping-calculate').textContent=quoteBusy?'Calculando frete…':'Calcular frete pelo CEP';
   all('#delivery-form input,#delivery-form select').forEach(el=>el.disabled=busy);addressLookup.disabled=busy||addressBusy;
   const submit=get('#cart-checkout');submit.disabled=busy||loading||!ready||!checkoutConfigured||!selectedQuote;submit.textContent=busy?'Criando checkout…':loading?'Carregando preços…':'Finalizar compra';get('#cart-clear').disabled=busy;
