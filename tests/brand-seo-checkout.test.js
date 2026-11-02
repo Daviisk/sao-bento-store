@@ -16,7 +16,7 @@ test('storefront cache-busts updated checkout and brand assets',()=>{
   assert.ok(html.includes('css/cart.css?v=checkout-trust-20261101'));
   assert.ok(html.includes('js/cart.js?v=checkout-trust-20261101'));
   assert.ok(html.includes('js/storefront.js?v=brand-copy-20261101'));
-  assert.ok(html.includes('js/shop-features.js?v=brand-copy-20261101'));
+  assert.ok(html.includes('js/shop-features.js?v=cep-added-cart-20261102'));
 });
 
 test('storefront exposes organization and website structured data',()=>{
