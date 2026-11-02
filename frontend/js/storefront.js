@@ -1,8 +1,8 @@
 (()=>{
 'use strict';
 const $=s=>document.querySelector(s),all=s=>[...document.querySelectorAll(s)];
-const names=['Dobrão Dourado','Dobrão Prateado','Bolsa de Couro','Bolsa de Couro Trio'];
-const categories=['Dourado','Prateado','Bolsas de Couro'];
+const names=['Dobrão de Bronze','Dobrão de Inox','Bolsa de Couro','Bolsa de Couro Trio'];
+const categories=['Dobrões','Bolsas'];
 const cards=all('.piece'),normalize=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 let selected='Todos',activeNav=0,returnFocus,toastTimer;
 let favorites={};try{favorites=JSON.parse(localStorage.getItem('sb.techhub.favorites')||'{}');}catch{}
