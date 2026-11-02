@@ -289,3 +289,82 @@ button:disabled,.button[aria-disabled=true]{opacity:.5;cursor:not-allowed;transf
   line-height:1.55;
 }
 #cart-drawer .checkout-assurance{margin-top:14px}
+
+
+/* Prevent text and controls from being clipped inside the cart on narrow screens. */
+#cart-drawer,
+#cart-drawer .cart-content,
+#cart-drawer .cart-content * {
+  min-width: 0;
+}
+#cart-drawer .cart-content {
+  overflow-x: clip;
+}
+#cart-drawer .cart-line > div,
+#cart-drawer .cart-line-bottom,
+#cart-drawer .cart-order-summary,
+#cart-drawer .cart-summary-line,
+#cart-drawer .delivery-form,
+#cart-drawer .delivery-grid,
+#cart-drawer .cep-lookup {
+  min-width: 0;
+  max-width: 100%;
+}
+#cart-drawer .cart-line h3,
+#cart-drawer .cart-line p,
+#cart-drawer .cart-small,
+#cart-drawer .cart-summary-line span,
+#cart-drawer .cart-summary-line strong,
+#cart-drawer .cart-order-summary > p,
+#cart-drawer #shipping-message,
+#cart-drawer #shipping-options,
+#cart-drawer #cart-summary-message {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+#cart-drawer .cart-summary-line {
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+#cart-drawer .cart-summary-line strong {
+  flex: 1 1 120px;
+  min-width: 0;
+  white-space: normal;
+  text-align: right;
+}
+#cart-drawer .cart-summary-grand strong {
+  font-size: clamp(18px, 5vw, 24px);
+}
+#cart-drawer .delivery-grid > label,
+#cart-drawer .delivery-grid input,
+#cart-drawer .delivery-grid select,
+#cart-drawer .cep-lookup > * {
+  min-width: 0;
+  max-width: 100%;
+}
+#cart-drawer #address-lookup,
+#cart-drawer #shipping-calculate,
+#cart-drawer #cart-checkout {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 420px) {
+  #cart-drawer .cart-content {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  #cart-drawer .cart-order-summary {
+    padding: 15px 12px;
+  }
+  #cart-drawer .cart-summary-line {
+    gap: 6px 10px;
+  }
+  #cart-drawer .cart-summary-line strong {
+    flex-basis: 100%;
+    text-align: left;
+  }
+  #cart-drawer .cart-heading {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
