@@ -87,6 +87,7 @@ async function detail(p,options={}){
  if(personalized)restoreDraft(p);
  updateEngravingMode(stepForm);
  $('#buy-now')?.addEventListener('click',()=>{stepForm.dataset.buyNow='true';stepForm.requestSubmit();});
+ stepForm.querySelector('button[type="submit"]')?.addEventListener('click',()=>{stepForm.dataset.buyNow='false';});
  if(options.buyNow){stepForm.dataset.buyNow='true';stepForm.querySelector('.detail-purchase-actions')?.classList.add('direct-from-catalog');const scroller=$('#drawer .sheet-scroll-content');if(scroller)scroller.scrollTop=0;}
  stepForm.addEventListener('submit',async e=>{
   e.preventDefault();const form=e.currentTarget;
