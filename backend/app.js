@@ -164,7 +164,7 @@ export function createApp({config,catalog,store,gateway,shipping=createShipping(
   app.get(['/admin','/admin/'],(req,res)=>res.sendFile(join(config.frontendPath,'admin','index.html')));
   app.use(express.static(config.frontendPath,{dotfiles:'deny',index:'index.html',redirect:false,etag:false}));
   app.use((req,res)=>res.status(404).json({error:'not_found',message:'Recurso não encontrado.'}));
-  app.use((error,req,res,next)=>{if(res.headersSent)return next(error);if(error.type==='entity.parse.failed')return res.status(400).json({error:'invalid_json',message:'JSON malformado.'});if(error.type==='entity.too.large')return res.status(413).json({error:'body_too_large',message:'Requisição muito grande.'});if(error instanceof AppError)return res.status(error.status).json({error:error.code,message:error.message});const incident=randomUUID();logger.error(JSON.stringify({event:'internal_error',incident}));res.status(500).json({error:'internal_error',message:'Não foi possível concluir a operação.',incident});});
+  app.use((error,req,res,next)=>{if(res.headersSent)return next(error);if(error.type==='entity.parse.failed')return res.status(400).json({error:'invalid_json',message:'JSON malformado.'});if(error.type==='entity.too.large')return res.status(413).json({error:'body_too_large',message:'Requisição muito grande.'});if(error instanceof AppError)return res.status(error.status).json({error:error.code,message:error.message});const incident=randomUUID();logger.error(JSON.stringify({event:'internal_error',incident,...(process.env.NODE_TEST_CONTEXT?{diagnostic:String(error?.stack||error).slice(0,1200)}:{})}));res.status(500).json({error:'internal_error',message:'Não foi possível concluir a operação.',incident});});
   return app;
 }
 
