@@ -36,6 +36,16 @@ test('checkout explains Mercado Pago confirmation and shipping before payment',(
   assert.ok(html.includes('href="/termos.html"'));
 });
 
+test('Pix checkout refreshes payment status from the backend and avoids stale script cache',()=>{
+  const pix=readFileSync('frontend/js/pix-payment.js','utf8');
+  assert.ok(html.includes('js/pix-payment.js?v=pix-status-refresh-20261102'));
+  assert.ok(pix.includes('Já paguei — atualizar status'));
+  assert.ok(pix.includes("api('/api/orders/'+encodeURIComponent(orderId))"));
+  assert.ok(pix.includes("order.status==='paid'"));
+  assert.ok(pix.includes("document.addEventListener('visibilitychange'"));
+  assert.ok(pix.includes('i<360'));
+});
+
 test('sitemap only advertises public indexable pages',()=>{
   assert.ok(sitemap.includes('<loc>https://saobentodobroes.com/</loc>'));
   assert.ok(sitemap.includes('<loc>https://saobentodobroes.com/privacidade.html</loc>'));
