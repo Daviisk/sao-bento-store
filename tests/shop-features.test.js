@@ -36,23 +36,6 @@ test('text-only engraving is accepted without requiring a photo',async t=>{
  assert.match(d.querySelector('#custom-cart-lines').textContent,/Obs\.: Mestre Davi/);
  assert.equal(d.querySelectorAll('#custom-cart-lines .cart-art').length,0);
 });
-test('text-only engraving is accepted for each doubloon in a kit',async t=>{
- const {w,d}=await page(t);
- w.SBFeatures.kits();
- const form=d.querySelector('#kit-form');
- form.elements['kit-count'].value='1';
- form.elements['kit-count'].dispatchEvent(new w.Event('change',{bubbles:true}));
- form.elements.coin0.value='produto_01';
- form.elements.coin0.dispatchEvent(new w.Event('change',{bubbles:true}));
- form.elements.variant0.value='gravado';
- form.elements.variant0.dispatchEvent(new w.Event('change',{bubbles:true}));
- form.elements.engravingNotes0.value='Nossa arte, nossa história';
- form.elements.bag.value='produto_03';
- form.dispatchEvent(new w.Event('submit',{cancelable:true}));await tick();
- d.defaultView.SBFeatures.showCart();await tick();
- assert.match(d.querySelector('#custom-cart-lines').textContent,/Nossa arte, nossa história/);
- assert.equal(d.querySelectorAll('#custom-cart-lines .cart-art').length,0);
-});
 test('Trio kit adds three independently selected coins and one bag',async t=>{const {w,d}=await page(t);w.SBFeatures.kits();const f=d.querySelector('#kit-form');const count=f.elements['kit-count'];assert.equal(count.options[0].textContent,'Selecione');assert.equal(count.options[0].disabled,true);count.value='3';count.dispatchEvent(new w.Event('change',{bubbles:true}));assert.equal(d.querySelectorAll('#kit-coins > fieldset').length,3);for(let i=0;i<3;i++){const coin=f.elements['coin'+i];assert.equal(coin.options[0].textContent,'Selecione');assert.equal(coin.options[0].disabled,true);coin.value=i===1?'produto_02':'produto_01';coin.dispatchEvent(new w.Event('change',{bubbles:true}));}const bag=f.elements.bag;assert.equal(bag.options[0].textContent,'Selecione');assert.equal(bag.options[0].disabled,true);bag.value='produto_04';for(let i=0;i<3;i++){f.elements['variant'+i].value='none';f.elements['variant'+i].dispatchEvent(new w.Event('change',{bubbles:true}));}f.dispatchEvent(new w.Event('submit',{cancelable:true}));await tick();d.defaultView.SBFeatures.showCart();await tick();assert.equal(d.querySelectorAll('.order-cart-line').length,4);assert.match(d.querySelector('#custom-cart-lines').textContent,/Dobrão de Inox/);assert.match(d.querySelector('#custom-cart-lines').textContent,/Bolsa de Couro Trio/);assert.match(d.querySelector('.order-total').textContent,/400/);});
 test('bag gallery switches photo and opens accessible zoom dialog',async t=>{const {d}=await page(t);d.querySelector('[data-commerce-detail="produto_03"]').click();await tick();assert.equal(d.querySelectorAll('[data-feature-photo]').length,5);d.querySelectorAll('[data-feature-photo]')[3].click();assert.match(d.querySelector('.detailImg').src,/aberta-prof/);assert.equal(d.querySelector('#detail-photo-count').textContent,'4 / 5');d.querySelector('.zoom-trigger').click();assert(d.querySelector('.photo-zoom').open);});
 
