@@ -21,9 +21,9 @@ export const deliveryHash=(cartHash,address,quote)=>createHash('sha256').update(
 // Fixed promotional shipping price: R$ 0,01 per order, enforced on the server.
 const SHIPPING_FIXED_PRICE_CENTS=1;
 function deliveryLabel(option){
-  const value=(String(option.name||'')+' '+String(option.serviceCode||'')).normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toUpperCase();
-  if(/\\bPAC\\b/.test(value)||/\\b03298\\b/.test(value))return 'Entrega Normal';
-  if(/\\bSEDEX\\b/.test(value)||/\\b03220\\b/.test(value))return 'Entrega Rápido';
+  const value=(String(option.name||'')+' '+String(option.serviceCode||'')).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
+  if(/\bPAC\b/.test(value)||/\b03298\b/.test(value))return 'Entrega Normal';
+  if(/\bSEDEX\b/.test(value)||/\b03220\b/.test(value))return 'Entrega Rápido';
   return option.name;
 }
 export function createShipping(store,provider){
