@@ -22,8 +22,8 @@ export const deliveryHash=(cartHash,address,quote)=>createHash('sha256').update(
 const SHIPPING_FIXED_PRICE_CENTS=1;
 function deliveryLabel(option){
   const value=(String(option.name||'')+' '+String(option.serviceCode||'')).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
-  if(/\bPAC\b/.test(value)||/\b03298\b/.test(value))return 'Correios · Entrega Normal';
-  if(/\bSEDEX\b/.test(value)||/\b03220\b/.test(value))return 'Correios · Entrega Rápida';
+  if(/\bPAC\b/.test(value)||/\b03298\b/.test(value))return 'Correios • Entrega Normal';
+  if(/\bSEDEX\b/.test(value)||/\b03220\b/.test(value))return 'Correios • Entrega Rápida';
   return option.name;
 }
 export function createShipping(store,provider){
