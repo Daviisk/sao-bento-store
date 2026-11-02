@@ -21,6 +21,16 @@ for(const status of ['pending','paid'])test(`success screen takes ${status} from
  assert.equal(JSON.parse(w.localStorage.getItem('jewelry.cart.v1')).items.length,status==='paid'?0:1);
 });
 
+test('paid Pix tells the customer to check email for the tracking link',async t=>{
+ const id=randomUUID();
+ const dom=new JSDOM(readFileSync('frontend/sucesso.html','utf8'),{url:`https://loja.example/sucesso?orderId=${id}`,runScripts:'outside-only'});
+ t.after(()=>dom.window.close());const w=dom.window;
+ w.fetch=async()=>({ok:true,json:async()=>({orderId:id,status:'paid',paymentMethod:'pix',fulfillmentStatus:'paid',items:[],productsTotal:100,total:100,shipping:{},address:{}})});
+ w.eval(readFileSync('frontend/js/order-status.js','utf8'));await tick();
+ assert.match(w.document.querySelector('#order-message').textContent,/Verifique o e-mail cadastrado/);
+ assert.match(w.document.querySelector('#order-message').textContent,/link privado de acompanhamento/);
+});
+
 test('success page opened without an order cannot report payment',async t=>{
  const dom=new JSDOM(readFileSync('frontend/sucesso.html','utf8'),{url:'https://loja.example/sucesso?status=approved',runScripts:'outside-only'});
  t.after(()=>dom.window.close());dom.window.eval(readFileSync('frontend/js/order-status.js','utf8'));await tick();
