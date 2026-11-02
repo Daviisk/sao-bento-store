@@ -48,7 +48,7 @@ function checkoutHash(cart,address,quote,customer){return createHash('sha256').u
 
 export function createApp({config,catalog,store,gateway,shipping=createShipping(store,createShippingProvider()),logger=console,emailSender}={}){
   const app=express();
-  const commerce=createCommerce({store,config});
+  const commerce=createCommerce({store,config,catalogOverride:catalog});
   const sendConfirmation=emailSender||createOrderConfirmationSender({apiKey:config.resendApiKey,from:config.resendFromEmail,replyTo:config.resendReplyTo});
   async function notifyCommercePaidOrder(orderId){
     if(!sendConfirmation)return;
