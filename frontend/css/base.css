@@ -383,3 +383,16 @@ html[data-theme=dark] .footerSocial .footer-instagram{background:#292318;border-
 .footerContact .footer-contact-link:hover{color:#a47a39;text-decoration:underline;text-underline-offset:4px}
 .footerSocial .footer-instagram>svg{color:#9a6c2d}
 @media(max-width:800px){.footerContact .footer-contact-link{min-height:42px}}
+
+
+/* Customer gallery invitation on the homepage */
+.customer-invite{display:flex;align-items:center;justify-content:space-between;gap:24px;margin:30px 0 36px;padding:clamp(22px,4vw,38px);border:1px solid #dfcfb5;border-radius:20px;background:linear-gradient(115deg,#fffaf2,#efe2cc);box-shadow:0 10px 30px #4d36150c}
+.customer-invite-copy{max-width:650px}
+.customer-invite-copy h2{margin:9px 0;font-size:clamp(22px,3vw,31px);letter-spacing:-.04em}
+.customer-invite-copy p{max-width:590px;margin:0;color:#806e56;font-size:14px;line-height:1.7}
+.customer-invite-link{display:inline-flex;align-items:center;gap:9px;min-height:44px;margin-top:17px;padding:0 18px;border-radius:999px;background:#6b4b25;color:#fff;text-decoration:none;font-size:13px;font-weight:750}
+.customer-invite-link:hover{background:#4d3519}
+.customer-invite-mark{width:116px;height:116px;flex:0 0 116px;border:1px solid #c9ad7d;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#96703a;text-align:center}
+.customer-invite-mark>span{font-family:Georgia,serif;font-size:37px;line-height:1}
+.customer-invite-mark>small{margin-top:7px;font-size:7px;font-weight:800;letter-spacing:.13em;line-height:1.5}
+@media(max-width:600px){.customer-invite{align-items:flex-start;gap:12px;margin:24px 0 30px;padding:20px 16px}.customer-invite-copy p{font-size:12px}.customer-invite-mark{width:62px;height:62px;flex-basis:62px;margin-top:8px}.customer-invite-mark>span{font-size:23px}.customer-invite-mark>small{font-size:5px;margin-top:3px}.customer-invite-link{font-size:12px;padding:0 14px}}
