@@ -16,7 +16,7 @@ function extractOrdersPix(remote){
 export const statusLabels={requested:'Pedido recebido',awaiting_art:'Aguardando arte',art_approved:'Arte aprovada',production:'Em produção',shipped:'Enviado',delivered:'Entregue',cancelled:'Cancelado'};
 const images=['dobrao-bronze-prof-v2.webp','dobrao-inox-prof-v2.webp','bolsa-couro-prof-v2.webp','bolsa-trio-prof-v2.webp'];
 const galleries=[[],[],['bolsa-couro-lateral-prof-v2.webp','bolsa-couro-verso-prof-v2.webp','bolsa-couro-aberta-prof-v2.webp','bolsa-couro-perspectiva-prof-v2.webp'],['bolsa-trio-aberta-prof-v2.webp','bolsa-trio-verso-prof-v2.webp']];
-export const seedProducts=defaults.map((p,i)=>({...p,category:i<2?'Dobrões':'Bolsas',description:i<2?'Dobrão para berimbau, gravado ou lapidado.':'Bolsa de couro para guardar e transportar seus dobrões.',material:['Bronze fundido','Aço inoxidável','Couro','Couro'][i],dimensions:i===1?'Diâmetro: 38 mm · Espessura: 8 mm':'',image:'/images/'+images[i],gallery:['/images/'+images[i],...galleries[i].map(n=>'/images/'+n)],variants:(i<2?['gravado','lapidado','sem_gravacao']:['padrao']).map(id=>({id,label:id==='padrao'?'Padrão':id==='gravado'?'Gravado':id==='lapidado'?'Lapidado':'Sem gravação',enabled:true}))}));
+export const seedProducts=defaults.map((p,i)=>({...p,category:i<2?'Dobrões':'Bolsas',description:i<2?'Dobrão para berimbau, gravado ou lapidado.':'Bolsa de couro para guardar e transportar seus dobrões.',material:['Bronze','Aço inoxidável','Couro','Couro'][i],dimensions:i===1?'Diâmetro: 38 mm · Espessura: 8 mm':'',image:'/images/'+images[i],gallery:['/images/'+images[i],...galleries[i].map(n=>'/images/'+n)],variants:(i<2?['gravado','lapidado','sem_gravacao']:['padrao']).map(id=>({id,label:id==='padrao'?'Padrão':id==='gravado'?'Gravado':id==='lapidado'?'Lapidado':'Sem gravação',enabled:true}))}));
 const plain=v=>v&&typeof v==='object'&&!Array.isArray(v);
 export function cleanText(v,max=100,required=false){if(typeof v!=='string'||v.length>max||/[<>\x00-\x1f\x7f]/.test(v)||required&&!v.trim())fail(400,'invalid_text','Confira os campos preenchidos.');return v.trim();}
 function contact(raw){if(!plain(raw))fail(400,'invalid_contact','Informe seu contato.');const name=cleanText(raw.name,100,true),phone=cleanText(raw.phone,30,true).replace(/\D/g,'');if(name.length<2||!/^\d{10,13}$/.test(phone))fail(400,'invalid_contact','Informe nome e telefone com DDD.');return {name,phone};}
@@ -57,7 +57,7 @@ export function createCommerce({store,config}){
    if(!Array.isArray(p.variants)){p.variants=[];catalogChanged=true;}
    if(p.productId==='produto_01'){
     if(p.name==='Dobrão Dourado')p.name='Dobrão de Bronze';
-    if(p.material!=='Bronze fundido'){p.material='Bronze fundido';catalogChanged=true;}
+    if(p.material!=='Bronze'){p.material='Bronze';catalogChanged=true;}
    }
    if(p.productId==='produto_02'){
     if(p.name==='Dobrão Prateado')p.name='Dobrão de Inox';
