@@ -7,7 +7,7 @@ const js=readFileSync('frontend/js/shop-features.js','utf8');
 const css=readFileSync('frontend/css/shop-features.css','utf8');
 
 test('product details offer freight quote using only the destination CEP',()=>{
-  assert.ok(html.includes('js/shop-features.js?v=buy-now-primary-20261102'));
+  assert.ok(html.includes('js/shop-features.js?v=paid-order-highlight-20261102'));
   assert.ok(js.includes('id="product-shipping-cep"'));
   assert.ok(js.includes('id="product-shipping-check"'));
   assert.ok(js.includes("post('/api/commerce/shipping/quote',{cep,items:[{productId:p.productId,quantity}]})"));
