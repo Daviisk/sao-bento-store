@@ -73,6 +73,10 @@ export function mountAdmin(app,{config,store,limit,commerce}){
   });
   if(commerce){
     app.get('/api/admin/catalog',requireAdmin,async(req,res)=>res.json({products:await commerce.catalog(),categories:await commerce.categories()}));
+    app.get('/api/admin/gallery',requireAdmin,async(req,res)=>res.json({items:await commerce.clientGallery()}));
+    app.post('/api/admin/gallery',requireAdmin,adminMutation,async(req,res)=>res.status(201).json(await commerce.addClientPhoto(req.body)));
+    app.delete('/api/admin/gallery/:id',requireAdmin,adminMutation,async(req,res)=>res.json({items:await commerce.deleteClientPhoto(req.params.id)}));
+    app.patch('/api/admin/gallery/order',requireAdmin,adminMutation,async(req,res)=>res.json({items:await commerce.reorderClientGallery(req.body?.ids)}));
     app.get('/api/admin/categories',requireAdmin,async(req,res)=>res.json({categories:await commerce.categories()}));
     app.post('/api/admin/categories',requireAdmin,adminMutation,async(req,res)=>res.status(201).json({categories:await commerce.categoryMutation('create',req.body)}));
     app.patch('/api/admin/categories/order',requireAdmin,adminMutation,async(req,res)=>res.json({categories:await commerce.reorderCategories(req.body?.categoryNames)}));
