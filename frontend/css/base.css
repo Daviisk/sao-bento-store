@@ -426,8 +426,8 @@ html[data-theme=dark] .footerSocial .footer-instagram{background:#292318;border-
   width:148px!important;
   min-width:148px!important;
   max-width:148px!important;
-  height:48px!important;
-  min-height:48px!important;
+  height:56px!important;
+  min-height:56px!important;
   margin:0!important;
   padding:0 12px!important;
   border:1px solid #dfd0b6!important;
@@ -497,22 +497,23 @@ html[data-theme=dark] .footerSocial .footer-instagram{background:#292318;border-
     width:140px!important;
     min-width:140px!important;
     max-width:140px!important;
-    height:46px!important;
-    min-height:46px!important;
+    height:56px!important;
+    min-height:56px!important;
     padding:0 10px!important;
     border-radius:11px!important;
-    font-size:11px!important;
+    font-size:12px!important;
+    line-height:1.25!important;
   }
   #categories.categories>.category>.circle,
   #categories.categories>.category.category-gallery>.circle{
-    flex-basis:26px!important;
-    width:26px!important;
-    height:26px!important;
-    min-width:26px!important;
-    min-height:26px!important;
+    flex-basis:30px!important;
+    width:30px!important;
+    height:30px!important;
+    min-width:30px!important;
+    min-height:30px!important;
   }
   #categories.categories>.category>.circle>svg,
-  #categories.categories>.category.category-gallery svg{width:16px!important;height:16px!important}
+  #categories.categories>.category.category-gallery svg{width:18px!important;height:18px!important}
 }
 @media(max-width:360px){
   #categories.categories{gap:7px!important}
