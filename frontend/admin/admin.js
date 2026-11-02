@@ -42,7 +42,7 @@
    let customData={orders:[],statusLabels:{}};
    try{
     customData=await api('/api/admin/custom-orders');
-    for(const o of custom.orders||[]){
+    for(const o of customData.orders||[]){
      const searchable=[o.orderCode,o.orderId,o.customer?.name,o.customer?.phone,o.customer?.email,...(o.items||[]).map(i=>i.name)].join(' ').toLowerCase();
      if(q&&!searchable.includes(q.toLowerCase()))continue;
      if(status&&!(status==='paid'?o.paymentConfirmed:status==='pending'?!o.paymentConfirmed:false))continue;
