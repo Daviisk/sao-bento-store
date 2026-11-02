@@ -346,22 +346,6 @@ html[data-theme=dark] .footerContact,html[data-theme=dark] .footerBottom{border-
 }
 
 
-/* Bottom navigation emphasis: keep the cart action in the lower bar. */
-@media(max-width:800px){
- .bottom{background:#fffaf1;border:1px solid #d9c5a4;box-shadow:0 -5px 24px rgba(54,37,15,.16),0 8px 26px rgba(54,37,15,.12);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);min-height:74px;padding:7px 6px max(7px,env(safe-area-inset-bottom));border-radius:22px}
- .bottom button{color:#72583a;font-weight:650;gap:5px;min-height:58px;border-radius:15px;transition:background .18s ease,color .18s ease}
- .bottom button strong{display:grid;place-items:center;width:38px;height:34px;border-radius:11px;color:#765326}
- .bottom button strong svg{width:24px;height:24px;stroke-width:1.9}
- .bottom button.active{color:#3d2914;background:#f2e5ce}
- .bottom button.active strong{background:#e8d4b2;color:#533718;padding:0;width:42px;height:34px}
- .bottom button[data-ui="showCart()"]{color:#fffaf1;background:#5b3d1f;box-shadow:0 4px 12px rgba(67,43,17,.22)}
- .bottom button[data-ui="showCart()"] strong{color:#f2d49a;background:#76532c;width:42px;height:36px}
- .bottom button[data-ui="showCart()"] .counter{border:2px solid #5b3d1f;background:#d7a64e;color:#281b0c}
-}
-@media(max-width:360px){.bottom{min-height:70px}.bottom button{font-size:10px}.bottom button strong{width:34px;height:32px}}
-@media(prefers-reduced-motion:reduce){.bottom button{transition:none}}
-
-
 /* Footer brand lockup: allow the full name to wrap cleanly on narrow screens. */
 .footerGrid .footer-brand{display:flex;align-items:center;gap:10px;min-width:0;max-width:100%;white-space:normal;line-height:1.2;letter-spacing:-.025em;font-size:clamp(17px,2.2vw,23px);overflow-wrap:normal}
 .footerGrid .footer-brand>i{flex:0 0 auto;font-size:25px;line-height:1;color:#a87932}
@@ -379,3 +363,15 @@ html[data-theme=dark] .footerContact,html[data-theme=dark] .footerBottom{border-
  .footerContact{align-items:flex-start;flex-direction:column;flex-wrap:nowrap}
  .footerContact .footer-instagram{max-width:100%;min-height:44px;padding:8px 13px}
 }
+
+
+/* Social networks are separate from customer service contact information. */
+.footerSocial{display:flex;align-items:center;flex-wrap:wrap;gap:12px 24px;margin-top:8px;padding:16px 0 20px;border-top:1px solid #d5c4a9}
+.footerSocial>strong{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#80613b}
+.footerSocial .footer-instagram{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:7px 12px;border:1px solid #b99a6b;border-radius:999px;background:#f7efdf;color:#533a1d;font-size:14px;font-weight:600;text-decoration:none;overflow-wrap:anywhere}
+.footerSocial .footer-instagram>span:first-child{font-size:21px;line-height:1;color:#9a6c2d}
+.footerSocial .footer-instagram strong{font-weight:750;color:inherit}
+.footerSocial .footer-instagram:hover{background:#ead9ba;border-color:#9f783f}
+@media(max-width:800px){.footerSocial{align-items:flex-start;flex-direction:column;gap:9px;margin-top:4px;padding:17px 0 20px}.footerSocial .footer-instagram{max-width:100%;min-height:44px;padding:8px 13px;font-size:13px}}
+html[data-theme=dark] .footerSocial>strong{color:#d7b777}
+html[data-theme=dark] .footerSocial .footer-instagram{background:#292318;border-color:#806744;color:#e1d3bb}
