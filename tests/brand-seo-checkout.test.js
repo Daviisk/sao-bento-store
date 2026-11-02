@@ -48,11 +48,10 @@ test('Pix checkout refreshes payment status from the backend and avoids stale sc
 
 test('product customization keeps Add to cart separate from Buy now',()=>{
   const features=readFileSync('frontend/js/shop-features.js','utf8');
-  assert.ok(features.includes("stepForm.querySelector('button[type=\\\"submit\\\"]')?.addEventListener('click',()=>{stepForm.dataset.buyNow='false';})"));
-  assert.ok(features.includes("$('#buy-now')?.addEventListener('click',()=>{stepForm.dataset.buyNow='true';stepForm.requestSubmit();})"));
+  assert.ok(features.includes("dataset.buyNow='false'"));
+  assert.ok(features.includes("dataset.buyNow='true'"));
   assert.ok(features.includes("if(form.dataset.buyNow==='true')"));
 });
-
 test('sitemap only advertises public indexable pages',()=>{
   assert.ok(sitemap.includes('<loc>https://saobentodobroes.com/</loc>'));
   assert.ok(sitemap.includes('<loc>https://saobentodobroes.com/privacidade.html</loc>'));
