@@ -7,7 +7,8 @@ test('edge security headers apply before static and API routes without intercept
  assert.equal(rule.headers['X-Frame-Options'],'DENY');
  assert.equal(rule.headers['X-Content-Type-Options'],'nosniff');
  assert.equal(rule.headers['Referrer-Policy'],'no-referrer');
- assert.match(rule.headers['Content-Security-Policy'],/frame-ancestors 'none'/);\n assert.match(rule.headers['Content-Security-Policy'],/https:\/\/www\.mercadopago\.com/);
+ assert.match(rule.headers['Content-Security-Policy'],/frame-ancestors 'none'/);
+ assert.match(rule.headers['Content-Security-Policy'],/https:\/\/www\.mercadopago\.com/);
  assert.equal(rule.headers['Cross-Origin-Opener-Policy'],'same-origin-allow-popups');
  assert.equal(rule.headers['Cross-Origin-Embedder-Policy'],undefined);
  assert.ok(config.routes.some(r=>r.handle==='filesystem'));
