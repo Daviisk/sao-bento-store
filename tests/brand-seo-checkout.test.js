@@ -16,7 +16,7 @@ test('storefront cache-busts updated checkout and brand assets',()=>{
   assert.ok(html.includes('css/cart.css?v=cart-summary-bottom-20261102'));
   assert.ok(html.includes('js/cart.js?v=checkout-trust-20261101'));
   assert.ok(html.includes('js/storefront.js?v=brand-copy-20261101'));
-  assert.ok(html.includes('js/shop-features.js?v=freight-after-quantity-20261102'));
+  assert.ok(html.includes('js/shop-features.js?v=buy-now-primary-20261102'));
 });
 
 test('storefront exposes organization and website structured data',()=>{
@@ -57,4 +57,13 @@ test('sitemap only advertises public indexable pages',()=>{
   assert.ok(sitemap.includes('<loc>https://saobentodobroes.com/privacidade.html</loc>'));
   assert.ok(sitemap.includes('<loc>https://saobentodobroes.com/termos.html</loc>'));
   assert.doesNotMatch(sitemap,/\/admin|\/api|\/acompanhar|\/sucesso/);
+});
+
+
+test('catalog cards show Buy now as the only purchase action',()=>{
+  const features=readFileSync('frontend/js/shop-features.js','utf8');
+  assert.ok(features.includes('class="primary catalog-buy-now"'));
+  assert.ok(features.includes("data-commerce-buy=\"'+esc(p.productId)+'\""));
+  assert.ok(!features.includes('Personalizar e ver produto →'));
+  assert.ok(!features.includes('class="catalog-buy-now" data-commerce-buy='));
 });
