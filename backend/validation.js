@@ -5,13 +5,13 @@ export class AppError extends Error {
 export const fail=(status,code,message)=>{throw new AppError(status,code,message);};
 const plain=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
 export function canonicalCart(body,catalog){
-  if(!plain(body)||Object.keys(body).length!==1||!Array.isArray(body.items)||body.items.length<1||body.items.length>5)
+  if(!plain(body)||Object.keys(body).length!==1||!Array.isArray(body.items)||body.items.length<1||body.items.length>20)
     fail(400,'invalid_cart','Envie apenas items, com um a cinco produtos.');
   const seen=new Set();let units=0;
   const items=body.items.map(item=>{
     if(!plain(item)||Object.keys(item).sort().join(',')!=='productId,quantity') fail(400,'invalid_item','Envie apenas productId e quantity em cada item.');
     const {productId,quantity}=item;
-    if(typeof productId!=='string'||!/^produto_0[1-5]$/.test(productId)||seen.has(productId)) fail(400,'invalid_product','Produto inválido ou repetido.');
+    if(typeof productId!=='string'||!/^[a-zA-Z0-9_-]{3,40}$/.test(productId)||seen.has(productId)) fail(400,'invalid_product','Produto inválido ou repetido.');
     const product=catalog.find(p=>p.productId===productId);if(!product)fail(400,'invalid_product','Produto não encontrado.');
     if(!Number.isSafeInteger(quantity)||quantity<1||quantity>product.maxQuantity)fail(400,'invalid_quantity','Quantidade fora do limite permitido.');
     if(!product.enabled)fail(409,'unavailable_product','Um produto está indisponível. Remova-o do carrinho.');
