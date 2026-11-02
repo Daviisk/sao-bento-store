@@ -12,7 +12,8 @@ test('product details offer freight quote using only the destination CEP',()=>{
   assert.ok(js.includes('id="product-shipping-check"'));
   assert.ok(js.includes("post('/api/commerce/shipping/quote',{cep,items:[{productId:p.productId,quantity}]})"));
   assert.ok(js.includes('Estimativa para este produto e quantidade.'));
-  assert.match(js,/Informe apenas o CEP para consultar preço e prazo estimados/);\n  assert.ok(js.indexOf('id="detail-quantity"') < js.indexOf('id="product-shipping-title"'),'freight calculator must appear after quantity');
+  assert.match(js,/Informe apenas o CEP para consultar preço e prazo estimados/);
+  assert.ok(js.indexOf('id="detail-quantity"') < js.indexOf('id="product-shipping-title"'),'freight calculator must appear after quantity');
 });
 
 test('adding an item opens a cart review with the new item highlighted',()=>{
