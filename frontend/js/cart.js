@@ -5,7 +5,7 @@
  const cards=new Map(all('.piece[data-product-id]').map(card=>[card.dataset.productId,card]));
  let storage;try{storage=localStorage;}catch{storage={getItem(){return null;},setItem(){throw Error('unavailable');}};}
  const cart=new Cart(storage),drawer=get('#cart-drawer');
- let products=new Map(),csrf='',loading=true,busy=false,key=null,review=null,checkoutConfigured=false,toastTimer;
+ let products=new Map(),csrf='',loading=true,busy=false,key=null,checkoutConfigured=false,toastTimer;
  const form=get('#delivery-form');let selectedQuote=null,quoteBusy=false,addressBusy=false,quoteVersion=0;
  // Preview prices are display-only. Checkout always uses the server catalog.
  // Embedded/HTTPS previews also lack the API: keep display prices in every preview.
@@ -16,11 +16,11 @@
  const notice=(text)=>{const box=get('#cart-message');box.textContent=text;box.hidden=!text;};
  function toast(text){get('#cart-toast').textContent=text;get('#cart-toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>get('#cart-toast').hidden=true,4500);}
  function invalidateQuote(){selectedQuote=null;quoteVersion++;get('#shipping-options').replaceChildren();get('#shipping-options').hidden=true;get('#shipping-message').textContent='Informe seu CEP e calcule o frete para este carrinho.';}
- function changed(){key=null;review=null;invalidateQuote();render();}
+ function changed(){key=null;invalidateQuote();render();}
  form.addEventListener('submit',e=>e.preventDefault());
  const cepInput=get('#delivery-cep'),addressLookup=get('#address-lookup');
  function formatCep(value){const digits=String(value).replace(/\D/g,'').slice(0,8);return digits.length>5?digits.slice(0,5)+'-'+digits.slice(5):digits;}
- function clearPending(){key=null;review=null;invalidateQuote();render();}
+ function clearPending(){key=null;invalidateQuote();render();}
  async function lookupAddress(){
   const cep=cepInput.value.replace(/\D/g,'');cepInput.value=formatCep(cep);
   if(!/^\d{8}$/.test(cep)){get('#shipping-message').textContent='Informe os 8 números do CEP para buscar o endereço.';cepInput.focus();return;}
@@ -36,8 +36,8 @@
  cepInput.addEventListener('input',()=>{cepInput.value=formatCep(cepInput.value);clearPending();});
  cepInput.addEventListener('blur',()=>{if(cepInput.value.replace(/\D/g,'').length===8)lookupAddress();});
  addressLookup.addEventListener('click',lookupAddress);
- form.addEventListener('input',e=>{if(e.target.name!=='cep'){key=null;review=null;render();}});
- form.addEventListener('change',()=>{key=null;review=null;render();});
+ form.addEventListener('input',e=>{if(e.target.name!=='cep'){key=null;render();}});
+ form.addEventListener('change',()=>{key=null;render();});
  get('#shipping-calculate').addEventListener('click',async()=>{
   if(quoteBusy||busy||!cart.items.length)return;
   const cep=get('#delivery-cep');if(!cep.reportValidity())return;
@@ -48,7 +48,7 @@
    const result=await api('/api/shipping/quote',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':csrf},body:JSON.stringify({...cart.payload(),cep:cep.value})});
    if(version!==quoteVersion)return;
    const options=get('#shipping-options');options.replaceChildren(create('legend','Escolha a entrega'));
-   for(const quote of result.options){const label=create('label',undefined,'shipping-option'),radio=create('input');radio.type='radio';radio.name='shipping-choice';radio.value=quote.quoteId;radio.addEventListener('change',()=>{selectedQuote=quote;key=null;review=null;render();});label.append(radio,create('span',`${quote.name} — ${cash(quote.priceCents)} · ${quote.days} dia(s) útil(eis) após postagem`));options.append(label);}
+   for(const quote of result.options){const label=create('label',undefined,'shipping-option'),radio=create('input');radio.type='radio';radio.name='shipping-choice';radio.value=quote.quoteId;radio.addEventListener('change',()=>{selectedQuote=quote;key=null;render();});label.append(radio,create('span',`${quote.name} — ${cash(quote.priceCents)} · ${quote.days} dia(s) útil(eis) após postagem`));options.append(label);}
    options.hidden=false;get('#shipping-message').textContent='Selecione uma opção. Cotação válida por 10 minutos.';
   }catch(e){if(version===quoteVersion)get('#shipping-message').textContent=e.message;}finally{quoteBusy=false;render();}
  });
@@ -71,7 +71,7 @@
   const focused=document.activeElement?.dataset?.cartFocus;
   get('#cart-count').textContent=cart.items.reduce((n,item)=>n+item.quantity,0);
   get('#cart-toggle').setAttribute('aria-label',`Abrir carrinho, ${get('#cart-count').textContent} itens`);
-  const empty=!cart.items.length;get('#cart-empty').hidden=!empty;get('#cart-filled').hidden=empty;get('#cart-review').hidden=!review;
+  const empty=!cart.items.length;get('#cart-empty').hidden=!empty;get('#cart-filled').hidden=empty;
   const lines=get('#cart-lines');lines.replaceChildren();let total=0,ready=!empty;
   for(const item of cart.items){
    const product=products.get(item.productId),card=cards.get(item.productId);if(!card)continue;
@@ -98,7 +98,6 @@
   all('#delivery-form input,#delivery-form select').forEach(el=>el.disabled=busy);addressLookup.disabled=busy||addressBusy;
   const submit=get('#cart-checkout');submit.disabled=busy||loading||!ready||!checkoutConfigured||!selectedQuote;submit.textContent=busy?'Criando checkout…':loading?'Carregando preços…':'Finalizar compra';get('#cart-clear').disabled=busy;
   all('[data-add-product]').forEach(button=>{const p=products.get(button.dataset.addProduct);button.disabled=busy||p?.enabled===false;button.textContent=p?.enabled===false?'Indisponível':'Adicionar ao carrinho';});
-  if(review){get('#checkout-review-items').replaceChildren(...review.items.map(item=>create('li',`${item.quantity} × ${item.name} — ${cash(item.subtotal)}`)));if(review.shipping)get('#checkout-review-items').append(create('li',`${review.shipping.name}: ${cash(review.shipping.priceCents)}`));if(review.address)get('#checkout-review-items').append(create('li',`Entrega: ${review.address.street}, ${review.address.number}, ${review.address.complement} — ${review.address.district}, ${review.address.city}/${review.address.state}, CEP ${review.address.cep}`));get('#checkout-review-total').textContent=cash(review.total);get('#checkout-order-id').textContent=`Pedido ${review.orderId}`;get('#checkout-go').href=review.checkoutUrl;}
   if(focused){const target=all('[data-cart-focus]').find(el=>el.dataset.cartFocus===focused);if(target&&!target.disabled)target.focus();else if(drawer.open)get('#cart-close').focus();}
  }
  async function api(path,options={}){
@@ -106,7 +105,7 @@
   if(!response.ok)throw Error(data.message||'Não foi possível concluir a operação.');return data;
  }
  async function refresh(){
-  loading=true;invalidateQuote();review=null;key=null;render();notice('Carregando preços e disponibilidade…');
+  loading=true;invalidateQuote();key=null;render();notice('Carregando preços e disponibilidade…');
   try{
    if(location.hostname.endsWith('.github.io'))throw Error('Modo de demonstração: você pode montar o carrinho. Frete e pagamento estarão disponíveis quando a loja estiver conectada ao servidor.');
    if(!/^https?:$/.test(location.protocol))throw Error('Para comprar, abra a loja pelo servidor. Nesta prévia, você pode montar o carrinho.');
@@ -120,14 +119,14 @@
   if(!form.reportValidity())return;
   if(selectedQuote.expiresAt<=Date.now()){invalidateQuote();render();notice('Calcule o frete novamente.');return;}
   const address=Object.fromEntries([...new FormData(form)].filter(([key])=>key!=='shipping-choice'));
-  busy=true;review=null;notice('Validando seu carrinho e criando o checkout…');render();
+  busy=true;notice('Validando seu carrinho e criando o checkout…');render();
   try{
    key=key||crypto.randomUUID();const result=await api('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':csrf,'Idempotency-Key':key},body:JSON.stringify({...cart.payload(),address,quoteId:selectedQuote.quoteId})});
    if(result.status==='paid'){notice('Este pedido já foi pago. Confira o acompanhamento antes de comprar novamente.');return;}
    if(!result.checkoutUrl)throw Error('Este pedido não está mais disponível para pagamento.');
    const url=new URL(result.checkoutUrl);if(url.protocol!=='https:'||url.hostname!=='www.mercadopago.com.br'||!url.pathname.startsWith('/checkout/')||url.username||url.password)throw Error('Não foi possível abrir um checkout válido.');
-   review=result;try{sessionStorage.setItem('jewelry.pendingOrder',result.orderId);}catch{}
-   notice('Pedido criado. Você seguirá para o ambiente de pagamento do Mercado Pago. A compra só será confirmada após a aprovação do pagamento.');
+   try{sessionStorage.setItem('jewelry.pendingOrder',result.orderId);}catch{}
+   window.location.assign(url.href);
   }catch(e){notice(e.message||'Falha ao criar checkout. Você pode tentar novamente.');}finally{busy=false;render();}
  });
  window.addEventListener('storage',event=>{if(event.key===KEY&&!busy){cart.items=clean(event.newValue);cart.save();changed();}});
