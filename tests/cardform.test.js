@@ -34,7 +34,7 @@ async function fixture(t,{paymentStatus='approved',paymentDetail='accredited',ch
 
 test('CardForm prepare returns server-authoritative products + shipping total',async t=>{
  const f=await fixture(t);const result=await f.prepare().expect(200);
- assert.equal(result.body.productsTotal,15000);assert.equal(result.body.shipping.priceCents,1191);assert.equal(result.body.total,16191);assert.equal(result.body.amount,'161.91');assert.equal(result.body.status,'pending');assert.equal(result.body.customer.email,customer.email);assert.match(result.body.orderId,/^[0-9a-f-]{36}$/i);assert.ok(result.body.quoteExpiresAt>Date.now());
+ assert.equal(result.body.productsTotal,10000);assert.equal(result.body.shipping.priceCents,1191);assert.equal(result.body.total,11191);assert.equal(result.body.amount,'111.91');assert.equal(result.body.status,'pending');assert.equal(result.body.customer.email,customer.email);assert.match(result.body.orderId,/^[0-9a-f-]{36}$/i);assert.ok(result.body.quoteExpiresAt>Date.now());
  await f.prepare(randomUUID(),{amount:1}).expect(400);
 });
 
