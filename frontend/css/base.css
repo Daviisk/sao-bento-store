@@ -344,3 +344,19 @@ html[data-theme=dark] .footerContact,html[data-theme=dark] .footerBottom{border-
  #grid .card .primary,#grid .card .catalog-buy-now{font-size:11px;padding:7px 5px}
  .bottom{left:8px;right:8px}
 }
+
+
+/* Bottom navigation emphasis: keep the cart action in the lower bar. */
+@media(max-width:800px){
+ .bottom{background:#fffaf1;border:1px solid #d9c5a4;box-shadow:0 -5px 24px rgba(54,37,15,.16),0 8px 26px rgba(54,37,15,.12);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);min-height:74px;padding:7px 6px max(7px,env(safe-area-inset-bottom));border-radius:22px}
+ .bottom button{color:#72583a;font-weight:650;gap:5px;min-height:58px;border-radius:15px;transition:background .18s ease,color .18s ease}
+ .bottom button strong{display:grid;place-items:center;width:38px;height:34px;border-radius:11px;color:#765326}
+ .bottom button strong svg{width:24px;height:24px;stroke-width:1.9}
+ .bottom button.active{color:#3d2914;background:#f2e5ce}
+ .bottom button.active strong{background:#e8d4b2;color:#533718;padding:0;width:42px;height:34px}
+ .bottom button[data-ui="showCart()"]{color:#fffaf1;background:#5b3d1f;box-shadow:0 4px 12px rgba(67,43,17,.22)}
+ .bottom button[data-ui="showCart()"] strong{color:#f2d49a;background:#76532c;width:42px;height:36px}
+ .bottom button[data-ui="showCart()"] .counter{border:2px solid #5b3d1f;background:#d7a64e;color:#281b0c}
+}
+@media(max-width:360px){.bottom{min-height:70px}.bottom button{font-size:10px}.bottom button strong{width:34px;height:32px}}
+@media(prefers-reduced-motion:reduce){.bottom button{transition:none}}
