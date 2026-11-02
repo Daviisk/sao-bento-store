@@ -64,7 +64,7 @@ test('Correios adapter obtains private token, server weight/dimensions, price an
  const provider=createCorreios(env,async(url,options)=>{calls.push({url,options});return {ok:true,json:async()=>url.includes('/token/')?{token:'test-token'}:url.includes('/preco/')?{coProduto:'03298',pcFinal:'23,45'}:{coProduto:'03298',prazoEntrega:4}};});
  const q=await provider.quote(items,'01001000');assert.equal(q[0].priceCents,2345);assert.equal(calls.length,3);assert.match(calls.find(c=>c.url.includes('/preco/')).url,/psObjeto=200/);assert.match(calls.find(c=>c.url.includes('/preco/')).url,/altura=4/);assert.equal(calls[1].options.headers.Authorization,'Bearer test-token');
 });
-test('provider factory exposes fixed price and official delivery labels on every quote path',async()=>{
+test('provider factory preserves carrier prices and official delivery labels on every quote path',async()=>{
  const env={SUPERFRETE_TOKEN:'test-token',SHIPPING_ORIGIN_CEP:'74000000',SUPERFRETE_SERVICES:'1,2'};
  const provider=createShippingProvider(env,async()=>({ok:true,json:async()=>[
   {id:1,name:'PAC',price:'23.45',delivery_time:4,company:{name:'Correios'}},
