@@ -45,6 +45,7 @@ test('text-only engraving is accepted for each doubloon in a kit',async t=>{
  form.elements.coin0.value='produto_01';
  form.elements.coin0.dispatchEvent(new w.Event('change',{bubbles:true}));
  form.elements.variant0.value='gravado';
+ form.elements.variant0.dispatchEvent(new w.Event('change',{bubbles:true}));
  form.elements.engravingNotes0.value='Nossa arte, nossa história';
  form.elements.bag.value='produto_03';
  form.dispatchEvent(new w.Event('submit',{cancelable:true}));await tick();
