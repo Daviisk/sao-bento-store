@@ -35,7 +35,7 @@
   const params=new URLSearchParams({q,status,fulfillment,from,to,limit:'300'});panelMessage('Atualizando pedidos…');
   try{
    const data=await api('/api/admin/orders?'+params);
-   $('#stat-total').textContent=data.summary.total;$('#stat-paid').textContent=data.summary.paid;$('#stat-awaiting-payment').textContent=data.summary.awaitingPayment;$('#stat-awaiting-shipment').textContent=data.summary.awaitingShipment;$('#stat-preparing').textContent=data.summary.preparing;$('#stat-shipped').textContent=data.summary.shipped;$('#stat-revenue').textContent=cash(data.summary.revenuePaid);$('#stat-ticket').textContent=cash(data.summary.ticketAverage);
+   const standardSummary=data.summary;
    const body=$('#orders-body');body.replaceChildren();
    for(const o of data.orders){const tr=document.createElement('tr'),customer=o.customer||{};tr.innerHTML=`<td><strong>#${esc(o.orderCode)}</strong>${(o.supportRequests||[]).some(r=>r.status==='open')?'<span class="badge">Atendimento pendente</span>':''}<span class="muted">${esc(o.paymentId||'sem pagamento')}</span></td><td>${esc(date(o.createdAt))}</td><td><strong>${esc(customer.name||'—')}</strong><span class="muted">${esc(customer.phone||'')}<br>${esc(customer.email||'')}</span></td><td>${(o.items||[]).reduce((n,i)=>n+Number(i.quantity||0),0)}</td><td><strong>${cash(o.total)}</strong></td><td>${badge(o.status)}</td><td>${badge(o.fulfillmentStatus)}</td><td><button class="open-order" data-id="${esc(o.orderId)}">Abrir</button></td>`;body.append(tr);}
 
@@ -54,6 +54,21 @@
      body.append(tr);
     }
    }catch(error){panelMessage('Pedidos personalizados indisponíveis: '+error.message);}
+   const customOrders=custom?.orders||[];
+   const customPaid=customOrders.filter(o=>o.paymentConfirmed&&o.status!=='cancelled');
+   const customPending=customOrders.filter(o=>!o.paymentConfirmed&&o.status!=='cancelled');
+   const customRevenue=customPaid.reduce((sum,o)=>sum+Number(o.total||0),0);
+   const paidCount=Number(standardSummary.paid||0)+customPaid.length;
+   const paidRevenue=Number(standardSummary.revenuePaid||0)+customRevenue;
+   const customInStatus=status=>customOrders.filter(o=>o.paymentConfirmed&&o.status===status).length;
+   $('#stat-total').textContent=Number(standardSummary.total||0)+customOrders.length;
+   $('#stat-paid').textContent=paidCount;
+   $('#stat-awaiting-payment').textContent=Number(standardSummary.awaitingPayment||0)+customPending.length;
+   $('#stat-awaiting-shipment').textContent=Number(standardSummary.awaitingShipment||0)+customInStatus('paid');
+   $('#stat-preparing').textContent=Number(standardSummary.preparing||0)+customInStatus('preparing');
+   $('#stat-shipped').textContent=Number(standardSummary.shipped||0)+customInStatus('shipped');
+   $('#stat-revenue').textContent=cash(paidRevenue);
+   $('#stat-ticket').textContent=cash(paidCount?paidRevenue/paidCount:0);
    $('#orders-empty').hidden=body.children.length===0;body.querySelectorAll('.open-order').forEach(b=>b.addEventListener('click',()=>openOrder(b.dataset.id)));panelMessage(`Atualizado às ${new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}.`);
   }catch(err){panelMessage(err.message);if(/login|painel/i.test(err.message))showLogin(err.message);}
  }
