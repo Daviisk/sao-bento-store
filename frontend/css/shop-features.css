@@ -708,3 +708,67 @@
   #veil .drawer:has(#request-order) .order-cart-line>img{width:54px!important;height:54px!important;flex-basis:54px!important}
   #request-order .checkout-steps span{font-size:9px!important}
 }
+
+
+/* Checkout summary: clear hierarchy and spacing for prices and delivery status. */
+#request-order .checkout-summary{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:0!important;
+  margin:22px 0 18px!important;
+  padding:18px!important;
+  border:1px solid #ddc9a8!important;
+  border-radius:16px!important;
+  background:#fffaf2!important;
+}
+#request-order .checkout-summary .cart-summary-line{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,auto)!important;
+  align-items:center!important;
+  gap:12px!important;
+  margin:0!important;
+  padding:11px 0!important;
+  border-bottom:1px solid #eadcc6;
+  font-size:15px!important;
+  line-height:1.4!important;
+}
+#request-order .checkout-summary .cart-summary-line>*{
+  min-width:0!important;
+  overflow-wrap:anywhere!important;
+}
+#request-order .checkout-summary .cart-summary-line strong,
+#request-order .checkout-summary .cart-summary-line b{
+  text-align:right!important;
+  white-space:normal!important;
+  font-variant-numeric:tabular-nums;
+}
+#request-order .checkout-summary .cart-grand-total{
+  align-items:start!important;
+  margin-top:5px!important;
+  padding:15px 0 10px!important;
+  border-bottom:0!important;
+  color:#49341f!important;
+  font-size:17px!important;
+  font-weight:800!important;
+}
+#request-order .checkout-summary .cart-grand-total strong{
+  font-size:19px!important;
+  line-height:1.3!important;
+}
+#request-order .checkout-summary #shipping-total{
+  margin:8px 0 0!important;
+  padding:11px 12px!important;
+  border-radius:10px!important;
+  background:#f5ecdd!important;
+  color:#75634b!important;
+  font-size:12px!important;
+  line-height:1.55!important;
+  overflow-wrap:anywhere!important;
+}
+@media(max-width:420px){
+  #request-order .checkout-summary{padding:14px!important;margin:18px 0 16px!important}
+  #request-order .checkout-summary .cart-summary-line{font-size:14px!important;gap:8px!important;padding:10px 0!important}
+  #request-order .checkout-summary .cart-grand-total{font-size:16px!important}
+  #request-order .checkout-summary .cart-grand-total strong{font-size:17px!important}
+  #request-order .checkout-summary #shipping-total{padding:10px!important}
+}
