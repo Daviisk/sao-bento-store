@@ -50,6 +50,21 @@ export function createApp({config,catalog,store,gateway,shipping=createShipping(
   const app=express();
   const commerce=createCommerce({store,config});
   const sendConfirmation=emailSender||createOrderConfirmationSender({apiKey:config.resendApiKey,from:config.resendFromEmail,replyTo:config.resendReplyTo});
+  async function notifyCommercePaidOrder(orderId){
+    if(!sendConfirmation)return;
+    const order=await commerce.db.get('orders',orderId);
+    if(!order?.paymentConfirmed||order.emailConfirmationSentAt||!order.customer?.email)return;
+    const trackingUrl=await commerce.trackingUrl(orderId);
+    if(!trackingUrl){logger.error(JSON.stringify({event:'commerce_tracking_link_missing',orderId}));return;}
+    try{
+      const result=await sendConfirmation({...order,status:'paid',trackingUrl,shipping:{name:'Entrega',priceCents:order.shippingCents}});
+      if(!result?.id)return;
+      await commerce.db.transaction(async tx=>{
+        const latest=await tx.get('orders',orderId);
+        if(latest&&!latest.emailConfirmationSentAt){latest.emailConfirmationSentAt=new Date().toISOString();latest.emailConfirmationId=result.id;await tx.put('orders',orderId,latest);}
+      });
+    }catch(error){logger.error(JSON.stringify({event:'commerce_order_confirmation_email_failed',orderId,statusCode:Number(error?.statusCode)||0,code:String(error?.code||'resend_error').slice(0,80)}));}
+  }
   async function notifyPaidOrder(order){
     if(!sendConfirmation||order?.status!=='paid'||order.emailConfirmationSentAt||!order.customer?.email)return;
     try{
@@ -138,10 +153,11 @@ export function createApp({config,catalog,store,gateway,shipping=createShipping(
     try{WebhookSignatureValidator.validate({xSignature:req.get('x-signature')||'',xRequestId:req.get('x-request-id')||'',dataId:id,secret:config.webhookSecret.trim()});}
     catch(error){if(error instanceof InvalidWebhookSignatureError||error?.name==='InvalidWebhookSignatureError')fail(401,'invalid_signature','Assinatura inválida.');throw error;}
     const remote=await createOrdersGateway({accessToken:config.accessToken}).getOrder(id);
-    await commerce.reconcileMercadoPagoOrder(remote);
+    const reconciled=await commerce.reconcileMercadoPagoOrder(remote);
+    if(reconciled.paymentConfirmed)await notifyCommercePaidOrder(reconciled.orderId);
     res.status(200).json({received:true});
   });
-  mountCommerce(app,{commerce,config,session,mutation,limit});
+  mountCommerce(app,{commerce,config,session,mutation,limit,notifyPaidOrder:notifyCommercePaidOrder});
   mountAdmin(app,{config,store,limit,commerce});
   app.get('/js/cart.js',(req,res)=>{res.type('application/javascript').send(cartScript);});
   app.get(['/sucesso','/sucesso.html'],(req,res)=>res.sendFile(join(config.frontendPath,'sucesso.html')));
