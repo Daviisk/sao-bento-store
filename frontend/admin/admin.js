@@ -39,8 +39,9 @@
    const body=$('#orders-body');body.replaceChildren();
    for(const o of data.orders){const tr=document.createElement('tr'),customer=o.customer||{};tr.innerHTML=`<td><strong>#${esc(o.orderCode)}</strong>${(o.supportRequests||[]).some(r=>r.status==='open')?'<span class="badge">Atendimento pendente</span>':''}<span class="muted">${esc(o.paymentId||'sem pagamento')}</span></td><td>${esc(date(o.createdAt))}</td><td><strong>${esc(customer.name||'—')}</strong><span class="muted">${esc(customer.phone||'')}<br>${esc(customer.email||'')}</span></td><td>${(o.items||[]).reduce((n,i)=>n+Number(i.quantity||0),0)}</td><td><strong>${cash(o.total)}</strong></td><td>${badge(o.status)}</td><td>${badge(o.fulfillmentStatus)}</td><td><button class="open-order" data-id="${esc(o.orderId)}">Abrir</button></td>`;body.append(tr);}
 
+   let customData={orders:[],statusLabels:{}};
    try{
-    const custom=await api('/api/admin/custom-orders');
+    customData=await api('/api/admin/custom-orders');
     for(const o of custom.orders||[]){
      const searchable=[o.orderCode,o.orderId,o.customer?.name,o.customer?.phone,o.customer?.email,...(o.items||[]).map(i=>i.name)].join(' ').toLowerCase();
      if(q&&!searchable.includes(q.toLowerCase()))continue;
@@ -49,12 +50,12 @@
      const created=String(o.createdAt||'').slice(0,10);
      if((from&&created<from)||(to&&created>to))continue;
      const tr=document.createElement('tr');
-     tr.innerHTML='<td><strong>#'+esc(o.orderCode)+'</strong><span class="muted">Personalizado</span></td><td>'+esc(date(o.createdAt))+'</td><td><strong>'+esc(o.customer?.name||'—')+'</strong><span class="muted">'+esc(o.customer?.phone||'')+'</span></td><td>'+(o.items||[]).reduce((n,i)=>n+Number(i.quantity||0),0)+'</td><td><strong>'+cash(o.total)+'</strong></td><td>'+(o.paymentConfirmed?'Confirmado':'Pendente')+'</td><td>'+esc(custom.statusLabels?.[o.status]||o.status)+'</td><td><button class="open-custom-order" type="button">Abrir</button></td>';
+     tr.innerHTML='<td><strong>#'+esc(o.orderCode)+'</strong><span class="muted">Personalizado</span></td><td>'+esc(date(o.createdAt))+'</td><td><strong>'+esc(o.customer?.name||'—')+'</strong><span class="muted">'+esc(o.customer?.phone||'')+'</span></td><td>'+(o.items||[]).reduce((n,i)=>n+Number(i.quantity||0),0)+'</td><td><strong>'+cash(o.total)+'</strong></td><td>'+(o.paymentConfirmed?'Confirmado':'Pendente')+'</td><td>'+esc(customData.statusLabels?.[o.status]||o.status)+'</td><td><button class="open-custom-order" type="button">Abrir</button></td>';
      tr.querySelector('.open-custom-order').addEventListener('click',()=>openCustomOrder(o));
      body.append(tr);
     }
    }catch(error){panelMessage('Pedidos personalizados indisponíveis: '+error.message);}
-   const customOrders=custom?.orders||[];
+   const customOrders=customData.orders||[];
    const customPaid=customOrders.filter(o=>o.paymentConfirmed&&o.status!=='cancelled');
    const customPending=customOrders.filter(o=>!o.paymentConfirmed&&o.status!=='cancelled');
    const customRevenue=customPaid.reduce((sum,o)=>sum+Number(o.total||0),0);
