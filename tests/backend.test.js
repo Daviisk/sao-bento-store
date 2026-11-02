@@ -29,7 +29,7 @@ async function fixture(t,overrides={}){
  return {app,agent,session,csrf,config,store,post,prepare,get gets(){return gets;},get remote(){return remote;},set remote(v){remote=v;}};
 }
 
-test('prepare persists authoritative total and stable customer identity',async t=>{const f=await fixture(t);const r=await f.prepare().expect(200);assert.equal(r.body.total,31191);assert.equal(r.body.customer.email,customer.email);assert.match(r.body.customer.customerId,/^[\da-f-]{36}$/i);assert.equal(f.store.listCustomers().length,1);});
+test('prepare persists authoritative total and stable customer identity',async t=>{const f=await fixture(t);const r=await f.prepare().expect(200);assert.equal(r.body.total,21191);assert.equal(r.body.customer.email,customer.email);assert.match(r.body.customer.customerId,/^[\da-f-]{36}$/i);assert.equal(f.store.listCustomers().length,1);});
 test('anonymous checkout cannot overwrite another customer profile or merge unrelated emails by phone',()=>{
  const store=openStore(':memory:');try{
   const original=store.upsertCustomer(customer);

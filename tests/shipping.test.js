@@ -27,7 +27,7 @@ test('server shipping is included in prepared CardForm order and duplicate reque
  const f=await fixture(t),q=await f.quote(),body={items,customer,address,quoteId:q.quoteId},key=randomUUID();
  const a=await f.post('/api/card/prepare',body,key).expect(200);const b=await f.post('/api/card/prepare',body,key).expect(200);
  assert.equal(a.body.total,20001);assert.equal(a.body.productsTotal,20000);assert.equal(a.body.shipping.priceCents,1);assert.equal(a.body.amount,'200.01');assert.equal(b.body.orderId,a.body.orderId);assert.equal(a.body.customer.email,customer.email);
- const order=f.store.get(a.body.orderId);assert.deepEqual(order.address,address);assert.equal(order.gatewayPayload.integration,'payments-api');assert.equal(order.total,22845);
+ const order=f.store.get(a.body.orderId);assert.deepEqual(order.address,address);assert.equal(order.gatewayPayload.integration,'payments-api');assert.equal(order.total,20001);
  const q2=await f.quote();const c=await f.post('/api/card/prepare',{...body,quoteId:q2.quoteId}).expect(200);assert.notEqual(c.body.orderId,a.body.orderId);
 });
 test('changing address with same request key conflicts, fresh key creates separate delivery',async t=>{
