@@ -72,8 +72,8 @@ test('provider factory exposes fixed price and official delivery labels on every
  ]}));
  const quotes=await provider.quote(items,'01001000');
  assert.deepEqual(quotes.map(q=>({name:q.name,priceCents:q.priceCents,serviceCode:q.serviceCode})),[
-  {name:'Entrega Normal',priceCents:1,serviceCode:'SF-1'},
-  {name:'Entrega Rápido',priceCents:1,serviceCode:'SF-2'}
+  {name:'Correios • Entrega Normal',priceCents:1,serviceCode:'SF-1'},
+  {name:'Correios • Entrega Rápida',priceCents:1,serviceCode:'SF-2'}
  ]);
 });
 test('SuperFrete adapter keeps token private and calculates price from server dimensions',async()=>{
@@ -86,7 +86,7 @@ test('SuperFrete adapter keeps token private and calculates price from server di
 test('all delivery options use fixed R$0.01 regardless of carrier price, quantity or repeated reads',async t=>{
  const f=await fixture(t);const raw=[{name:'PAC',serviceCode:'PAC',priceCents:1000,days:4},{name:'SEDEX',serviceCode:'SEDEX',priceCents:2000,days:2}];f.provider.quote=async()=>raw;
  const cart={hash:'surcharge-test',items};const quotes=await f.shipping.quote('owner',cart,address.cep);
- assert.deepEqual(quotes.map(q=>q.priceCents),[1,1]);assert.deepEqual(quotes.map(q=>q.name),['Entrega Normal','Entrega Rápido']);assert.deepEqual(raw.map(q=>q.priceCents),[1000,2000]);
+ assert.deepEqual(quotes.map(q=>q.priceCents),[1,1]);assert.deepEqual(quotes.map(q=>q.name),['Correios • Entrega Normal','Correios • Entrega Rápida']);assert.deepEqual(raw.map(q=>q.priceCents),[1000,2000]);
  for(const q of quotes){assert.equal((await f.shipping.get('owner',q.quoteId,cart,address.cep)).priceCents,q.priceCents);assert.equal((await f.shipping.get('owner',q.quoteId,cart,address.cep)).priceCents,q.priceCents);}
 });
 
