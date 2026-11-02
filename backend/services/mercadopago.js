@@ -1,9 +1,9 @@
 import {cents,money,fail} from '../validation.js';
 
 const chargeLines=order=>order.shipping?.priceCents?[...order.items,{productId:'shipping',name:'Frete — '+order.shipping.name,quantity:1,unitPrice:order.shipping.priceCents,subtotal:order.shipping.priceCents}]:order.items;
-const payerName=order=>{const parts=String(order.customer?.name||'Cliente').trim().split(/\\s+/);return {first_name:parts.shift()||'Cliente',last_name:parts.join(' ')||'Cliente'};};
-const payerPhone=order=>{let digits=String(order.customer?.phone||'').replace(/\\D/g,'');if(digits.length>11&&digits.startsWith('55'))digits=digits.slice(2);return digits.length>=10&&digits.length<=11?{area_code:digits.slice(0,2),number:digits.slice(2)}:undefined;};
-const deviceHeader=value=>{const id=String(value||'').trim();if(!id)return {};if(id.length>256||/[\\r\\n]/.test(id))fail(400,'invalid_device_id','Identificador do dispositivo inválido.');return {'X-meli-session-id':id};};
+const payerName=order=>{const parts=String(order.customer?.name||'Cliente').trim().split(/\s+/);return {first_name:parts.shift()||'Cliente',last_name:parts.join(' ')||'Cliente'};};
+const payerPhone=order=>{let digits=String(order.customer?.phone||'').replace(/\D/g,'');if(digits.length>11&&digits.startsWith('55'))digits=digits.slice(2);return digits.length>=10&&digits.length<=11?{area_code:digits.slice(0,2),number:digits.slice(2)}:undefined;};
+const deviceHeader=value=>{const id=String(value||'').trim();if(!id)return {};if(id.length>256||/[\r\n]/.test(id))fail(400,'invalid_device_id','Identificador do dispositivo inválido.');return {'X-meli-session-id':id};};
 
 function safeChallenge(remote){
   if(remote?.status!=='pending'||remote?.status_detail!=='pending_challenge')return null;
@@ -91,8 +91,8 @@ export function createGateway({accessToken,sellerId,applicationId,baseURL,mode='
     return data;
   }
 
-  async function createPixPayment(order,payer,idempotencyKey){
-    const lines=chargeLines(order),parts=String(order.customer?.name||'Cliente').trim().split(/\s+/),firstName=parts.shift()||'Cliente',lastName=parts.join(' ')||'Cliente';
+  async function createPixPayment(order,payer,idempotencyKey,deviceId){
+    const lines=chargeLines(order),name=payerName(order),phone=payerPhone(order);
     const body={
       transaction_amount:Number(money(order.total)),
       description:'Dobrões de Fé',
