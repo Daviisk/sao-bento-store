@@ -46,5 +46,5 @@ test('Orders card includes statement descriptor and rejects item totals that do 
 
 test('Orders gateway rejects an unsafe Device ID header',async()=>{
  const gateway=createOrdersGateway({accessToken:'test-token'});
- await assert.rejects(gateway.createPix({reference:randomUUID(),totalCents:25171,email:'buyer@example.com',idempotencyKey:randomUUID(),items,shippingCents:1191,customer,deviceId:'bad\\r\\nheader'}),{code:'invalid_device_id'});
+ await assert.rejects(gateway.createPix({reference:randomUUID(),totalCents:25171,email:'buyer@example.com',idempotencyKey:randomUUID(),items,shippingCents:1191,customer,deviceId:'bad\r\nheader'}),{code:'invalid_device_id'});
 });
