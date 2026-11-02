@@ -7,7 +7,7 @@ import {join,resolve} from 'node:path';
 import request from 'supertest';
 import {createApp} from '../backend/app.js';
 import {openStore} from '../backend/store.js';
-import {createGateway} from '../backend/services/mercadopago.js';
+import {createGateway,cardPaymentSnapshot} from '../backend/services/mercadopago.js';
 import {canonicalCart,calculate,cents,money} from '../backend/validation.js';
 import {readConfig} from '../backend/config.js';
 
@@ -119,4 +119,12 @@ test('Device ID rejects header injection',async()=>{
  const order={orderId:randomUUID(),items:[{name:'Test item',quantity:1,unitPrice:15000}],total:15000,customer:{name:'Cliente Teste',phone:'11999999999',email:customer.email}};
  const gateway=createGateway({accessToken:'test-only-token',sellerId:'123',applicationId:'456',baseURL:'https://loja.example',mode:'test',fetchImpl:async()=>{throw Error('must not call provider');}});
  await assert.rejects(gateway.createCardPayment(order,card,randomUUID(),'bad\r\nheader'),{code:'invalid_device_id'});
+});
+
+test('rejected Mercado Pago payments remain failed and are never marked as paid',()=>{
+ const order={orderId:randomUUID(),total:15000};
+ const gateway={verifyPaymentIdentity(remote,local){assert.equal(remote.external_reference,local.orderId);}};
+ const snapshot=cardPaymentSnapshot({id:'12345678901',external_reference:order.orderId,transaction_amount:150,status:'rejected',status_detail:'cc_rejected_bad_filled_card'},order,gateway);
+ assert.equal(snapshot.status,'failed');
+ assert.equal(snapshot.detail,'cc_rejected_bad_filled_card');
 });
