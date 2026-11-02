@@ -58,3 +58,12 @@ test('sitemap only advertises public indexable pages',()=>{
   assert.ok(sitemap.includes('<loc>https://saobentodobroes.com/termos.html</loc>'));
   assert.doesNotMatch(sitemap,/\/admin|\/api|\/acompanhar|\/sucesso/);
 });
+
+
+test('catalog cards show Buy now as the only purchase action',()=>{
+  const features=readFileSync('frontend/js/shop-features.js','utf8');
+  assert.ok(features.includes('class="primary catalog-buy-now"'));
+  assert.ok(features.includes('data-commerce-buy=\'"+esc(p.productId)+"\''));
+  assert.ok(!features.includes('Personalizar e ver produto →'));
+  assert.ok(!features.includes('class="catalog-buy-now" data-commerce-buy='));
+});
