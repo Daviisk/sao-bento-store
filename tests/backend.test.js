@@ -118,5 +118,5 @@ test('Pix Payments API sends payer name, phone, item details and Device ID',asyn
 test('Device ID rejects header injection',async()=>{
  const order={orderId:randomUUID(),items:[{name:'Test item',quantity:1,unitPrice:15000}],total:15000,customer:{name:'Cliente Teste',phone:'11999999999',email:customer.email}};
  const gateway=createGateway({accessToken:'test-only-token',sellerId:'123',applicationId:'456',baseURL:'https://loja.example',mode:'test',fetchImpl:async()=>{throw Error('must not call provider');}});
- await assert.rejects(gateway.createCardPayment(order,card,randomUUID(),'bad\\r\\nheader'),{code:'invalid_device_id'});
+ await assert.rejects(gateway.createCardPayment(order,card,randomUUID(),'bad\r\nheader'),{code:'invalid_device_id'});
 });
