@@ -26,8 +26,8 @@ test('capoeira catalog keeps current R$100 price for coins and bags',()=>{assert
 test('server shipping is included in prepared CardForm order and duplicate request reuses order',async t=>{
  const f=await fixture(t),q=await f.quote(),body={items,customer,address,quoteId:q.quoteId},key=randomUUID();
  const a=await f.post('/api/card/prepare',body,key).expect(200);const b=await f.post('/api/card/prepare',body,key).expect(200);
- assert.equal(a.body.total,20001);assert.equal(a.body.productsTotal,20000);assert.equal(a.body.shipping.priceCents,1);assert.equal(a.body.amount,'200.01');assert.equal(b.body.orderId,a.body.orderId);assert.equal(a.body.customer.email,customer.email);
- const order=f.store.get(a.body.orderId);assert.deepEqual(order.address,address);assert.equal(order.gatewayPayload.integration,'payments-api');assert.equal(order.total,20001);
+ assert.equal(a.body.total,22345);assert.equal(a.body.productsTotal,20000);assert.equal(a.body.shipping.priceCents,2345);assert.equal(a.body.amount,'223.45');assert.equal(b.body.orderId,a.body.orderId);assert.equal(a.body.customer.email,customer.email);
+ const order=f.store.get(a.body.orderId);assert.deepEqual(order.address,address);assert.equal(order.gatewayPayload.integration,'payments-api');assert.equal(order.total,22345);
  const q2=await f.quote();const c=await f.post('/api/card/prepare',{...body,quoteId:q2.quoteId}).expect(200);assert.notEqual(c.body.orderId,a.body.orderId);
 });
 test('changing address with same request key conflicts, fresh key creates separate delivery',async t=>{
@@ -72,8 +72,8 @@ test('provider factory exposes fixed price and official delivery labels on every
  ]}));
  const quotes=await provider.quote(items,'01001000');
  assert.deepEqual(quotes.map(q=>({name:q.name,priceCents:q.priceCents,serviceCode:q.serviceCode})),[
-  {name:'Correios • Entrega Normal',priceCents:1,serviceCode:'SF-1'},
-  {name:'Correios • Entrega Rápida',priceCents:1,serviceCode:'SF-2'}
+  {name:'Correios • Entrega Normal',priceCents:2345,serviceCode:'SF-1'},
+  {name:'Correios • Entrega Rápida',priceCents:4190,serviceCode:'SF-2'}
  ]);
 });
 test('SuperFrete adapter keeps token private and calculates price from server dimensions',async()=>{
@@ -83,10 +83,10 @@ test('SuperFrete adapter keeps token private and calculates price from server di
 });
 
 
-test('all delivery options use fixed R$0.01 regardless of carrier price, quantity or repeated reads',async t=>{
+test('delivery options preserve the real carrier price across repeated reads',async t=>{
  const f=await fixture(t);const raw=[{name:'PAC',serviceCode:'PAC',priceCents:1000,days:4},{name:'SEDEX',serviceCode:'SEDEX',priceCents:2000,days:2}];f.provider.quote=async()=>raw;
  const cart={hash:'surcharge-test',items};const quotes=await f.shipping.quote('owner',cart,address.cep);
- assert.deepEqual(quotes.map(q=>q.priceCents),[1,1]);assert.deepEqual(quotes.map(q=>q.name),['Correios • Entrega Normal','Correios • Entrega Rápida']);assert.deepEqual(raw.map(q=>q.priceCents),[1000,2000]);
+ assert.deepEqual(quotes.map(q=>q.priceCents),[1000,2000]);assert.deepEqual(quotes.map(q=>q.name),['Correios • Entrega Normal','Correios • Entrega Rápida']);assert.deepEqual(raw.map(q=>q.priceCents),[1000,2000]);
  for(const q of quotes){assert.equal((await f.shipping.get('owner',q.quoteId,cart,address.cep)).priceCents,q.priceCents);assert.equal((await f.shipping.get('owner',q.quoteId,cart,address.cep)).priceCents,q.priceCents);}
 });
 
