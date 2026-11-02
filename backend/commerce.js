@@ -54,6 +54,7 @@ export function createCommerce({store,config,catalogOverride}){
   const products=stored||structuredClone(Array.isArray(catalogOverride)?catalogOverride:seedProducts);
   let catalogChanged=false;
   for(const p of products){
+   if(!Array.isArray(p.variants)){p.variants=[];catalogChanged=true;}
    if(p.productId==='produto_01'){
     if(p.name==='Dobrão Dourado')p.name='Dobrão de Bronze';
     if(p.material!=='Bronze'){p.material='Bronze';catalogChanged=true;}
