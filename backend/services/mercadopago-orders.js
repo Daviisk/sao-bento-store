@@ -1,7 +1,7 @@
 import {fail} from '../validation.js';
 const amount=cents=>{if(!Number.isSafeInteger(cents)||cents<=0||cents>100000000)fail(400,'invalid_amount','Valor inválido.');return (cents/100).toFixed(2);};
 const payerDetails=customer=>{
- const parts=String(customer?.name||'Cliente').trim().split(/\\s+/),digits=String(customer?.phone||'').replace(/\\D/g,'');
+ const parts=String(customer?.name||'Cliente').trim().split(/\s+/),digits=String(customer?.phone||'').replace(/\D/g,'');
  const phone=digits.length>=10&&digits.length<=11?{area_code:digits.slice(0,2),number:digits.slice(2)}:undefined;
  return {first_name:parts.shift()||'Cliente',last_name:parts.join(' ')||'Cliente',...(phone?{phone}:{})};
 };
@@ -14,7 +14,7 @@ const orderItems=(items,shippingCents)=>{
  if(Number.isSafeInteger(shippingCents)&&shippingCents>0)result.push({external_code:'shipping',title:'Frete',category_id:'others',quantity:1,unit_price:amount(shippingCents)});
  return result;
 };
-const deviceHeader=value=>{const id=String(value||'').trim();if(!id)return {};if(id.length>256||/[\\r\\n]/.test(id))fail(400,'invalid_device_id','Identificador do dispositivo inválido.');return {'X-meli-session-id':id};};
+const deviceHeader=value=>{const id=String(value||'').trim();if(!id)return {};if(id.length>256||/[\r\n]/.test(id))fail(400,'invalid_device_id','Identificador do dispositivo inválido.');return {'X-meli-session-id':id};};
 export function createOrdersGateway({accessToken}){
  if(!accessToken)fail(503,'gateway_not_configured','Credenciais indisponíveis.');
  async function request(path,{method='GET',body,key,headers:extraHeaders={}}={}){
@@ -32,7 +32,8 @@ export function createOrdersGateway({accessToken}){
    if(!/^\S+@\S+\.\S+$/.test(email||''))fail(400,'invalid_email','E-mail obrigatório para Pix.');
    if(!/^[0-9a-f-]{36}$/i.test(idempotencyKey||''))fail(400,'invalid_key','Chave inválida.');
    const value=amount(totalCents);
-   const lines=orderItems(items,shippingCents);if(lines.reduce((sum,item)=>sum+Math.round(Number(item.unit_price)*100)*item.quantity,0)!==totalCents)fail(400,'items_total_mismatch','O total dos itens não corresponde ao pedido.');\n   return request('/v1/orders',{method:'POST',key:idempotencyKey,headers:deviceHeader(deviceId),body:{type:'online',processing_mode:'automatic',external_reference:reference,total_amount:value,payer:{email,...payerDetails(customer)},items:lines,transactions:{payments:[{amount:value,payment_method:{id:'pix',type:'bank_transfer'}}]}}});
+   const lines=orderItems(items,shippingCents);if(lines.reduce((sum,item)=>sum+Math.round(Number(item.unit_price)*100)*item.quantity,0)!==totalCents)fail(400,'items_total_mismatch','O total dos itens não corresponde ao pedido.');
+   return request('/v1/orders',{method:'POST',key:idempotencyKey,headers:deviceHeader(deviceId),body:{type:'online',processing_mode:'automatic',external_reference:reference,total_amount:value,payer:{email,...payerDetails(customer)},items:lines,transactions:{payments:[{amount:value,payment_method:{id:'pix',type:'bank_transfer'}}]}}});
   },
   async createCard({reference,totalCents,email,cardToken,paymentMethodId,paymentMethodType='credit_card',installments=1,idempotencyKey,items,shippingCents,customer,deviceId}){
    if(!/^[a-zA-Z0-9_-]{1,64}$/.test(reference||''))fail(400,'invalid_reference','Referência inválida.');
