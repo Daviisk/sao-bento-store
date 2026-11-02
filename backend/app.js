@@ -109,7 +109,7 @@ export function createApp({config,catalog,store,gateway,shipping=createShipping(
   }
 
   app.get('/api/legal/config',(req,res)=>res.json({seller:config.storeIdentity||{}}));
-  app.get('/api/privacy/config',(req,res)=>res.json({controller:config.privacyController||'',email:config.privacyEmail||'',version:'2026-09-27'}));
+  app.get('/api/privacy/config',(req,res)=>res.json({controller:config.privacyController||'',email:config.privacyEmail||'',version:'2026-11-02'}));
   app.get('/api/privacy/export',limit(5),session,async(req,res)=>{
     const orders=(await store.privacyOrders(req.shopSession.id)).map(publicOrder);
     res.set('Content-Disposition','attachment; filename="meus-dados-sao-bento.json"');
