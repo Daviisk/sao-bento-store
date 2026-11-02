@@ -48,7 +48,7 @@
    const result=await api('/api/shipping/quote',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':csrf},body:JSON.stringify({...cart.payload(),cep:cep.value})});
    if(version!==quoteVersion)return;
    const options=get('#shipping-options');options.replaceChildren(create('legend','Escolha a entrega'));
-   for(const quote of result.options){const label=create('label',undefined,'shipping-option'),radio=create('input');radio.type='radio';radio.name='shipping-choice';radio.value=quote.quoteId;radio.addEventListener('change',()=>{selectedQuote=quote;key=null;review=null;render();});label.append(radio,create('span',`${quote.name} — ${cash(quote.priceCents)} · ${quote.days} dia(s) útil(eis) após postagem`));options.append(label);}
+   for(const quote of result.options){const label=create('label',undefined,'shipping-option'),radio=create('input');radio.type='radio';radio.name='shipping-choice';radio.value=quote.quoteId;radio.addEventListener('change',()=>{selectedQuote=quote;key=null;render();});label.append(radio,create('span',`${quote.name} — ${cash(quote.priceCents)} · ${quote.days} dia(s) útil(eis) após postagem`));options.append(label);}
    options.hidden=false;get('#shipping-message').textContent='Selecione uma opção. Cotação válida por 10 minutos.';
   }catch(e){if(version===quoteVersion)get('#shipping-message').textContent=e.message;}finally{quoteBusy=false;render();}
  });
