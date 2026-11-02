@@ -72,11 +72,10 @@ html[data-theme=dark]{--blue:#dfba6c;--navy:#15140f;--ink:#f1e5ce;--muted:#c4b8a
 .search-shell .search{flex:1;min-width:0;max-width:850px;margin:0;padding:7px 12px}
 .search-shell .search[hidden]{display:none!important}
 .search-shell .search input{min-width:0;width:100%;font-size:16px}
-#grid .card .catalog-buy-now{width:100%;min-height:45px;margin-top:8px;padding:9px 12px;border:1px solid #9d753b;border-radius:12px;background:#fffaf1;color:#54391d;font:inherit;font-size:13px;font-weight:750;cursor:pointer}
-#grid .card .catalog-buy-now:active{background:#efe2cd}
+/* Comprar agora mantém o mesmo visual do botão primário original do catálogo. */
+#grid .card .catalog-buy-now{width:100%;min-height:44px;margin-top:auto}
 #grid .card .catalog-buy-now:disabled{opacity:.5;cursor:not-allowed}
 #grid .card .catalog-buy-now:focus-visible{outline:2px solid #a7814b;outline-offset:2px}
-@media(max-width:380px){.search-toggle{flex-basis:44px;width:44px;height:44px}#grid .card .catalog-buy-now{font-size:12px;padding:8px 6px}}
 
 /* Search icon shares the header action row with favorites */
 .head .actions .search-toggle{margin:0;flex:0 0 auto;width:44px;height:44px;min-width:44px;border-radius:13px}
