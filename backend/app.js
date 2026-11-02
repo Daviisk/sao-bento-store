@@ -13,6 +13,7 @@ import {mountAdmin} from './admin.js';
 import {createOrdersGateway} from './services/mercadopago-orders.js';
 import {WebhookSignatureValidator,InvalidWebhookSignatureError} from 'mercadopago';
 import {createOrderConfirmationSender} from './services/resend.js';
+import {issueTrackingToken} from './tracking-security.js';
 
 const equal=(a,b)=>typeof a==='string'&&typeof b==='string'&&Buffer.byteLength(a)===Buffer.byteLength(b)&&timingSafeEqual(Buffer.from(a),Buffer.from(b));
 const terminalStatus=new Set(['paid','cancelled','refunded','partially_refunded','failed','charged_back']);
@@ -50,6 +51,8 @@ export function createApp({config,catalog,store,gateway,shipping=createShipping(
   const app=express();
   const commerce=createCommerce({store,config});
   const sendConfirmation=emailSender||createOrderConfirmationSender({apiKey:config.resendApiKey,from:config.resendFromEmail,replyTo:config.resendReplyTo});
+  const trackingSecret=String(config.adminSessionSecret?.length>=32?config.adminSessionSecret:config.webhookSecret||'');
+  function paidOrderTrackingUrl(orderId){if(trackingSecret.length<16)return '';return `${config.baseURL}/sucesso?orderId=${encodeURIComponent(orderId)}#token=${issueTrackingToken(orderId,trackingSecret)}`;}
   async function notifyCommercePaidOrder(orderId){
     if(!sendConfirmation)return;
     const order=await commerce.db.get('orders',orderId);
@@ -67,8 +70,10 @@ export function createApp({config,catalog,store,gateway,shipping=createShipping(
   }
   async function notifyPaidOrder(order){
     if(!sendConfirmation||order?.status!=='paid'||order.emailConfirmationSentAt||!order.customer?.email)return;
+    const trackingUrl=paidOrderTrackingUrl(order.orderId);
+    if(!trackingUrl){logger.error(JSON.stringify({event:'order_confirmation_tracking_link_unavailable',orderId:order.orderId}));return;}
     try{
-      const result=await sendConfirmation(order);
+      const result=await sendConfirmation({...order,trackingUrl});
       if(!result?.id)return;
       const latest=await store.get(order.orderId);
       if(latest&&!latest.emailConfirmationSentAt){latest.emailConfirmationSentAt=new Date().toISOString();latest.emailConfirmationId=result.id;await store.save(latest);}
