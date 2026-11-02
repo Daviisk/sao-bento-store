@@ -125,10 +125,25 @@ export function createSuperfrete(env=process.env,fetchImpl=fetch){
   }};
 }
 
+function applyFixedDeliveryOptions(provider){
+  return {
+    configured:provider.configured,
+    mode:provider.mode,
+    async quote(...args){
+      const options=await provider.quote(...args);
+      if(!Array.isArray(options))fail(502,'shipping_invalid','Não foi possível confirmar o frete.');
+      return options.map(option=>({
+        ...option,
+        name:deliveryLabel(option),
+        priceCents:SHIPPING_FIXED_PRICE_CENTS
+      }));
+    }
+  };
+}
 export function createShippingProvider(env=process.env,fetchImpl=fetch){
   const provider=env.SHIPPING_PROVIDER||(env.SUPERFRETE_TOKEN?'superfrete':'correios');
-  if(provider==='superfrete')return createSuperfrete(env,fetchImpl);
-  if(provider==='correios')return createCorreios(env,fetchImpl);
+  if(provider==='superfrete')return applyFixedDeliveryOptions(createSuperfrete(env,fetchImpl));
+  if(provider==='correios')return applyFixedDeliveryOptions(createCorreios(env,fetchImpl));
   throw Error('SHIPPING_PROVIDER inválido.');
 }
 

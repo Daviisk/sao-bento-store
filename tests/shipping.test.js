@@ -7,7 +7,7 @@ import {openStore} from '../backend/store.js';
 import {createApp} from '../backend/app.js';
 import {readConfig} from '../backend/config.js';
 import {products} from '../backend/products.js';
-import {createShipping,createCorreios,createSuperfrete,addressInput} from '../backend/services/shipping.js';
+import {createShipping,createCorreios,createSuperfrete,createShippingProvider,addressInput} from '../backend/services/shipping.js';
 const items=[{productId:'produto_01',quantity:2}];
 const address={cep:'01001000',street:'Praça da Sé',number:'1',complement:'',district:'Sé',city:'São Paulo',state:'SP'};
 const customer={name:'Cliente Teste',phone:'11999999999',email:'buyer@example.com'};
@@ -61,6 +61,18 @@ test('Correios adapter obtains private token, server weight/dimensions, price an
  const calls=[];const env={CORREIOS_MODE:'homologation',CORREIOS_USER:'test',CORREIOS_API_PASSWORD:'test',CORREIOS_POSTING_CARD:'test',SHIPPING_ORIGIN_CEP:'74000000',CORREIOS_PAC_CODE:'03298',SHIPPING_UNIT_WEIGHT_G:'50',SHIPPING_PACKAGE_WEIGHT_G:'100',SHIPPING_LENGTH_CM:'20',SHIPPING_WIDTH_CM:'15',SHIPPING_BASE_HEIGHT_CM:'2',SHIPPING_UNIT_HEIGHT_CM:'1'};
  const provider=createCorreios(env,async(url,options)=>{calls.push({url,options});return {ok:true,json:async()=>url.includes('/token/')?{token:'test-token'}:url.includes('/preco/')?{coProduto:'03298',pcFinal:'23,45'}:{coProduto:'03298',prazoEntrega:4}};});
  const q=await provider.quote(items,'01001000');assert.equal(q[0].priceCents,2345);assert.equal(calls.length,3);assert.match(calls.find(c=>c.url.includes('/preco/')).url,/psObjeto=200/);assert.match(calls.find(c=>c.url.includes('/preco/')).url,/altura=4/);assert.equal(calls[1].options.headers.Authorization,'Bearer test-token');
+});
+test('provider factory exposes fixed price and official delivery labels on every quote path',async()=>{
+ const env={SUPERFRETE_TOKEN:'test-token',SHIPPING_ORIGIN_CEP:'74000000',SUPERFRETE_SERVICES:'1,2'};
+ const provider=createShippingProvider(env,async()=>({ok:true,json:async()=>[
+  {id:1,name:'PAC',price:'23.45',delivery_time:4,company:{name:'Correios'}},
+  {id:2,name:'SEDEX',price:'41.90',delivery_time:2,company:{name:'Correios'}}
+ ]}));
+ const quotes=await provider.quote(items,'01001000');
+ assert.deepEqual(quotes.map(q=>({name:q.name,priceCents:q.priceCents,serviceCode:q.serviceCode})),[
+  {name:'Entrega Normal',priceCents:1,serviceCode:'SF-1'},
+  {name:'Entrega Rápido',priceCents:1,serviceCode:'SF-2'}
+ ]);
 });
 test('SuperFrete adapter keeps token private and calculates price from server dimensions',async()=>{
  const calls=[];const env={SUPERFRETE_TOKEN:'test-token',SHIPPING_ORIGIN_CEP:'74000000',SHIPPING_UNIT_WEIGHT_G:'50',SHIPPING_PACKAGE_WEIGHT_G:'100',SHIPPING_LENGTH_CM:'20',SHIPPING_WIDTH_CM:'15',SHIPPING_BASE_HEIGHT_CM:'2',SHIPPING_UNIT_HEIGHT_CM:'1'};
