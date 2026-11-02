@@ -44,7 +44,8 @@ export function createOrdersGateway({accessToken}){
    if(!Number.isInteger(installments)||installments<1||installments>12)fail(400,'invalid_installments','Parcelas inválidas.');
    if(!/^[0-9a-f-]{36}$/i.test(idempotencyKey||''))fail(400,'invalid_key','Chave inválida.');
    const value=amount(totalCents);
-   const lines=orderItems(items,shippingCents);if(lines.reduce((sum,item)=>sum+Math.round(Number(item.unit_price)*100)*item.quantity,0)!==totalCents)fail(400,'items_total_mismatch','O total dos itens não corresponde ao pedido.');\n   return request('/v1/orders',{method:'POST',key:idempotencyKey,headers:deviceHeader(deviceId),body:{type:'online',processing_mode:'automatic',capture_mode:'automatic',external_reference:reference,total_amount:value,payer:{email,...payerDetails(customer)},items:lines,transactions:{payments:[{amount:value,payment_method:{id:paymentMethodId,type:paymentMethodType,token:cardToken,installments,statement_descriptor:'SAOBENTO DOB'}}]}}});
+   const lines=orderItems(items,shippingCents);if(lines.reduce((sum,item)=>sum+Math.round(Number(item.unit_price)*100)*item.quantity,0)!==totalCents)fail(400,'items_total_mismatch','O total dos itens não corresponde ao pedido.');
+   return request('/v1/orders',{method:'POST',key:idempotencyKey,headers:deviceHeader(deviceId),body:{type:'online',processing_mode:'automatic',capture_mode:'automatic',external_reference:reference,total_amount:value,payer:{email,...payerDetails(customer)},items:lines,transactions:{payments:[{amount:value,payment_method:{id:paymentMethodId,type:paymentMethodType,token:cardToken,installments,statement_descriptor:'SAOBENTO DOB'}}]}}});
   },
   async getOrder(id){if(!/^ORD[A-Z0-9]{8,64}$/.test(id||''))fail(400,'invalid_order_id','Order inválida.');return request('/v1/orders/'+encodeURIComponent(id));}
  };
