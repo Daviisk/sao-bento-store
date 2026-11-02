@@ -43,6 +43,11 @@ test('Pix checkout refreshes payment status from the backend and avoids stale sc
   assert.ok(pix.includes("api('/api/orders/'+encodeURIComponent(orderId))"));
   assert.ok(pix.includes("order.status==='paid'"));
   assert.ok(pix.includes("document.addEventListener('visibilitychange'"));
+  const features=readFileSync('frontend/js/shop-features.js','utf8');
+  assert.ok(html.includes('js/shop-features.js?v=pix-auto-refresh-20261102'));
+  assert.ok(features.includes('setTimeout(check,5000)'));
+  assert.ok(features.includes('Já fiz o Pix — atualizar status'));
+  assert.ok(features.includes("st.paymentConfirmed"));
   assert.ok(pix.includes('i<360'));
 });
 
