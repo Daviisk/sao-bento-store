@@ -47,3 +47,14 @@ test('payment summaries render customer markup as text',async t=>{
  let pix=readFileSync('frontend/js/pix-payment.js','utf8');pix=pix.replace(/\}\)\(\);\s*$/,'window.renderPixForTest=p=>showPixForm({},p);})();');w.eval(pix);w.renderPixForTest(prepared);
  assert.equal(w.document.querySelectorAll('#cart-review img').length,0);assert.ok(w.document.querySelector('#cart-review').textContent.includes(payload));
 });
+
+test('tracking link fragment order and token loads the correct order',async t=>{
+ const id=randomUUID(),token='tracking-secret-token',calls=[];
+ const dom=new JSDOM(readFileSync('frontend/sucesso.html','utf8'),{url:`https://loja.example/acompanhar#order=${id}&token=${token}`,runScripts:'outside-only'});
+ t.after(()=>dom.window.close());const w=dom.window;
+ w.fetch=async(url,options)=>{calls.push({url,options});return {ok:true,json:async()=>({orderId:id,status:'paid',fulfillmentStatus:'paid',items:[],total:100,productsTotal:100,shipping:{},address:{city:'Goiânia',state:'GO'}})};};
+ w.eval(readFileSync('frontend/js/order-status.js','utf8'));await tick();
+ assert.equal(w.document.querySelector('#order-status').textContent,'Pagamento confirmado');
+ assert.equal(new URL(calls[0].url,'https://loja.example').searchParams.get('orderId'),id);
+ assert.equal(calls[0].options.headers.Authorization,'Bearer '+token);
+});
