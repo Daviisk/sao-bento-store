@@ -150,7 +150,7 @@ export function createApp({config,catalog,store,gateway,shipping=createShipping(
     if(req.body.live_mode!==undefined&&req.body.live_mode!==(config.mode==='production'))fail(409,'webhook_mode_mismatch','Ambiente divergente.');
     if(config.applicationId&&req.body.application_id!==undefined&&String(req.body.application_id)!==String(config.applicationId))fail(409,'webhook_application_mismatch','Aplicação divergente.');
     if(config.sellerId&&req.body.user_id!==undefined&&String(req.body.user_id)!==String(config.sellerId))fail(409,'webhook_seller_mismatch','Vendedor divergente.');
-    try{WebhookSignatureValidator.validate({xSignature:req.get('x-signature')||'',xRequestId:req.get('x-request-id')||'',dataId:id,secret:config.webhookSecret.trim()});}
+    try{WebhookSignatureValidator.validate({xSignature:req.get('x-signature')||'',xRequestId:req.get('x-request-id')||'',dataId:id.toLowerCase(),secret:config.webhookSecret.trim()});}
     catch(error){if(error instanceof InvalidWebhookSignatureError||error?.name==='InvalidWebhookSignatureError')fail(401,'invalid_signature','Assinatura inválida.');throw error;}
     const remote=await createOrdersGateway({accessToken:config.accessToken}).getOrder(id);
     const reconciled=await commerce.reconcileMercadoPagoOrder(remote);
