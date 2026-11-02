@@ -72,7 +72,7 @@ test('SuperFrete adapter keeps token private and calculates price from server di
 test('all delivery options use fixed R$0.01 regardless of carrier price, quantity or repeated reads',async t=>{
  const f=await fixture(t);const raw=[{name:'PAC',serviceCode:'PAC',priceCents:1000,days:4},{name:'SEDEX',serviceCode:'SEDEX',priceCents:2000,days:2}];f.provider.quote=async()=>raw;
  const cart={hash:'surcharge-test',items};const quotes=await f.shipping.quote('owner',cart,address.cep);
- assert.deepEqual(quotes.map(q=>q.priceCents),[1,1]);assert.deepEqual(raw.map(q=>q.priceCents),[1000,2000]);
+ assert.deepEqual(quotes.map(q=>q.priceCents),[1,1]);assert.deepEqual(quotes.map(q=>q.name),['Entrega Normal','Entrega Rápido']);assert.deepEqual(raw.map(q=>q.priceCents),[1000,2000]);
  for(const q of quotes){assert.equal((await f.shipping.get('owner',q.quoteId,cart,address.cep)).priceCents,q.priceCents);assert.equal((await f.shipping.get('owner',q.quoteId,cart,address.cep)).priceCents,q.priceCents);}
 });
 
