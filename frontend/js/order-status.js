@@ -1,7 +1,7 @@
 (()=>{
  'use strict';
  const get=s=>document.querySelector(s),cash=n=>(Number(n||0)/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
- const pageUrl=new URL(location.href);const id=pageUrl.searchParams.get('orderId');let token=new URLSearchParams(pageUrl.hash.slice(1)).get('token')||pageUrl.searchParams.get('token')||'',polls=0,timer,busy=false,trackingUrl='';
+ const pageUrl=new URL(location.href),trackingParams=new URLSearchParams(pageUrl.hash.slice(1));const id=pageUrl.searchParams.get('orderId')||trackingParams.get('order')||trackingParams.get('orderId');let token=trackingParams.get('token')||pageUrl.searchParams.get('token')||'',polls=0,timer,busy=false,trackingUrl='';
  const paymentLabels={pending:'Aguardando pagamento',processing:'Pagamento em processamento',paid:'Pagamento confirmado',cancelled:'Pedido cancelado',refunded:'Pagamento reembolsado',partially_refunded:'Pagamento parcialmente reembolsado',failed:'Pagamento não concluído',in_mediation:'Pagamento em mediação',charged_back:'Pagamento contestado/estornado'};
  const fulfillmentLabels={awaiting_payment:'Aguardando pagamento',paid:'Pagamento confirmado',preparing:'Preparando seu pedido',shipped:'Pedido enviado',delivered:'Pedido entregue',hold:'Pedido em análise',cancelled:'Pedido cancelado'};
  const progressStages=[['paid','Pagamento confirmado'],['preparing','Preparando pedido'],['shipped','Pedido enviado'],['delivered','Entregue']];
