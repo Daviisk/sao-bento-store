@@ -8,6 +8,7 @@ import {createApp} from '../backend/app.js';
 import {readConfig} from '../backend/config.js';
 import {products} from '../backend/products.js';
 import {createShipping,createCorreios,createSuperfrete,createShippingProvider,addressInput} from '../backend/services/shipping.js';
+import {canonicalCart,calculate} from '../backend/validation.js';
 const items=[{productId:'produto_01',quantity:2}];
 const address={cep:'01001000',street:'Praça da Sé',number:'1',complement:'',district:'Sé',city:'São Paulo',state:'SP'};
 const customer={name:'Cliente Teste',phone:'11999999999',email:'buyer@example.com'};
@@ -20,6 +21,7 @@ async function fixture(t){
  const quote=async()=>{const r=await post('/api/shipping/quote',{items,cep:address.cep}).expect(200);return r.body.options[0];};
  return {app,agent,post,quote,store,shipping,provider};
 }
+test('dynamic catalog product IDs are accepted and their own price is used for checkout',()=>{const catalog=[{productId:'produto_novo_2026',name:'Produto novo',priceCents:2750,enabled:true,maxQuantity:10}];const cart=canonicalCart({items:[{productId:'produto_novo_2026',quantity:2}]},catalog);assert.equal(calculate(cart.items,catalog).total,5500);});
 test('capoeira catalog keeps current R$100 price for coins and bags',()=>{assert.equal(products.length,4);assert.deepEqual(products.map(p=>p.priceCents),[10000,10000,10000,10000]);});
 test('server shipping is included in prepared CardForm order and duplicate request reuses order',async t=>{
  const f=await fixture(t),q=await f.quote(),body={items,customer,address,quoteId:q.quoteId},key=randomUUID();
