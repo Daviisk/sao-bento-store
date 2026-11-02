@@ -53,10 +53,10 @@ async function detail(p,options={}){
  const stepForm=$('#custom-product');let confirmedStep=2;
  const freightCep=$('#product-shipping-cep'),freightButton=$('#product-shipping-check'),freightStatus=$('#product-shipping-status'),freightOptions=$('#product-shipping-options');
  let freightRequest=0;
- freightCep?.addEventListener('input',()=>{const digits=freightCep.value.replace(/\\D/g,'').slice(0,8);freightCep.value=digits.length>5?digits.slice(0,5)+'-'+digits.slice(5):digits;freightOptions.replaceChildren();freightStatus.textContent='Consulte novamente após alterar o CEP.';});
+ freightCep?.addEventListener('input',()=>{const digits=freightCep.value.replace(/\D/g,'').slice(0,8);freightCep.value=digits.length>5?digits.slice(0,5)+'-'+digits.slice(5):digits;freightOptions.replaceChildren();freightStatus.textContent='Consulte novamente após alterar o CEP.';});
  freightButton?.addEventListener('click',async()=>{
-  const cep=freightCep.value.replace(/\\D/g,'');
-  if(!/^\\d{8}$/.test(cep)){freightStatus.textContent='Informe os 8 números do CEP.';freightCep.focus();return;}
+  const cep=freightCep.value.replace(/\D/g,'');
+  if(!/^\d{8}$/.test(cep)){freightStatus.textContent='Informe os 8 números do CEP.';freightCep.focus();return;}
   const request=++freightRequest;freightButton.disabled=true;freightButton.textContent='Consultando…';freightStatus.textContent='Consultando opções de entrega…';freightOptions.replaceChildren();
   try{
    const quantity=Number(stepForm.elements.quantity?.value||1);
