@@ -96,7 +96,7 @@
   get('#shipping-total').textContent=selectedQuote?cash(selectedQuote.priceCents):'A calcular pelo CEP';get('#grand-total').textContent=ready&&selectedQuote?cash(total+selectedQuote.priceCents):'Aguardando escolha do frete';
   get('#shipping-calculate').disabled=busy||quoteBusy||!ready;get('#shipping-calculate').textContent=quoteBusy?'Calculando frete…':'Calcular frete pelo CEP';
   all('#delivery-form input,#delivery-form select').forEach(el=>el.disabled=busy);addressLookup.disabled=busy||addressBusy;
-  const submit=get('#cart-checkout');submit.disabled=busy||loading||!ready||!checkoutConfigured||!selectedQuote;submit.textContent=busy?'Criando checkout…':loading?'Carregando preços…':'Finalizar compra';get('#cart-clear').disabled=busy;
+  const submit=get('#cart-checkout');submit.disabled=busy||loading||!ready||!checkoutConfigured||!selectedQuote;submit.textContent=busy?'Preparando pagamento…':loading?'Carregando preços…':'Continuar para pagamento';get('#cart-clear').disabled=busy;
   all('[data-add-product]').forEach(button=>{const p=products.get(button.dataset.addProduct);button.disabled=busy||p?.enabled===false;button.textContent=p?.enabled===false?'Indisponível':'Adicionar ao carrinho';});
   if(focused){const target=all('[data-cart-focus]').find(el=>el.dataset.cartFocus===focused);if(target&&!target.disabled)target.focus();else if(drawer.open)get('#cart-close').focus();}
  }
