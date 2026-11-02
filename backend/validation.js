@@ -6,7 +6,7 @@ export const fail=(status,code,message)=>{throw new AppError(status,code,message
 const plain=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
 export function canonicalCart(body,catalog){
   if(!plain(body)||Object.keys(body).length!==1||!Array.isArray(body.items)||body.items.length<1||body.items.length>20)
-    fail(400,'invalid_cart','Envie apenas items, com um a cinco produtos.');
+    fail(400,'invalid_cart','Envie de 1 a 20 produtos.');
   const seen=new Set();let units=0;
   const items=body.items.map(item=>{
     if(!plain(item)||Object.keys(item).sort().join(',')!=='productId,quantity') fail(400,'invalid_item','Envie apenas productId e quantity em cada item.');
