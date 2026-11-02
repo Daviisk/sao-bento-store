@@ -11,7 +11,8 @@ const order={
  productsTotal:20000,
  shipping:{name:'PAC',priceCents:1500},
  total:21500,
- address:{street:'Rua Um',number:'10',district:'Centro',city:'Goiânia',state:'GO',cep:'74000000'}
+ address:{street:'Rua Um',number:'10',district:'Centro',city:'Goiânia',state:'GO',cep:'74000000'},
+ trackingUrl:'https://shop.example/sucesso?orderId=123e4567-e89b-42d3-a456-426614174000#token=1234567890123.abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789'
 };
 
 test('sends a payment-confirmed order email with idempotency and escaped HTML',async()=>{
@@ -29,6 +30,9 @@ test('sends a payment-confirmed order email with idempotency and escaped HTML',a
  assert.match(body.html,/Cliente &lt;Teste&gt;/);
  assert.match(body.html,/Dobrão &lt;Bronze&gt;/);
  assert.match(body.text,/Total pago:/);
+ assert.match(body.text,/Acompanhe seu pedido: https:\/\/shop\.example\/sucesso\?orderId=/);
+ assert.match(body.html,/Acompanhar meu pedido/);
+ assert.match(body.html,/https:\/\/shop\.example\/sucesso\?orderId=/);
  assert.match(body.text,/https:\/\/wa\.me\/5562995000731/);
  assert.match(body.html,/https:\/\/wa\.me\/5562995000731/);
  assert.doesNotMatch(body.text,/5562981368771/);
