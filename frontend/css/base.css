@@ -374,3 +374,12 @@ html[data-theme=dark] .footerContact,html[data-theme=dark] .footerBottom{border-
 @media(max-width:800px){.footerSocial{align-items:flex-start;flex-direction:column;gap:9px;margin-top:4px;padding:17px 0 20px}.footerSocial .footer-instagram{max-width:100%;min-height:44px;padding:8px 13px;font-size:13px}}
 html[data-theme=dark] .footerSocial>strong{color:#d7b777}
 html[data-theme=dark] .footerSocial .footer-instagram{background:#292318;border-color:#806744;color:#e1d3bb}
+
+
+/* Footer contact and social icons */
+.footerContact{align-items:flex-start;flex-direction:column;gap:10px}
+.footerContact .footer-contact-link{display:inline-flex;align-items:center;gap:9px;min-height:36px;color:inherit;text-decoration:none;overflow-wrap:anywhere}
+.footerContact .footer-contact-link svg,.footerSocial .footer-instagram svg{width:19px;height:19px;flex:0 0 19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.footerContact .footer-contact-link:hover{color:#a47a39;text-decoration:underline;text-underline-offset:4px}
+.footerSocial .footer-instagram>svg{color:#9a6c2d}
+@media(max-width:800px){.footerContact .footer-contact-link{min-height:42px}}
