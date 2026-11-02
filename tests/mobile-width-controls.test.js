@@ -6,7 +6,7 @@ const html=readFileSync('frontend/index.html','utf8');
 const css=readFileSync('frontend/css/base.css','utf8');
 
 test('mobile storefront uses the full available viewport width',()=>{
-  assert.ok(html.includes('css/base.css?v=mobile-width-controls-20261101'));
+  assert.ok(html.includes('css/base.css?v=category-buttons-taller-20261102'));
   assert.match(css,/html,body\{width:100%;max-width:100%;min-width:0;overflow-x:clip\}/);
   assert.match(css,/main#home\.wrap\{width:100%;max-width:none;margin:0;padding-left:16px;padding-right:16px\}/);
   assert.match(css,/\.bottom\{left:12px;right:12px;width:auto;max-width:none\}/);
