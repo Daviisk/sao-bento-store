@@ -29,6 +29,10 @@ test('sends a payment-confirmed order email with idempotency and escaped HTML',a
  assert.match(body.html,/Cliente &lt;Teste&gt;/);
  assert.match(body.html,/Dobrão &lt;Bronze&gt;/);
  assert.match(body.text,/Total pago:/);
+ assert.match(body.text,/https:\/\/wa\.me\/5562995000731/);
+ assert.match(body.html,/https:\/\/wa\.me\/5562995000731/);
+ assert.doesNotMatch(body.text,/5562981368771/);
+ assert.doesNotMatch(body.html,/5562981368771/);
 });
 
 test('does not send before payment is approved or without a valid recipient',async()=>{
