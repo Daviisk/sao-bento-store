@@ -67,3 +67,8 @@ test('catalog cards show Buy now as the only purchase action',()=>{
   assert.ok(!features.includes('Personalizar e ver produto →'));
   assert.ok(!features.includes('class="catalog-buy-now" data-commerce-buy='));
 });
+
+test('leather case promo recognizes registered leather bags and their category',()=>{
+  const features=readFileSync('frontend/js/shop-features.js','utf8');
+  assert.ok(features.includes('/case|bolsa|couro|estojo/'));
+});
