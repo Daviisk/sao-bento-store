@@ -79,6 +79,10 @@
       "dest": "/frontend/acompanhar.html"
     },
     {
+      "src": "/clientes/?",
+      "dest": "/frontend/clientes.html"
+    },
+    {
       "src": "/",
       "dest": "/frontend/index.html"
     },
