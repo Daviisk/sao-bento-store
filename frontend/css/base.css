@@ -384,4 +384,10 @@ html[data-theme=dark] .footerSocial .footer-instagram{background:#292318;border-
 .footerSocial .footer-instagram>svg{color:#9a6c2d}
 @media(max-width:800px){.footerContact .footer-contact-link{min-height:42px}}
 
-.categories .category-gallery{border:0;text-decoration:none;color:#65472e;font-weight:800}.categories .category-gallery .circle{border:2px solid #b18a55;background:#f5ead7;color:#65472e}
+/* Preserve the category strip as one horizontal swipe row. */
+.categories{display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.categories::-webkit-scrollbar{display:none}
+.categories>.category{flex:0 0 95px;min-width:95px}
+.categories .category-gallery{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:0;border:0;text-decoration:none;color:#65472e;font-weight:750}
+.categories .category-gallery .circle{display:grid;place-items:center;border:1px solid #ddcfb9;background:#fff;color:#8a6739}
+.categories .category-gallery svg{display:block}
