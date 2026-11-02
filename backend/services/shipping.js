@@ -123,7 +123,7 @@ export function createSuperfrete(env=process.env,fetchImpl=fetch){
   }};
 }
 
-function applyFixedDeliveryOptions(provider){
+function applyDeliveryLabels(provider){
   return {
     configured:provider.configured,
     mode:provider.mode,
@@ -133,15 +133,15 @@ function applyFixedDeliveryOptions(provider){
       return options.map(option=>({
         ...option,
         name:deliveryLabel(option),
-        priceCents:SHIPPING_FIXED_PRICE_CENTS
+        priceCents:option.priceCents
       }));
     }
   };
 }
 export function createShippingProvider(env=process.env,fetchImpl=fetch){
   const provider=env.SHIPPING_PROVIDER||(env.SUPERFRETE_TOKEN?'superfrete':'correios');
-  if(provider==='superfrete')return applyFixedDeliveryOptions(createSuperfrete(env,fetchImpl));
-  if(provider==='correios')return applyFixedDeliveryOptions(createCorreios(env,fetchImpl));
+  if(provider==='superfrete')return applyDeliveryLabels(createSuperfrete(env,fetchImpl));
+  if(provider==='correios')return applyDeliveryLabels(createCorreios(env,fetchImpl));
   throw Error('SHIPPING_PROVIDER inválido.');
 }
 
