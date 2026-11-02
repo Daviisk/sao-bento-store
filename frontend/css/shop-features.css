@@ -147,7 +147,7 @@
 #veil .drawer .favorite-empty p{max-width:300px;margin:0;color:#77634f;font-size:14px}
 #veil .drawer .favorite-empty .primary{margin-top:12px;min-height:48px;min-width:175px}
 #veil .drawer .detailLayout{gap:20px}
-#veil .drawer .detailGallery,#veil .drawer .detailImg{border-radius:16px;overflow:hidden}
+#veil .drawer .detailGallery{border-radius:16px;overflow:visible}#veil .drawer .detailImg{border-radius:16px;overflow:hidden}
 #veil .drawer .detailImg{object-fit:contain;background:#f6eee2}
 #veil .drawer .price{font-size:clamp(23px,6vw,29px);font-weight:800;letter-spacing:-.02em;color:#46301b}
 #veil .drawer .engraving-uploads{border-radius:16px;border-color:#e3d2b9;background:#fffaf2}
