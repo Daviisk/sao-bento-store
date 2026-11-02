@@ -214,7 +214,7 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config,notify
   const shippingCents=selected.priceCents,totalCents=order.productsTotal+shippingCents;
   const key=req.get('idempotency-key');
   if(!/^[0-9a-f-]{36}$/i.test(key||''))fail(400,'invalid_key','Atualize a página e tente novamente.');
-  const paymentKey=hash('mercadopago-orders-pix:'+order.orderId).slice(0,8)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(8,12)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(12,16)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(16,20)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(20,32);const remote=await gateway.createPix({reference:order.orderId,totalCents,email,idempotencyKey:paymentKey});
+  const paymentKey=hash('mercadopago-orders-pix:'+order.orderId).slice(0,8)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(8,12)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(12,16)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(16,20)+'-'+hash('mercadopago-orders-pix:'+order.orderId).slice(20,32);const remote=await gateway.createPix({reference:order.orderId,totalCents,email,idempotencyKey:paymentKey,items:order.items,shippingCents,customer:order.customer,deviceId:req.get('x-meli-session-id')||''});
   await commerce.bindMercadoPagoOrder(order.orderId,req.shopSession.id,remote,totalCents,shippingCents,email.trim().toLowerCase());
   const reconciled=await commerce.reconcileMercadoPagoOrder(remote);if(reconciled.paymentConfirmed)await notifyPaidOrder(order.orderId);
   res.json({orderId:order.orderId,providerStatus:remote.status,pix:extractOrdersPix(remote)});
@@ -237,7 +237,7 @@ export function mountCommerce(app,{commerce,session,mutation,limit,config,notify
   const shippingCents=selected.priceCents,totalCents=order.productsTotal+shippingCents;
   const key=req.get('idempotency-key');
   if(!/^[0-9a-f-]{36}$/i.test(key||''))fail(400,'invalid_key','Chave de tentativa inválida.');
-  const remote=await createOrdersGateway({accessToken:config.accessToken}).createCard({reference:order.orderId,totalCents,email,cardToken:card.token,paymentMethodId:card.paymentMethodId,paymentMethodType:card.paymentMethodType||'credit_card',installments:card.installments,idempotencyKey:key});
+  const remote=await createOrdersGateway({accessToken:config.accessToken}).createCard({reference:order.orderId,totalCents,email,cardToken:card.token,paymentMethodId:card.paymentMethodId,paymentMethodType:card.paymentMethodType||'credit_card',installments:card.installments,idempotencyKey:key,items:order.items,shippingCents,customer:order.customer,deviceId:req.get('x-meli-session-id')||''});
   await commerce.bindMercadoPagoOrder(order.orderId,req.shopSession.id,remote,totalCents,shippingCents,email.trim().toLowerCase());
    const reconciled=await commerce.reconcileMercadoPagoOrder(remote);if(reconciled.paymentConfirmed)await notifyPaidOrder(order.orderId);
   await commerce.reconcileMercadoPagoOrder(remote);

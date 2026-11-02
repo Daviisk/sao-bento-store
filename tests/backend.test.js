@@ -7,7 +7,7 @@ import {join,resolve} from 'node:path';
 import request from 'supertest';
 import {createApp} from '../backend/app.js';
 import {openStore} from '../backend/store.js';
-import {createGateway} from '../backend/services/mercadopago.js';
+import {createGateway,cardPaymentSnapshot} from '../backend/services/mercadopago.js';
 import {canonicalCart,calculate,cents,money} from '../backend/validation.js';
 import {readConfig} from '../backend/config.js';
 
@@ -83,3 +83,48 @@ test('privacy logout requires CSRF, invalidates old cookie and retains orders',a
  assert.ok(await f.store.get(prepared.body.orderId));
 });
 
+
+test('Payments API sends payer identity, item details, invoice descriptor and Device ID',async()=>{
+ const order={orderId:randomUUID(),items:[{productId:'produto_01',name:'Dobrão de bronze',quantity:2,unitPrice:11990,subtotal:23980}],shipping:{name:'PAC',priceCents:1191},total:25171,customer:{name:'Davi Velasco',phone:'62981368771',email:customer.email}};
+ const calls=[];
+ const gateway=createGateway({accessToken:'test-only-token',sellerId:'123',applicationId:'456',baseURL:'https://loja.example',mode:'test',fetchImpl:async(url,options)=>{calls.push({url,options});return {ok:true,text:async()=>JSON.stringify({id:12345678901,external_reference:order.orderId,transaction_amount:251.71,currency_id:'BRL',collector_id:123,application_id:456,live_mode:false,status:'approved',status_detail:'accredited',date_created:new Date().toISOString()})};}});
+ await gateway.createCardPayment(order,{...card},randomUUID(),'device-session-123');
+ const body=JSON.parse(calls[0].options.body);
+ assert.equal(calls[0].options.headers['X-meli-session-id'],'device-session-123');
+ assert.equal(body.statement_descriptor,'SAOBENTO DOB');
+ assert.equal(body.payer.first_name,'Davi');
+ assert.equal(body.payer.last_name,'Velasco');
+ assert.deepEqual(body.payer.phone,{area_code:'62',number:'981368771'});
+ assert.equal(body.additional_info.items[0].external_code,'produto_01');
+ assert.equal(body.additional_info.items[0].quantity,2);
+ assert.equal(body.additional_info.items[0].unit_price,119.9);
+ assert.equal(body.additional_info.items[1].external_code,'shipping');
+ assert.equal(body.additional_info.items[1].unit_price,11.91);
+});
+
+test('Pix Payments API sends payer name, phone, item details and Device ID',async()=>{
+ const order={orderId:randomUUID(),items:[{productId:'produto_02',name:'Dobrão de inox',quantity:1,unitPrice:11990,subtotal:11990}],total:11990,customer:{name:'Maria da Silva',phone:'62999998888',email:customer.email}};
+ const calls=[];
+ const gateway=createGateway({accessToken:'test-only-token',sellerId:'123',applicationId:'456',baseURL:'https://loja.example',mode:'test',fetchImpl:async(url,options)=>{calls.push({url,options});return {ok:true,text:async()=>JSON.stringify({id:12345678901,external_reference:order.orderId,transaction_amount:119.9,currency_id:'BRL',collector_id:123,application_id:456,live_mode:false,status:'approved',status_detail:'accredited',payment_method_id:'pix',date_created:new Date().toISOString()})};}});
+ await gateway.createPixPayment(order,{identificationType:'CPF',identificationNumber:'12345678909'},randomUUID(),'device-pix-123');
+ const body=JSON.parse(calls[0].options.body);
+ assert.equal(calls[0].options.headers['X-meli-session-id'],'device-pix-123');
+ assert.equal(body.payer.first_name,'Maria');
+ assert.equal(body.payer.last_name,'da Silva');
+ assert.deepEqual(body.payer.phone,{area_code:'62',number:'999998888'});
+ assert.equal(body.additional_info.items[0].external_code,'produto_02');
+});
+
+test('Device ID rejects header injection',async()=>{
+ const order={orderId:randomUUID(),items:[{name:'Test item',quantity:1,unitPrice:15000}],total:15000,customer:{name:'Cliente Teste',phone:'11999999999',email:customer.email}};
+ const gateway=createGateway({accessToken:'test-only-token',sellerId:'123',applicationId:'456',baseURL:'https://loja.example',mode:'test',fetchImpl:async()=>{throw Error('must not call provider');}});
+ await assert.rejects(gateway.createCardPayment(order,card,randomUUID(),'bad\r\nheader'),{code:'invalid_device_id'});
+});
+
+test('rejected Mercado Pago payments remain failed and are never marked as paid',()=>{
+ const order={orderId:randomUUID(),total:15000};
+ const gateway={verifyPaymentIdentity(remote,local){assert.equal(remote.external_reference,local.orderId);}};
+ const snapshot=cardPaymentSnapshot({id:'12345678901',external_reference:order.orderId,transaction_amount:150,status:'rejected',status_detail:'cc_rejected_bad_filled_card'},order,gateway);
+ assert.equal(snapshot.status,'failed');
+ assert.equal(snapshot.detail,'cc_rejected_bad_filled_card');
+});

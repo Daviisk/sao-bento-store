@@ -1,6 +1,9 @@
 import {cents,money,fail} from '../validation.js';
 
-const chargeLines=order=>order.shipping?.priceCents?[...order.items,{name:'Frete — '+order.shipping.name,quantity:1,unitPrice:order.shipping.priceCents,subtotal:order.shipping.priceCents}]:order.items;
+const chargeLines=order=>order.shipping?.priceCents?[...order.items,{productId:'shipping',name:'Frete — '+order.shipping.name,quantity:1,unitPrice:order.shipping.priceCents,subtotal:order.shipping.priceCents}]:order.items;
+const payerName=order=>{const parts=String(order.customer?.name||'Cliente').trim().split(/\s+/);return {first_name:parts.shift()||'Cliente',last_name:parts.join(' ')||'Cliente'};};
+const payerPhone=order=>{let digits=String(order.customer?.phone||'').replace(/\D/g,'');if(digits.length>11&&digits.startsWith('55'))digits=digits.slice(2);return digits.length>=10&&digits.length<=11?{area_code:digits.slice(0,2),number:digits.slice(2)}:undefined;};
+const deviceHeader=value=>{const id=String(value||'').trim();if(!id)return {};if(id.length>256||/[\r\n]/.test(id))fail(400,'invalid_device_id','Identificador do dispositivo inválido.');return {'X-meli-session-id':id};};
 
 function safeChallenge(remote){
   if(remote?.status!=='pending'||remote?.status_detail!=='pending_challenge')return null;
@@ -66,39 +69,40 @@ export function createGateway({accessToken,sellerId,applicationId,baseURL,mode='
     if(remote.live_mode!==undefined&&remote.live_mode!==(mode==='production'))fail(409,'mode_mismatch','Modo de pagamento incompatível.');
   }
 
-  async function createCardPayment(order,card,idempotencyKey){
-    const lines=chargeLines(order);
+  async function createCardPayment(order,card,idempotencyKey,deviceId){
+    const lines=chargeLines(order),name=payerName(order),phone=payerPhone(order);
     const body={
       transaction_amount:Number(money(order.total)),
       token:card.token,
       description:'Dobrões de Fé',
       installments:card.installments,
       payment_method_id:card.paymentMethodId,
-      payer:{email:card.email,identification:{type:card.identificationType,number:card.identificationNumber}},
+      payer:{email:card.email,...name,...(phone?{phone}:{}),identification:{type:card.identificationType,number:card.identificationNumber}},
       external_reference:order.orderId,
+      statement_descriptor:'SAOBENTO DOB',
       three_d_secure_mode:'optional',
       capture:true,
       binary_mode:false,
-      additional_info:{items:lines.map((item,index)=>({id:String(index+1),title:item.name,description:item.name,category_id:'others',quantity:item.quantity,unit_price:Number(money(item.unitPrice))}))}
+      additional_info:{items:lines.map((item,index)=>({id:String(index+1),external_code:String(item.productId||'item').slice(0,64),title:item.name,description:item.name,category_id:'others',quantity:item.quantity,unit_price:Number(money(item.unitPrice))}))}
     };
     if(card.issuerId)body.issuer_id=card.issuerId;
-    const data=await request('/v1/payments',{method:'POST',headers:{'X-Idempotency-Key':idempotencyKey},body:JSON.stringify(body)});
+    const data=await request('/v1/payments',{method:'POST',headers:{'X-Idempotency-Key':idempotencyKey,...deviceHeader(deviceId)},body:JSON.stringify(body)});
     verifyPaymentIdentity(data,order);
     return data;
   }
 
-  async function createPixPayment(order,payer,idempotencyKey){
-    const lines=chargeLines(order),parts=String(order.customer?.name||'Cliente').trim().split(/\s+/),firstName=parts.shift()||'Cliente',lastName=parts.join(' ')||'Cliente';
+  async function createPixPayment(order,payer,idempotencyKey,deviceId){
+    const lines=chargeLines(order),name=payerName(order),phone=payerPhone(order);
     const body={
       transaction_amount:Number(money(order.total)),
       description:'Dobrões de Fé',
       payment_method_id:'pix',
-      payer:{email:String(order.customer?.email||'').toLowerCase(),first_name:firstName,last_name:lastName,identification:{type:payer.identificationType,number:payer.identificationNumber}},
+      payer:{email:String(order.customer?.email||'').toLowerCase(),...name,...(phone?{phone}:{}),identification:{type:payer.identificationType,number:payer.identificationNumber}},
       external_reference:order.orderId,
       date_of_expiration:new Date(Date.now()+30*60*1000).toISOString(),
-      additional_info:{items:lines.map((item,index)=>({id:String(index+1),title:item.name,description:item.name,category_id:'others',quantity:item.quantity,unit_price:Number(money(item.unitPrice))}))}
+      additional_info:{items:lines.map((item,index)=>({id:String(index+1),external_code:String(item.productId||'item').slice(0,64),title:item.name,description:item.name,category_id:'others',quantity:item.quantity,unit_price:Number(money(item.unitPrice))}))}
     };
-    const data=await request('/v1/payments',{method:'POST',headers:{'X-Idempotency-Key':idempotencyKey},body:JSON.stringify(body)});
+    const data=await request('/v1/payments',{method:'POST',headers:{'X-Idempotency-Key':idempotencyKey,...deviceHeader(deviceId)},body:JSON.stringify(body)});
     verifyPaymentIdentity(data,order);
     if(String(data.payment_method_id||'').toLowerCase()!=='pix')fail(409,'provider_method_mismatch','O meio de pagamento retornado não corresponde ao Pix.');
     return data;
@@ -106,8 +110,8 @@ export function createGateway({accessToken,sellerId,applicationId,baseURL,mode='
 
   return {
     configured,cardConfigured,pixConfigured,
-    async createCardPayment(order,card,idempotencyKey){return createCardPayment(order,card,idempotencyKey);},
-    async createPixPayment(order,payer,idempotencyKey){return createPixPayment(order,payer,idempotencyKey);},
+    async createCardPayment(order,card,idempotencyKey,deviceId){return createCardPayment(order,card,idempotencyKey,deviceId);},
+    async createPixPayment(order,payer,idempotencyKey,deviceId){return createPixPayment(order,payer,idempotencyKey,deviceId);},
     async getPayment(id){if(!/^\d{6,32}$/.test(String(id||'')))fail(400,'invalid_provider_id','Identificador de pagamento inválido.');return request('/v1/payments/'+encodeURIComponent(String(id)));},
     async cancelPayment(id){if(!/^\d{6,32}$/.test(String(id||'')))fail(400,'invalid_provider_id','Identificador de pagamento inválido.');return request('/v1/payments/'+encodeURIComponent(String(id)),{method:'PUT',body:JSON.stringify({status:'cancelled'})});},
     verifyCardPaymentIdentity:verifyPaymentIdentity,

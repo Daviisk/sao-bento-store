@@ -13,7 +13,7 @@ for(const file of [join(root,'index.html'),...htmlFiles(join(root,'frontend'))])
 }
 const policy=[
  "default-src 'self'",
- "script-src 'self' https://sdk.mercadopago.com https://*.mlstatic.com "+[...hashes].sort().join(' '),
+ "script-src 'self' https://sdk.mercadopago.com https://www.mercadopago.com https://*.mlstatic.com "+[...hashes].sort().join(' '),
  "script-src-attr 'none'",
  // Existing inline layout styles and provider-generated styles require this.
  "style-src 'self' 'unsafe-inline'",
