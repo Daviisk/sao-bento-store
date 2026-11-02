@@ -22,8 +22,8 @@ export const deliveryHash=(cartHash,address,quote)=>createHash('sha256').update(
 const SHIPPING_FIXED_PRICE_CENTS=1;
 function deliveryLabel(option){
   const value=(String(option.name||'')+' '+String(option.serviceCode||'')).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
-  if(/\bPAC\b/.test(value)||/\b03298\b/.test(value))return 'Entrega Normal';
-  if(/\bSEDEX\b/.test(value)||/\b03220\b/.test(value))return 'Entrega Rápido';
+  if(/\bPAC\b/.test(value)||/\b03298\b/.test(value))return 'Correios · Entrega Normal';
+  if(/\bSEDEX\b/.test(value)||/\b03220\b/.test(value))return 'Correios · Entrega Rápida';
   return option.name;
 }
 export function createShipping(store,provider){
@@ -36,7 +36,11 @@ export function createShipping(store,provider){
       if(!Array.isArray(options)||!options.length)fail(503,'shipping_unavailable','Não há serviço disponível para este CEP.');
       await store.removeExpiredShippingQuotes(Date.now());
       const result=[];
-      for(const option of options){
+      const orderedOptions=[...options].sort((a,b)=>{
+        const rank=name=>/Entrega Rápida/.test(name)?0:/Entrega Normal/.test(name)?1:2;
+        return rank(deliveryLabel(a))-rank(deliveryLabel(b));
+      });
+      for(const option of orderedOptions){
         if(!Number.isSafeInteger(option.priceCents)||option.priceCents<=0||option.priceCents>10000000||!Number.isSafeInteger(option.days)||option.days<1||option.days>365||!(/^[A-Za-z0-9_-]{1,40}$/).test(option.serviceCode)||typeof option.name!=='string')fail(502,'shipping_invalid','Não foi possível confirmar o frete.');
         const q={quoteId:randomUUID(),cartHash:cart.hash,cep,...option,name:deliveryLabel(option),priceCents:SHIPPING_FIXED_PRICE_CENTS,expiresAt:Date.now()+10*60000};
         await store.saveShippingQuote({quoteId:q.quoteId,owner,document:q,expiresAt:q.expiresAt});
