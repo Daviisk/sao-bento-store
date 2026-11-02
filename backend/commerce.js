@@ -56,12 +56,12 @@ export function createCommerce({store,config}){
   for(const p of products){
    if(!Array.isArray(p.variants)){p.variants=[];catalogChanged=true;}
    if(p.productId==='produto_01'){
-    if(p.name==='Dobrão Dourado')p.name='Dobrão de Bronze';
-    if(p.material!=='Bronze'){p.material='Bronze';catalogChanged=true;}
+    if(p.name==='Dobrão Dourado'){p.name='Dobrão de Bronze';catalogChanged=true;}
+    if(!p.material||p.material==='Dourado'){p.material='Bronze';catalogChanged=true;}
    }
    if(p.productId==='produto_02'){
-    if(p.name==='Dobrão Prateado')p.name='Dobrão de Inox';
-    if(p.material!=='Aço inoxidável'){p.material='Aço inoxidável';catalogChanged=true;}
+    if(p.name==='Dobrão Prateado'){p.name='Dobrão de Inox';catalogChanged=true;}
+    if(!p.material||p.material==='Prateado'){p.material='Aço inoxidável';catalogChanged=true;}
    }
    if(!p.category){p.category=p.productId==='produto_01'||p.productId==='produto_02'?'Dobrões':categories.includes('Bolsas')?'Bolsas':categories[0];catalogChanged=true;}
    if(!Object.hasOwn(p,'material')){p.material=p.productId==='produto_01'?'Bronze':p.productId==='produto_02'?'Aço inoxidável':/bolsa/i.test(p.name)?'Couro':'';catalogChanged=true;}
