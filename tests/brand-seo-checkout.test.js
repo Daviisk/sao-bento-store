@@ -63,7 +63,7 @@ test('sitemap only advertises public indexable pages',()=>{
 test('catalog cards show Buy now as the only purchase action',()=>{
   const features=readFileSync('frontend/js/shop-features.js','utf8');
   assert.ok(features.includes('class="primary catalog-buy-now"'));
-  assert.match(features,/data-commerce-buy="\'+esc\(p\.productId\)\+'"/);
+  assert.ok(features.includes("data-commerce-buy=\"'+esc(p.productId)+'\""));
   assert.ok(!features.includes('Personalizar e ver produto →'));
   assert.ok(!features.includes('class="catalog-buy-now" data-commerce-buy='));
 });
