@@ -30,7 +30,7 @@ test('bags skip all engraving steps and expose only quantity before adding to ca
  const {d}=await page(t);d.querySelector('[data-commerce-detail="produto_03"]').click();await tick();
  const form=d.querySelector('#custom-product');assert(form);assert.equal(form.querySelector('.product-steps'),null);assert.equal(form.querySelector('.engraving-uploads'),null);
  assert.equal(form.elements.variant,undefined);assert.equal(form.querySelector('[data-personal-step="3"]').hidden,false);
- form.elements.quantity.value='2';form.dispatchEvent(new d.defaultView.Event('submit',{cancelable:true}));await tick();
+ form.elements.quantity.value='2';form.dispatchEvent(new d.defaultView.Event('submit',{cancelable:true}));await tick();d.querySelector('[data-added-checkout]').click();await tick();
  assert.match(d.querySelector('#custom-cart-lines').textContent,/Bolsa de Couro/);
  assert.match(d.querySelector('#custom-cart-lines').textContent,/2/);
 });
