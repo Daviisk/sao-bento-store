@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {randomUUID} from 'node:crypto';
+import {randomUUID,createHmac} from 'node:crypto';
+import {WebhookSignatureValidator} from 'mercadopago';
 import {createOrdersGateway} from '../backend/services/mercadopago-orders.js';
 
 const customer={name:'Davi Velasco',phone:'62981368771'};
@@ -47,4 +48,17 @@ test('Orders card includes statement descriptor and rejects item totals that do 
 test('Orders gateway rejects an unsafe Device ID header',async()=>{
  const gateway=createOrdersGateway({accessToken:'test-token'});
  await assert.rejects(gateway.createPix({reference:randomUUID(),totalCents:25171,email:'buyer@example.com',idempotencyKey:randomUUID(),items,shippingCents:1191,customer,deviceId:'bad\r\nheader'}),{code:'invalid_device_id'});
+});
+
+
+test('Orders webhook signature manifest lowercases the alphanumeric Order ID',()=>{
+ const orderId='ORD01M6EGV0N9WS0H16CQ9EP4JD60';
+ const requestId='orders-request-123456';
+ const timestamp=String(Math.floor(Date.now()/1000));
+ const secret='test-webhook-secret';
+ const manifest=`id:${orderId.toLowerCase()};request-id:${requestId};ts:${timestamp};`;
+ const digest=createHmac('sha256',secret).update(manifest).digest('hex');
+ const xSignature=`ts=${timestamp},v1=${digest}`;
+ assert.throws(()=>WebhookSignatureValidator.validate({xSignature,xRequestId:requestId,dataId:orderId,secret}),{name:'InvalidWebhookSignatureError'});
+ assert.doesNotThrow(()=>WebhookSignatureValidator.validate({xSignature,xRequestId:requestId,dataId:orderId.toLowerCase(),secret}));
 });
