@@ -46,8 +46,8 @@ function setupProductGallery(){
  prev?.addEventListener('click',()=>move(-1));next?.addEventListener('click',()=>move(1));
  let start=null;const stage=root.querySelector('.zoom-trigger');
  stage?.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse')return;start={x:e.clientX,y:e.clientY};},{passive:true});
- stage?.addEventListener('pointerup',e=>{if(!start)return;const dx=e.clientX-start.x,dy=e.clientY-start.y;start=null;if(Math.abs(dx)>42&&Math.abs(dx)>Math.abs(dy)*1.25){skipZoom=true;move(dx<0?1:-1);setTimeout(()=>{skipZoom=false;},450);}},{passive:true});
- stage?.addEventListener('click',()=>{if(skipZoom){stage.dataset.skipZoom='1';skipZoom=false;}},true);
+ stage?.addEventListener('pointerup',e=>{if(!start)return;const dx=e.clientX-start.x,dy=e.clientY-start.y;start=null;if(Math.abs(dx)>42&&Math.abs(dx)>Math.abs(dy)*1.25){skipZoom=true;stage.dataset.skipZoom='1';move(dx<0?1:-1);setTimeout(()=>{skipZoom=false;delete stage.dataset.skipZoom;},450);}},{passive:true});
+ 
  warm(1);warm(2);
 }
 function updateEngravingMode(f,index=''){const selected=f?.elements['variant'+index]?.value,off=selected==='none'||!['gravado','lapidado'].includes(selected),mode=f?.elements['engravingMode'+index];if(mode)mode.value=off?'none':'with';const fieldset=f?.querySelector('.engraving-uploads[data-engraving-index="'+index+'"]');if(!fieldset)return;fieldset.hidden=off;fieldset.querySelectorAll('input[type=file],textarea').forEach(el=>{el.disabled=off;});}
