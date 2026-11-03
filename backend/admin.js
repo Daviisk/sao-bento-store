@@ -75,6 +75,7 @@ export function mountAdmin(app,{config,store,limit,commerce}){
     app.get('/api/admin/catalog',requireAdmin,async(req,res)=>res.json({products:await commerce.catalog(),categories:await commerce.categories()}));
     app.get('/api/admin/gallery',requireAdmin,async(req,res)=>res.json({items:await commerce.clientGallery()}));
     app.post('/api/admin/gallery',requireAdmin,adminMutation,async(req,res)=>res.status(201).json(await commerce.addClientPhoto(req.body)));
+    app.post('/api/admin/gallery/bulk',requireAdmin,adminMutation,async(req,res)=>res.status(201).json(await commerce.addClientPhotos(req.body)));
     app.delete('/api/admin/gallery/:id',requireAdmin,adminMutation,async(req,res)=>res.json({items:await commerce.deleteClientPhoto(req.params.id)}));
     app.patch('/api/admin/gallery/order',requireAdmin,adminMutation,async(req,res)=>res.json({items:await commerce.reorderClientGallery(req.body?.ids)}));
     app.get('/api/admin/categories',requireAdmin,async(req,res)=>res.json({categories:await commerce.categories()}));
