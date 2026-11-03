@@ -821,3 +821,19 @@
   color:#155b32!important;
   font-weight:700!important;
 }
+
+/* Galeria de produto: carregamento progressivo, navegação e transição */
+#veil .drawer .detail-main-photo{position:relative;isolation:isolate;overflow:hidden;border-radius:16px;background:linear-gradient(110deg,#eee5d5 8%,#f8f3ea 18%,#eee5d5 33%);background-size:200% 100%}
+#veil .drawer .detail-main-photo .zoom-trigger{touch-action:pan-y;}
+#veil .drawer .detailGallery .detailImg{opacity:1;transition:opacity .18s ease,filter .18s ease;}
+#veil .drawer .detailGallery .detailImg.is-loading{filter:blur(5px);opacity:.72}
+#veil .drawer .detailGallery .detailImg.is-changing{opacity:.45}
+#veil .drawer .detail-main-photo .gallery-arrow{position:absolute;z-index:3;top:50%;transform:translateY(-50%);width:42px;height:42px;border:1px solid #ddcfb9;border-radius:50%;background:rgba(255,250,241,.94);color:#65472e;font-size:27px;line-height:1;box-shadow:0 3px 12px rgba(56,41,29,.12)}
+#veil .drawer .detail-main-photo .gallery-prev{left:10px}
+#veil .drawer .detail-main-photo .gallery-next{right:10px}
+#veil .drawer .detailGallery .photoThumbnails{scrollbar-width:thin;scroll-behavior:smooth;overscroll-behavior-x:contain;}
+#veil .drawer .detailGallery .photoThumbnails button{flex:0 0 70px;min-width:70px;min-height:70px;overflow:hidden;border:1px solid transparent;border-radius:10px;transition:border-color .16s ease,opacity .16s ease;}
+#veil .drawer .detailGallery .photoThumbnails button[aria-pressed=true]{border:2px solid #a77b3e;opacity:1}
+#veil .drawer .detailGallery .photoThumbnails img{display:block;width:100%;height:100%;object-fit:cover}
+@media(max-width:480px){#veil .drawer .detail-main-photo .gallery-arrow{width:38px;height:38px;font-size:24px}#veil .drawer .detailGallery .photoThumbnails button{flex-basis:62px;min-width:62px;min-height:62px}}
+@media(prefers-reduced-motion:reduce){#veil .drawer .detailGallery .detailImg,#veil .drawer .detailGallery .photoThumbnails button{transition:none!important}#veil .drawer .detailGallery .photoThumbnails{scroll-behavior:auto}}
